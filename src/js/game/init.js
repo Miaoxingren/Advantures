@@ -44,18 +44,15 @@ function init() {
 
         var onError = function(xhr) {};
 
-        var mtlLoader = new THREE.MTLLoader();
-        mtlLoader.setPath('/asset/Merchant_cat_obj/');
-        mtlLoader.load('1.mtl', function(materials) {
-            materials.preload();
-
-            var objLoader = new THREE.OBJLoader();
-            objLoader.setMaterials(materials);
-            objLoader.setPath('/asset/Merchant_cat_obj/');
-            objLoader.load('1.obj', function(gemotry) {
-                gemotry.position.y = -15;
-                scene.add(gemotry);
-            }, onProgress, onError);
+        var jsonLoader = new THREE.JSONLoader();
+        jsonLoader.load('asset/Merchant_cat_obj/1.json', function(geometry, materials) {
+            var material = materials[0];
+            var faceMaterial = new THREE.MultiMaterial(materials);
+            var mesh = new THREE.Mesh(geometry, faceMaterial);
+            mesh.position.y = -15;
+            mesh.matrixAutoUpdate = false;
+            mesh.updateMatrix();
+            scene.add(mesh);
         });
 
         var renderer = new THREE.WebGLRenderer();
