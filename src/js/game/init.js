@@ -11,15 +11,13 @@ function init() {
     var Lynx = {};
 
     var clock = new THREE.Clock();
-    var mixer;
     var mousePos;
-    var player;
 
     var stats = initStats();
     var renderer = initRenderer();
     var scene = initScene();
     var camera = initCamera();
-    // var controls = initControl();
+    var controls = initControl();
     var lights = initLight(scene);
     initBorder(scene);
     var box = initBox(scene);
@@ -187,7 +185,7 @@ function init() {
         scene.add(border);
     }
 
-    function initPlayer(scene, player, mixer) {
+    function initPlayer(scene) {
         var onProgress = function(xhr) {
             if (xhr.lengthComputable) {
                 var percentComplete = xhr.loaded / xhr.total * 100;
@@ -201,38 +199,52 @@ function init() {
 
         var jsonLoader = getJSONLoader();
         jsonLoader.setTexturePath('/asset/model/');
-        jsonLoader.load('asset/model/cat_food_yellow.json', function(geometry, materials) {
-            // geometry.computeBoundingBox();
-            // var bound = geometry.boundingBox;
-            // var h = bound.max.y - bound.min.y;
-            // var w = bound.max.x - bound.min.x;
-            // var d = bound.max.z - bound.min.z;
-            // geometry.computeVertexNormals();
+        jsonLoader.load('asset/model/SpongeBob.json', function(geometry, materials) {
+            geometry.computeBoundingBox();
+            var bound = geometry.boundingBox;
+            var h = bound.max.y - bound.min.y;
+            var w = bound.max.x - bound.min.x;
+            var d = bound.max.z - bound.min.z;
+            console.log(w + ' ' + h + ' ' + d);
+            geometry.computeVertexNormals();
             // geometry.computeMorphNormals();
 
-            // for ( var i = 0; i < materials.length; i ++ ) {
-            //     var material = materials[ i ];
-            //     material.morphTargets = true;
-            //     material.morphNormals = true;
-            //     material.vertexColors = THREE.FaceColors;
-            // }
-            // var material = new THREE.MeshLambertMaterial({
-            //     vertexColors: THREE.FaceColors,
-            //     morphTargets: true
-            // });
-            player = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
-            // player = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
-            // player.scale.set(1.5, 1.5, 1.5);
+            for ( var i = 0; i < materials.length; i ++ ) {
+                var material = materials[ i ];
+                // material.morphTargets = true;
+                // material.morphNormals = true;
+                material.vertexColors = THREE.FaceColors;
+            }
+            var material = new THREE.MeshLambertMaterial({
+                vertexColors: THREE.FaceColors,
+                morphTargets: true
+            });
+            // var player = new Physijs.BoxMesh(geometry, Physijs.createMaterial(new THREE.MultiMaterial(materials)));
+            // player.scale.set(50, 50, 50);
+            // player.rotation.set(0,Math.PI / 2, 0);
             // player.castShadow = true;
-            debugger;
-            console.log(player);
-            scene.add(player);
+
+            var threeObject = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
+            var physGeom = new THREE.BoxGeometry(w, h, d);
+            var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
+            physMaterial.visible = false;
+            var physObject = new Physijs.BoxMesh(physGeom, physMaterial, 5);
+
+            //parents the complex graphics model to the simple collision geometry
+            physObject.add(threeObject);
+
+            //apply any offset transform between the graphics model and physics object
+            threeObject.position.y = -h/2;
+
+            //add the phys/three hierarchy to the scene
+            scene.add(physObject);
+            // scene.add(player);
 
             // Lynx.Mixer = new THREE.AnimationMixer(player);
             //
             // var clip = THREE.AnimationClip.CreateFromMorphTargetSequence('gallop', geometry.morphTargets, 30);
             // Lynx.Mixer.clipAction(clip).setDuration(1).play();
-        });
+        }, onProgress, onError);
     }
 
     function initBox(scene) {
@@ -292,7 +304,6 @@ function init() {
     function render() {
         // var delta = clock.getDelta();
         // controls.update(delta);
-
         stats.update();
 
         if (Lynx.Mixer) {
