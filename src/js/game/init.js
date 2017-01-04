@@ -81,7 +81,7 @@ function init() {
     }
 
     function initCamera() {
-        var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
+        var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera.position.x = -defaults.size / 2 + 150;
         camera.position.y = 50;
         camera.position.z = defaults.size / 2 - 100;
@@ -90,7 +90,7 @@ function init() {
     }
 
     function initControl() {
-        console.log(scene);
+        // console.log(scene);
         var material = Physijs.createMaterial(new THREE.MeshBasicMaterial({
             color: 0x333333
         }), 0.8, 0.4);
@@ -101,14 +101,9 @@ function init() {
         box.position.set(-defaults.size / 2 + 150, 50, defaults.size / 2 - 100);
         box.name = 'playerbox';
         scene.add(box);
-        var controls = new THREE.ThirdPersonControls(camera, box);
-        controls.movementSpeed = 500;
-        controls.lookSpeed = 0.1;
-        controls.helper = box.position.clone();
-        controls.collisionObject = getMesh(scene);
-        controls.collisionObject.forEach(function(obj) {
-            console.log(obj.name);
-        });
+        var controls = new THREE.PlayerControls(camera, box);
+        controls.movementSpeed = 3000;
+        // controls.lookSpeed = 0.1;
         controls.cameraWidth = 160;
         return controls;
     }
@@ -397,11 +392,11 @@ function init() {
     var radius = 600;
     var theta = 0;
     var prevTime = Date.now();
-
     function render() {
         var delta = clock.getDelta();
         controls.update(delta);
         scene.simulate(undefined, 1);
+
         stats.update();
 
         if (Lynx.Mixer) {

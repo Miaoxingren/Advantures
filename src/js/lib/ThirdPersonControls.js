@@ -1,23 +1,25 @@
-THREE.ThirdPersonControls = function(camera, target, domElement) {
+THREE.PlayerControls = function(camera, player, domElement) {
 
     this.camera = camera;
-    this.target = target;
-    this.helper = new THREE.Vector3(0, 0, 0);
-
+    this.player = player;
     this.domElement = (domElement !== undefined) ? domElement : document;
 
-    this.enabled = true;
-    this.activeCollision = true;
+    this.lookAtPoint = new THREE.Vector3(0, 0, 0);
+    this.xAxes = new THREE.Vector3(1, 0, 0);
+    this.yAxes = new THREE.Vector3(0, 1, 0);
+    this.zAxes = new THREE.Vector3(0, 0, 1);
 
-    this.movementSpeed = 1.0;
-    this.lookSpeed = 0.002;
+    this.enabled = true;
+
+    this.movementSpeed = 1000;
+    this.lookSpeed = 0.005;
 
     this.lookVertical = true;
     this.autoForward = false;
 
     this.activeLook = true;
 
-    this.heightSpeed = false;
+    this.heightSpeed = true;
     this.heightCoef = 1.0;
     this.heightMin = 0.0;
     this.heightMax = 1.0;
@@ -40,13 +42,21 @@ THREE.ThirdPersonControls = function(camera, target, domElement) {
     this.moveBackward = false;
     this.moveLeft = false;
     this.moveRight = false;
+    this.moveUp = false;
+    this.moveDown = false;
 
     this.mouseDragOn = false;
 
     this.viewHalfX = 0;
     this.viewHalfY = 0;
-    this.lower = 0;
-    this.upper = 0;
+    this.ViewLower = {
+        x: 0,
+        y: 0
+    };
+    this.ViewUpper = {
+        x: 0,
+        y: 0
+    };
 
     if (this.domElement !== document) {
 
@@ -54,23 +64,24 @@ THREE.ThirdPersonControls = function(camera, target, domElement) {
 
     }
 
-    //
-
     this.handleResize = function() {
 
         if (this.domElement === document) {
 
             this.viewHalfX = window.innerWidth / 2;
             this.viewHalfY = window.innerHeight / 2;
-            this.lower = this.viewHalfX * 0.5;
-            this.upper = this.viewHalfX * 1.5;
+
         } else {
 
             this.viewHalfX = this.domElement.offsetWidth / 2;
             this.viewHalfY = this.domElement.offsetHeight / 2;
-            this.lower = this.viewHalfX * 0.5;
-            this.upper = this.viewHalfX * 1.5;
+
         }
+
+        this.ViewLower.x = this.viewHalfX * 0.75;
+        this.ViewUpper.x = this.viewHalfX * 1.25;
+        this.ViewLower.y = this.viewHalfY * 0.75;
+        this.ViewUpper.y = this.viewHalfY * 1.25;
 
     };
 
@@ -92,6 +103,7 @@ THREE.ThirdPersonControls = function(camera, target, domElement) {
                 case 0:
                     this.moveForward = true;
                     break;
+
                 case 2:
                     this.moveBackward = true;
                     break;
@@ -116,6 +128,7 @@ THREE.ThirdPersonControls = function(camera, target, domElement) {
                 case 0:
                     this.moveForward = false;
                     break;
+
                 case 2:
                     this.moveBackward = false;
                     break;
@@ -129,19 +142,25 @@ THREE.ThirdPersonControls = function(camera, target, domElement) {
     };
 
     this.onMouseMove = function(event) {
+
         this.mouseX = 0;
         this.mouseY = 0;
 
+        var mousePosX = this.domElement === document ? event.pageX : event.pageX - this.domElement.offsetLeft;
+        var mousePosY = this.domElement === document ? event.pageY : event.pageY - this.domElement.offsetTop;
+
+        if (mousePosX >= this.ViewLower.x && mousePosX <= this.ViewUpper.x && mousePosY >= this.ViewLower.y && mousePosY <= this.ViewUpper.y) return;
+
         if (this.domElement === document) {
-            if (event.pageX < this.lower || event.pageX > this.upper) {
-                this.mouseX = event.pageX - this.viewHalfX;
-                this.mouseY = event.pageY - this.viewHalfY;
-            }
+
+            this.mouseX = mousePosX - this.viewHalfX;
+            this.mouseY = mousePosY - this.viewHalfY;
+
         } else {
-            if (event.pageX - this.domElement.offsetLeft < this.lower || event.pageX - this.domElement.offsetLeft > this.upper) {
-                this.mouseX = event.pageX - this.domElement.offsetLeft - this.viewHalfX;
-                this.mouseY = event.pageY - this.domElement.offsetTop - this.viewHalfY;
-            }
+
+            this.mouseX = mousePosX - this.viewHalfX;
+            this.mouseY = mousePosY - this.viewHalfY;
+
         }
 
     };
@@ -239,14 +258,12 @@ THREE.ThirdPersonControls = function(camera, target, domElement) {
     };
 
     this.update = function(delta) {
-        this.target.__dirtyPosition = false;
+
         if (this.enabled === false) return;
 
         if (this.heightSpeed) {
 
-            var y = THREE.Math.clamp(this.camera.position.y, this.heightMin, this.heightMax);
-            var heightDelta = y - this.heightMin;
-
+            var heightDelta = THREE.Math.clamp(this.camera.position.y, this.heightMin, this.heightMax) - this.heightMin;
             this.autoSpeedFactor = delta * (heightDelta * this.heightCoef);
 
         } else {
@@ -258,108 +275,45 @@ THREE.ThirdPersonControls = function(camera, target, domElement) {
         var actualMoveSpeed = delta * this.movementSpeed;
 
         if (this.autoForward && !this.moveBackward) {
+
             this.moveForward = true;
             actualMoveSpeed += this.autoSpeedFactor;
+
         }
 
-        var origin, direction, raycaster, intersections, distance, temp, vec;
+        var velocity = this.player.getLinearVelocity();
 
-        if (this.moveForward) {
-            if (this.activeCollision) {
-                origin = this.camera.position;
-                direction = this.helper.clone().sub(this.camera.position).normalize();
-                raycaster = new THREE.Raycaster(origin, direction);
-                intersections = raycaster.intersectObjects(this.collisionObject);
+        if (this.moveForward || this.moveBackward || this.moveLeft || this.moveRight) {
 
-                if (intersections.length > 0) {
-                    distance = intersections[0].distance;
-                    if (distance > actualMoveSpeed + this.cameraWidth) {
-                        this.camera.translateZ(-actualMoveSpeed);
-                    }
-                } else {
-                    this.camera.translateZ(-actualMoveSpeed);
-                }
-            } else {
-                this.camera.translateZ(-actualMoveSpeed);
-            }
-        }
+            var angle = this.moveForward ? 0 : this.moveBackward ? 180 : this.moveLeft ? 90 : this.moveRight ? 270 : 0;
+            var direction = this.lookAtPoint.clone().sub(this.camera.position).normalize();
 
-        if (this.moveBackward) {
-            if (this.activeCollision) {
-                origin = this.camera.position;
-                direction = this.camera.position.clone().sub(this.helper).normalize();
-                raycaster = new THREE.Raycaster(origin, direction);
-                intersections = raycaster.intersectObjects(this.collisionObject);
+            direction.applyAxisAngle(this.yAxes, THREE.Math.degToRad(angle));
 
-                if (intersections.length > 0) {
-                    distance = intersections[0].distance;
-                    if (distance > actualMoveSpeed + this.cameraWidth) {
-                        this.camera.translateZ(actualMoveSpeed);
-                    }
-                } else {
-                    this.camera.translateZ(actualMoveSpeed);
-                }
-            } else {
-                this.camera.translateZ(actualMoveSpeed);
-            }
-        }
+            var cosXAxes = direction.clone().dot(this.xAxes) / (direction.length() * this.xAxes.length());
+            var cosZAxes = direction.clone().dot(this.zAxes) / (direction.length() * this.zAxes.length());
 
-        if (this.moveLeft) {
-            if (this.activeCollision) {
-                origin = this.camera.position;
-                temp = this.camera.position.clone().sub(this.helper).normalize();
-                direction = new THREE.Vector3(-1, temp.y, -(-temp.x + temp.y * temp.y) / temp.z).normalize();
-                raycaster = new THREE.Raycaster(origin, direction);
-                intersections = raycaster.intersectObjects(this.collisionObject);
+            velocity.x = cosXAxes * actualMoveSpeed;
+            velocity.z = cosZAxes * actualMoveSpeed;
 
-                if (intersections.length > 0) {
-                    distance = intersections[0].distance;
-                    if (distance > actualMoveSpeed + this.cameraWidth) {
-                        this.camera.translateX(-actualMoveSpeed);
-                    }
-                } else {
-                    this.camera.translateX(-actualMoveSpeed);
-                }
-            } else {
-                this.camera.translateX(-actualMoveSpeed);
-            }
-        }
+            this.player.setLinearVelocity(velocity);
 
-        if (this.moveRight) {
-            if (this.activeCollision) {
-                origin = this.camera.position;
-                temp = this.camera.position.clone().sub(this.helper).normalize();
-                direction = new THREE.Vector3(1, temp.y, -(temp.x + temp.y * temp.y) / temp.z).normalize();
-                raycaster = new THREE.Raycaster(origin, direction);
-                intersections = raycaster.intersectObjects(this.collisionObject);
-
-                if (intersections.length > 0) {
-                    distance = intersections[0].distance;
-                    if (distance > actualMoveSpeed + this.cameraWidth) {
-                        this.camera.translateX(actualMoveSpeed);
-                    }
-                } else {
-                    this.camera.translateX(actualMoveSpeed);
-                }
-            } else {
-                this.camera.translateX(actualMoveSpeed);
-            }
         }
 
         if (this.moveUp) {
-            this.camera.translateY(actualMoveSpeed);
+
+            velocity.y = actualMoveSpeed;
+
+            this.player.setLinearVelocity(velocity);
+
         }
+
         if (this.moveDown) {
-            if (this.activeCollision === true) {
-                if (this.camera.position.y - actualMoveSpeed < 100) {
-                    this.camera.position.y = this.option.ground + this.option.cameraHeight;
-                } else {
-                    this.camera.translateY(-actualMoveSpeed);
-                }
-            } else {
-                this.camera.translateY(-actualMoveSpeed);
-            }
-            this.camera.translateY(-actualMoveSpeed);
+
+            velocity.y = -actualMoveSpeed;
+
+            this.player.setLinearVelocity(velocity);
+
         }
 
         var actualLookSpeed = delta * this.lookSpeed;
@@ -386,20 +340,27 @@ THREE.ThirdPersonControls = function(camera, target, domElement) {
             this.phi = THREE.Math.mapLinear(this.phi, 0, Math.PI, this.verticalMin, this.verticalMax);
         }
 
-        var targetPosition = this.helper,
-            position = this.camera.position;
+        var cameraPos = this.camera.position;
+        var viewOpposite = cameraPos.clone().sub(this.lookAtPoint).normalize();
+        var cosXAxesCamera = viewOpposite.clone().dot(this.xAxes) / (viewOpposite.length() * this.xAxes.length());
+        var cosZAxesCamera = viewOpposite.clone().dot(this.zAxes) / (viewOpposite.length() * this.zAxes.length());
 
-        targetPosition.x = position.x + 100 * Math.sin(this.phi) * Math.cos(this.theta);
-        targetPosition.y = position.y;// + 100 * Math.cos(this.phi);
-        targetPosition.z = position.z + 100 * Math.sin(this.phi) * Math.sin(this.theta);
+        cameraPos.y = this.player.position.y + this.player._physijs.height;
+        cameraPos.x = this.player.position.x + cosXAxesCamera * this.player._physijs.width * 2;
+        cameraPos.z = this.player.position.z + cosZAxesCamera * this.player._physijs.depth * 2;
 
-        this.target.position.x = targetPosition.x;
-        this.target.position.z = targetPosition.z;
-        this.target.__dirtyPosition = true;
+        var lookAtPosition = this.lookAtPoint;
 
-        this.camera.lookAt(targetPosition);
+        lookAtPosition.x = cameraPos.x + 100 * Math.sin(this.phi) * Math.cos(this.theta);
+        lookAtPosition.y = cameraPos.y + 100 * Math.cos(this.phi);
+        lookAtPosition.z = cameraPos.z + 100 * Math.sin(this.phi) * Math.sin(this.theta);
+
+        this.camera.lookAt(lookAtPosition);
+
+        // this.player.lookAt(new THREE.Vector3(lookAtPosition.x, this.player.position.y, lookAtPosition.z));
 
     };
+
 
     function contextmenu(event) {
 
