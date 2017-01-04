@@ -1,10 +1,14 @@
-function init() {
+function initPhysi() {
     Physijs.scripts.worker = '/js/lib/physijs_worker.js';
     Physijs.scripts.ammo = '/js/lib/ammo.js';
+}
+
+function init() {
+    initPhysi();
 
     var defaults = {
         size: 2000,
-        height: 400,
+        height: 200,
         depth: 10
     };
 
@@ -17,11 +21,11 @@ function init() {
     var renderer = initRenderer();
     var scene = initScene();
     var camera = initCamera();
-    var controls = initControl();
     var lights = initLight(scene);
     initBorder(scene);
     var box = initBox(scene);
-    initPlayer(scene);
+    var controls = initControl();
+    // initPlayer(scene);
     renderer.domElement.addEventListener('mousemove', setMousePosition);
 
     animate();
@@ -78,18 +82,51 @@ function init() {
 
     function initCamera() {
         var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
-        camera.position.x = 0;
-        camera.position.y = 100;
-        camera.position.z = 950;
+        camera.position.x = -defaults.size / 2 + 150;
+        camera.position.y = 50;
+        camera.position.z = defaults.size / 2 - 100;
         camera.lookAt(scene.position);
         return camera;
     }
 
     function initControl() {
-        var controls = new THREE.FirstPersonControls(camera);
+        console.log(scene);
+        var material = Physijs.createMaterial(new THREE.MeshBasicMaterial({
+            color: 0x333333
+        }), 0.8, 0.4);
+        var boxGeometry = new THREE.BoxGeometry(50, 50, 50);
+        var box = new Physijs.BoxMesh(boxGeometry, material, 10, {
+            restitution: 0.2
+        });
+        box.position.set(-defaults.size / 2 + 150, 50, defaults.size / 2 - 100);
+        box.name = 'playerbox';
+        scene.add(box);
+        var controls = new THREE.ThirdPersonControls(camera, box);
         controls.movementSpeed = 500;
         controls.lookSpeed = 0.1;
+        controls.helper = box.position.clone();
+        controls.collisionObject = getMesh(scene);
+        controls.collisionObject.forEach(function(obj) {
+            console.log(obj.name);
+        });
+        controls.cameraWidth = 160;
         return controls;
+    }
+
+    function getMesh(obj) {
+        var rets = [];
+        if (obj instanceof THREE.Mesh) {
+            rets.push(obj);
+        }
+        if (obj.children) {
+            for (var i = 0; i < obj.children.length; i++) {
+                var childs = getMesh(obj.children[i]);
+                for (var j = 0; j < childs.length; j++) {
+                    rets.push(childs[j]);
+                }
+            }
+        }
+        return rets;
     }
 
     function initLight(scene) {
@@ -98,22 +135,25 @@ function init() {
         directionalLight.position.set(-defaults.size / 2, defaults.height * 2, 0);
         directionalLight.target.position.copy(scene.position);
         directionalLight.castShadow = true;
-        directionalLight.shadow.camera.left = -500;
-        directionalLight.shadow.camera.top = -500;
-        directionalLight.shadow.camera.right = 500;
-        directionalLight.shadow.camera.bottom = 500;
-        directionalLight.shadow.camera.near = 20;
-        directionalLight.shadow.camera.far = 2000;
-        directionalLight.shadow.bias = -0.0001;
-        directionalLight.shadow.mapSize.width = 2048;
-        directionalLight.shadow.mapSize.height = 2048;
+        directionalLight.shadow.camera.left = -defaults.size / 2;
+        directionalLight.shadow.camera.top = defaults.size / 2;
+        directionalLight.shadow.camera.right = defaults.size / 2;
+        directionalLight.shadow.camera.bottom = -defaults.size / 2;
+        directionalLight.shadow.camera.near = 200;
+        directionalLight.shadow.camera.far = 2500;
+        directionalLight.distance = 0;
+        directionalLight.intensity = 0.5;
+        directionalLight.shadow.mapSize.width = 512;
+        directionalLight.shadow.mapSize.height = 512;
+        // var cameraHelper = new THREE.CameraHelper( directionalLight.shadow.camera );
+        // directionalLight.add(cameraHelper);
         lights.directional = directionalLight;
         scene.add(directionalLight);
 
         var pointLight = new THREE.PointLight(0xff0000, 1.25, 1000);
         pointLight.position.set(0, 0, 50);
         lights.point = pointLight;
-        scene.add(pointLight);
+        // scene.add(pointLight);
 
         var ambientLight = new THREE.AmbientLight(0x444444);
         lights.ambient = ambientLight;
@@ -157,32 +197,97 @@ function init() {
         ground.rotation.x = -Math.PI / 2;
         ground.position.set(0, 0, 0);
         ground.receiveShadow = true;
+        ground.name = 'ground';
         scene.add(ground);
 
         var boxGeometry = new THREE.BoxGeometry(defaults.depth, defaults.height, defaults.size);
 
-        var border = new Physijs.BoxMesh(boxGeometry, material, 0, { restitution: 0.2 });
+        var border = new Physijs.BoxMesh(boxGeometry, material, 0, {
+            restitution: 0.2
+        });
         border.position.set(-defaults.size / 2, defaults.height / 2, 0);
         border.receiveShadow = true;
         border.castShadow = true;
+        border.name = 'border';
 
-        var borderRight = new Physijs.BoxMesh(boxGeometry, material, 0, { restitution: 0.2 });
+        var borderRight = new Physijs.BoxMesh(boxGeometry, material, 0, {
+            restitution: 0.2
+        });
         borderRight.position.set(defaults.size, 0, 0);
         borderRight.receiveShadow = true;
         borderRight.castShadow = true;
         border.add(borderRight);
 
-        var borderTop = new Physijs.BoxMesh(boxGeometry, material, 0, { restitution: 0.2 });
+        var borderTop = new Physijs.BoxMesh(boxGeometry, material, 0, {
+            restitution: 0.2
+        });
         borderTop.rotation.y = Math.PI / 2;
         borderTop.position.set(defaults.size / 2, 0, defaults.size / 2);
         border.add(borderTop);
 
-        var borderBottom = new Physijs.BoxMesh(boxGeometry, material, 0, { restitution: 0.2 });
+        var borderBottom = new Physijs.BoxMesh(boxGeometry, material, 0, {
+            restitution: 0.2
+        });
         borderBottom.rotation.y = Math.PI / 2;
         borderBottom.position.set(defaults.size / 2, 0, -defaults.size / 2);
         border.add(borderBottom);
 
         scene.add(border);
+
+        var rooms = [{
+            position: {
+                x: -defaults.size / 2 + 300,
+                z: defaults.size / 2 - 200
+            },
+            width: 600,
+            height: 400,
+            wallSides: ['top', 'right']
+        }];
+        createRoom(scene, rooms, material);
+    }
+
+    function createRoom(scene, rooms, material) {
+        for (var i = 0, room;
+            (room = rooms[i]); i++) {
+            for (var j = 0, wallSide;
+                (wallSide = room.wallSides[j]); j++) {
+                var wall = {
+                    position: {
+                        y: defaults.height / 2
+                    },
+                    rotationY: 0,
+                    size: room.width
+                };
+                switch (wallSide) {
+                    case 'left':
+                        wall.position.x = room.position.x - room.width / 2;
+                        wall.position.z = room.position.z;
+                        wall.rotationY = Math.PI / 2;
+                        wall.size = room.height;
+                        break;
+                    case 'right':
+                        wall.position.x = room.position.x + room.width / 2;
+                        wall.position.z = room.position.z;
+                        wall.rotationY = Math.PI / 2;
+                        wall.size = room.height;
+                        break;
+                    case 'top':
+                        wall.position.x = room.position.x;
+                        wall.position.z = room.position.z - room.height / 2;
+                        break;
+                    default:
+                        wall.position.x = room.position.x;
+                        wall.position.z = room.position.z + room.height / 2;
+                }
+                var geometry = new THREE.BoxGeometry(wall.size, defaults.height, defaults.depth);
+                var wallMesh = new Physijs.BoxMesh(geometry, material, 0);
+                wallMesh.position.copy(wall.position);
+                wallMesh.rotation.y = wall.rotationY;
+                wallMesh.name = i + 'wallMesh' + j;
+                scene.add(wallMesh);
+            }
+            // scene.add(roomMesh);
+        }
     }
 
     function initPlayer(scene) {
@@ -199,51 +304,42 @@ function init() {
 
         var jsonLoader = getJSONLoader();
         jsonLoader.setTexturePath('/asset/model/');
-        jsonLoader.load('asset/model/SpongeBob.json', function(geometry, materials) {
+        jsonLoader.load('asset/model/bear0.json', function(geometry, materials) {
             geometry.computeBoundingBox();
             var bound = geometry.boundingBox;
             var h = bound.max.y - bound.min.y;
             var w = bound.max.x - bound.min.x;
             var d = bound.max.z - bound.min.z;
-            console.log(w + ' ' + h + ' ' + d);
-            geometry.computeVertexNormals();
-            // geometry.computeMorphNormals();
 
-            for ( var i = 0; i < materials.length; i ++ ) {
-                var material = materials[ i ];
-                // material.morphTargets = true;
-                // material.morphNormals = true;
+            geometry.computeVertexNormals();
+            geometry.computeMorphNormals();
+
+            for (var i = 0; i < materials.length; i++) {
+                var material = materials[i];
+                material.morphTargets = true;
+                material.morphNormals = true;
                 material.vertexColors = THREE.FaceColors;
             }
-            var material = new THREE.MeshLambertMaterial({
-                vertexColors: THREE.FaceColors,
-                morphTargets: true
-            });
-            // var player = new Physijs.BoxMesh(geometry, Physijs.createMaterial(new THREE.MultiMaterial(materials)));
-            // player.scale.set(50, 50, 50);
-            // player.rotation.set(0,Math.PI / 2, 0);
-            // player.castShadow = true;
 
             var threeObject = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
             var physGeom = new THREE.BoxGeometry(w, h, d);
             var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
             physMaterial.visible = false;
             var physObject = new Physijs.BoxMesh(physGeom, physMaterial, 5);
-
-            //parents the complex graphics model to the simple collision geometry
+            physObject.name = 'player';
             physObject.add(threeObject);
 
-            //apply any offset transform between the graphics model and physics object
-            threeObject.position.y = -h/2;
-
-            //add the phys/three hierarchy to the scene
+            threeObject.position.y = -h / 2;
+            physObject.position.set(-defaults.size / 2 + 100, 0, defaults.size / 2 - 100);
             scene.add(physObject);
-            // scene.add(player);
 
-            // Lynx.Mixer = new THREE.AnimationMixer(player);
-            //
-            // var clip = THREE.AnimationClip.CreateFromMorphTargetSequence('gallop', geometry.morphTargets, 30);
-            // Lynx.Mixer.clipAction(clip).setDuration(1).play();
+            Lynx.player = physObject;
+            controls.targetObj = Lynx.player;
+
+            Lynx.Mixer = new THREE.AnimationMixer(threeObject);
+
+            var clip = THREE.AnimationClip.CreateFromMorphTargetSequence('gallop', geometry.morphTargets, 30);
+            Lynx.Mixer.clipAction(clip).setDuration(1).play();
         }, onProgress, onError);
     }
 
@@ -260,11 +356,12 @@ function init() {
         material.map.repeat.set(0.25, 0.25);
         box = new Physijs.BoxMesh(
             new THREE.BoxGeometry(100, 100, 100),
-            material,4
+            material, 4
         );
         box.position.set(0, 350, 0);
         box.castShadow = true;
         box.collision = 0;
+        box.name = 'box';
         scene.add(box);
         return box;
     }
@@ -302,8 +399,9 @@ function init() {
     var prevTime = Date.now();
 
     function render() {
-        // var delta = clock.getDelta();
-        // controls.update(delta);
+        var delta = clock.getDelta();
+        controls.update(delta);
+        scene.simulate(undefined, 1);
         stats.update();
 
         if (Lynx.Mixer) {
@@ -314,6 +412,7 @@ function init() {
             prevTime = time;
 
         }
+
 
         renderer.render(scene, camera);
     }
