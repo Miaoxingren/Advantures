@@ -11,7 +11,8 @@ THREE.PlayerControls = function(camera, player, domElement) {
 
     this.enabled = true;
 
-    this.movementSpeed = 1000;
+    this.movementSpeed = 100;
+    this.jumpSpeed = 10;
     this.lookSpeed = 0.005;
 
     this.lookVertical = true;
@@ -264,7 +265,7 @@ THREE.PlayerControls = function(camera, player, domElement) {
         if (this.heightSpeed) {
 
             var heightDelta = THREE.Math.clamp(this.camera.position.y, this.heightMin, this.heightMax) - this.heightMin;
-            this.autoSpeedFactor = delta * (heightDelta * this.heightCoef);
+            this.autoSpeedFactor = heightDelta * this.heightCoef;
 
         } else {
 
@@ -272,7 +273,7 @@ THREE.PlayerControls = function(camera, player, domElement) {
 
         }
 
-        var actualMoveSpeed = delta * this.movementSpeed;
+        var actualMoveSpeed = this.movementSpeed;
 
         if (this.autoForward && !this.moveBackward) {
 
@@ -302,7 +303,7 @@ THREE.PlayerControls = function(camera, player, domElement) {
 
         if (this.moveUp) {
 
-            velocity.y = actualMoveSpeed;
+            velocity.y = this.jumpSpeed;
 
             this.player.setLinearVelocity(velocity);
 
@@ -310,7 +311,7 @@ THREE.PlayerControls = function(camera, player, domElement) {
 
         if (this.moveDown) {
 
-            velocity.y = -actualMoveSpeed;
+            velocity.y = -this.jumpSpeed;
 
             this.player.setLinearVelocity(velocity);
 
@@ -341,26 +342,25 @@ THREE.PlayerControls = function(camera, player, domElement) {
         }
 
         var cameraPos = this.camera.position;
-        var viewOpposite = cameraPos.clone().sub(this.lookAtPoint).normalize();
+        var playerPos = this.player.position;
+        var lookAtPos = this.lookAtPoint;
+
+        lookAtPos.x = playerPos.x + 100 * Math.sin(this.phi) * Math.cos(this.theta);
+        lookAtPos.y = playerPos.y + 100 * Math.cos(this.phi);
+        lookAtPos.z = playerPos.z + 100 * Math.sin(this.phi) * Math.sin(this.theta);
+
+        this.camera.lookAt(lookAtPos);
+        this.player.lookAt(new THREE.Vector3(lookAtPos.x, playerPos.y, lookAtPos.z));
+
+        var viewOpposite = cameraPos.clone().sub(lookAtPos).normalize();
         var cosXAxesCamera = viewOpposite.clone().dot(this.xAxes) / (viewOpposite.length() * this.xAxes.length());
         var cosZAxesCamera = viewOpposite.clone().dot(this.zAxes) / (viewOpposite.length() * this.zAxes.length());
 
-        cameraPos.y = this.player.position.y + this.player._physijs.height;
-        cameraPos.x = this.player.position.x + cosXAxesCamera * this.player._physijs.width * 2;
-        cameraPos.z = this.player.position.z + cosZAxesCamera * this.player._physijs.depth * 2;
-
-        var lookAtPosition = this.lookAtPoint;
-
-        lookAtPosition.x = cameraPos.x + 100 * Math.sin(this.phi) * Math.cos(this.theta);
-        lookAtPosition.y = cameraPos.y + 100 * Math.cos(this.phi);
-        lookAtPosition.z = cameraPos.z + 100 * Math.sin(this.phi) * Math.sin(this.theta);
-
-        this.camera.lookAt(lookAtPosition);
-
-        // this.player.lookAt(new THREE.Vector3(lookAtPosition.x, this.player.position.y, lookAtPosition.z));
+        cameraPos.y = playerPos.y + this.player._physijs.width / 2;
+        cameraPos.x = playerPos.x + cosXAxesCamera * this.player._physijs.depth / 2;
+        cameraPos.z = playerPos.z + cosZAxesCamera * this.player._physijs.depth / 2;
 
     };
-
 
     function contextmenu(event) {
 
