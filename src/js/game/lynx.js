@@ -105,6 +105,13 @@ var lynx = {
                 width: 600,
                 height: 400,
                 wallSides: ['top', 'left']
+            }],
+            npcs: [{
+                position: {
+                    x: 700,
+                    y :800
+                },
+                name: 'merchant_cat'
             }]
         }
     };
@@ -149,6 +156,7 @@ var lynx = {
         this.initBorder();
         this.initRooms();
         this.initPlayer();
+        this.initNPC();
 
     };
 
@@ -239,11 +247,11 @@ var lynx = {
         texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = THREE.RepeatWrapping;
         texture.repeat.set(12, 6);
-        texture.side = THREE.DoubleSide;
 
         var material = Physijs.createMaterial(new THREE.MeshPhongMaterial({
             color: 0xffffff,
             map: texture,
+            side: THREE.DoubleSide,
             normalMap: normalTexture
         }), 0.8, 0.4);
 
@@ -301,11 +309,11 @@ var lynx = {
         texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = THREE.RepeatWrapping;
         texture.repeat.set(12, 6);
-        texture.side = THREE.DoubleSide;
 
         var material = Physijs.createMaterial(new THREE.MeshPhongMaterial({
             color: 0xffffff,
             map: texture,
+            // side: THREE.DoubleSide,
             normalMap: normalTexture
         }), 0.8, 0.4);
 
@@ -406,6 +414,71 @@ var lynx = {
             mixer.clipAction(clip).setDuration(1).play();
 
             lynx.addMixer(mixer);
+
+        }
+    };
+
+    lynx.World.prototype.initNPC = function() {
+        var world = this;
+
+        var npcs = this.config.npcs;
+
+        var npcPos = new THREE.Vector3(0, 0, 0);
+
+        for (var i = 0; (npc = npcs[i]); i++) {
+            var modelPath = 'asset/model/' + npc.name + '.json';
+            npcPos.x = npc.position.x;
+            npcPos.z = npc.position.z;
+            if (lynx.DEBUG) {
+                lynx.JSONLoader.load(modelPath, loadNPC, lynx.loadProgress, lynx.loadError);
+            } else {
+                lynx.JSONLoader.load(modelPath, loadNPC);
+            }
+        }
+
+        function loadNPC(geometry, materials) {
+
+            // geometry.computeVertexNormals();
+            // geometry.computeMorphNormals();
+
+            for (var i = 0; i < materials.length; i++) {
+                var material = materials[i];
+                material.morphTargets = true;
+                // material.morphNormals = true;
+                material.vertexColors = THREE.FaceColors;
+                material.side = THREE.DoubleSide;
+            }
+
+            geometry.computeBoundingBox();
+            var bound = geometry.boundingBox;
+            var width = bound.max.x - bound.min.x;
+            var height = bound.max.y - bound.min.y;
+            var depth = bound.max.z - bound.min.z;
+
+            var mesh = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
+
+            var physGeomtry = new THREE.BoxGeometry(width, height, depth);
+            var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
+            physMaterial.visible = false;
+
+            var npc = new Physijs.BoxMesh(physGeomtry, physMaterial, 0);
+            npc.castShadow = true;
+            npc.name = 'npc';
+            npc.add(mesh);
+
+            // mesh.position.y = -width / 2;
+            npc.position.z = 100;
+
+            world.scene.add(npc);
+
+            if (geometry.morphTargets && geometry.morphTargets.length) {
+
+                var mixer = new THREE.AnimationMixer(mesh);
+                var clip = THREE.AnimationClip.CreateFromMorphTargetSequence('gallop', geometry.morphTargets, 30);
+                mixer.clipAction(clip).setDuration(1).play();
+
+                lynx.addMixer(mixer);
+            }
 
         }
     };
