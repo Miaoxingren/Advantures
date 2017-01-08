@@ -73,10 +73,10 @@ var lynx = {
         return lynx.renderer;
     };
 
-    lynx.initControl = function (camera) {
+    lynx.initControl = function(camera) {
         var control = new THREE.PlayerControls(camera);
         control.enabled = false;
-        control.movementSpeed = 200;
+        control.movementSpeed = 50;
         control.jumpSpeed = 20;
         control.lookSpeed = 0.1;
         lynx.Control = control;
@@ -96,22 +96,31 @@ var lynx = {
             size: 2000,
             wallHeight: 200,
             wallDepth: 10,
-            gravity: 10,
+            gravity: 100,
+            monsterSpeed: 5,
             rooms: [{
                 position: {
-                    x: 700,
-                    z: 800
+                    x: -700,
+                    z: -800
                 },
                 width: 600,
                 height: 400,
-                wallSides: ['top', 'left']
+                wallSides: ['bottom', 'right']
             }],
             npcs: [{
                 position: {
-                    x: 700,
-                    y :800
+                    x: 0,
+                    z: 100
                 },
                 name: 'merchant_cat'
+            }],
+            monsters: [{
+                position: {
+                    x: 0,
+                    z: 200
+                },
+                name: 'raptor',
+                health: 100
             }]
         }
     };
@@ -157,7 +166,7 @@ var lynx = {
         this.initRooms();
         this.initPlayer();
         this.initNPC();
-
+        this.initMonster();
     };
 
     lynx.World.prototype.initScene = function() {
@@ -401,6 +410,7 @@ var lynx = {
 
             mesh.position.y = -width / 2;
             player.position.set(0, 0, 0);
+            player.scale.set(0.2, 0.2, 0.2);
 
             world.scene.add(player);
 
@@ -425,7 +435,8 @@ var lynx = {
 
         var npcPos = new THREE.Vector3(0, 0, 0);
 
-        for (var i = 0; (npc = npcs[i]); i++) {
+        for (var i = 0;
+            (npc = npcs[i]); i++) {
             var modelPath = 'asset/model/' + npc.name + '.json';
             npcPos.x = npc.position.x;
             npcPos.z = npc.position.z;
@@ -463,11 +474,13 @@ var lynx = {
 
             var npc = new Physijs.BoxMesh(physGeomtry, physMaterial, 0);
             npc.castShadow = true;
+            npc.userData.type = 'npc';
             npc.name = 'npc';
             npc.add(mesh);
 
             // mesh.position.y = -width / 2;
-            npc.position.z = 100;
+            npc.position.x = npcPos.x;
+            npc.position.z = npcPos.z;
 
             world.scene.add(npc);
 
@@ -483,4 +496,113 @@ var lynx = {
         }
     };
 
+    lynx.World.prototype.initMonster = function() {
+        var world = this;
+
+        var monsters = this.config.monsters;
+
+        var monsterPos = new THREE.Vector3(0, 0, 0);
+
+        for (var i = 0;
+            (monster = monsters[i]); i++) {
+            var modelPath = 'asset/model/' + monster.name + '.json';
+            monsterPos.x = monster.position.x;
+            monsterPos.z = monster.position.z;
+            if (lynx.DEBUG) {
+                lynx.JSONLoader.load(modelPath, loadMonster, lynx.loadProgress, lynx.loadError);
+            } else {
+                lynx.JSONLoader.load(modelPath, loadMonster);
+            }
+        }
+
+        function loadMonster(geometry, materials) {
+
+            // geometry.computeVertexNormals();
+            // geometry.computeMorphNormals();
+
+            for (var i = 0; i < materials.length; i++) {
+                var material = materials[i];
+                material.morphTargets = true;
+                // material.morphNormals = true;
+                material.vertexColors = THREE.FaceColors;
+                material.side = THREE.DoubleSide;
+            }
+
+            geometry.computeBoundingBox();
+            var bound = geometry.boundingBox;
+            var width = bound.max.x - bound.min.x;
+            var height = bound.max.y - bound.min.y;
+            var depth = bound.max.z - bound.min.z;
+
+            var mesh = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
+
+            var physGeomtry = new THREE.BoxGeometry(width, width, depth);
+            var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
+            physMaterial.visible = false;
+
+            var monster = new Physijs.BoxMesh(physGeomtry, physMaterial);
+            monster.castShadow = true;
+            monster.userData.type = 'monster';
+            monster.name = 'monster';
+            monster.userData.direction = 0;
+            monster.userData.step = 0;
+            monster.add(mesh);
+
+            mesh.position.y = -width / 2;
+            monster.position.x = monsterPos.x;
+            monster.position.z = monsterPos.z;
+            monster.lookAtPoint = new THREE.Vector3(monster.position.x, monster.position.y, monster.position.z + 1);
+
+            world.scene.add(monster);
+
+            if (geometry.morphTargets && geometry.morphTargets.length) {
+
+                var mixer = new THREE.AnimationMixer(mesh);
+                var clip = THREE.AnimationClip.CreateFromMorphTargetSequence('gallop', geometry.morphTargets, 30);
+                mixer.clipAction(clip).setDuration(1).play();
+
+                lynx.addMixer(mixer);
+            }
+
+        }
+    };
+
+    lynx.World.prototype.update = function() {
+        var objs = this.scene.children;
+        var angles = [0, 180, 90, 270];
+        var speed = this.config.monsterSpeed;
+        var xAxes = new THREE.Vector3(1, 0, 0);
+        var yAxes = new THREE.Vector3(0, 1, 0);
+        var zAxes = new THREE.Vector3(0, 0, 1);
+
+        for (var i = 0; (obj = objs[i]); i++) {
+            if (obj.userData.type == 'monster') {
+                updateMonster(obj);
+            }
+        }
+
+        function updateMonster(monster) {
+            var velocity = monster.getLinearVelocity();
+
+            var direction = monster.lookAtPoint.clone().sub(monster.position).normalize();
+
+            if (monster.userData.step++ == 1500) {
+                monster.userData.step = 0;
+                direction.applyAxisAngle(yAxes, THREE.Math.degToRad(angles[Math.floor(Math.random() * 100) % 4]));
+            }
+
+            var cosXAxes = direction.clone().dot(xAxes) / (direction.length() * xAxes.length());
+            var cosZAxes = direction.clone().dot(zAxes) / (direction.length() * zAxes.length());
+
+            velocity.x = cosXAxes * speed;
+            velocity.z = cosZAxes * speed;
+
+            monster.setLinearVelocity(velocity);
+
+            monster.lookAtPoint.set(monster.position.x + velocity.x, monster.position.y, monster.position.z + velocity.z);
+            monster.lookAt(monster.lookAtPoint);
+        }
+    };
+
+    
 })(lynx);
