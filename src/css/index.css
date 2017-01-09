@@ -1,5 +1,65 @@
-#stats-container {
+#stats {
     position: absolute;
     left: 0;
     top: 0;
+}
+
+#promt {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+    padding: 20px 0;
+    background-color: #009688;
+    text-align: center;
+    font-size: 25px;
+    visibility: hidden;
+}
+
+#promt.info {
+    background-color: #009688;
+}
+
+#promt.danger {
+    background-color: #ff6550;
+}
+
+#health {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+#health .heart {
+    display: inline-block;
+    margin: 10px 5px;
+}
+
+.heart {
+    position: relative;
+    width: 25px;
+    height: 20px;
+}
+
+.heart::before {
+    position: absolute;
+    left: 50%;
+    transform-origin: 0% 100%;
+    transform: rotate(-45deg);
+    background-color: red;
+    content: " ";
+    width: 50%;
+    height: 100%;
+    border-radius: 50% 50% 0 0;
+}
+
+.heart::after {
+    position: absolute;
+    transform-origin: 100% 100%;
+    transform: rotate(45deg);
+    background-color: red;
+    content: " ";
+    width: 50%;
+    height: 100%;
+    border-radius: 50% 50% 0 0;
 }

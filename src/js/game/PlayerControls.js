@@ -1,5 +1,6 @@
-THREE.PlayerControls = function(camera, player, domElement) {
+THREE.PlayerControls = function(world, camera, player, domElement) {
 
+    this.world = world;
     this.camera = camera;
     this.player = player;
     this.domElement = (domElement !== undefined) ? domElement : document;
@@ -171,6 +172,14 @@ THREE.PlayerControls = function(camera, player, domElement) {
         //event.preventDefault();
 
         switch (event.keyCode) {
+            case 32:
+                this.world.state = this.world.state == 'pause' ? 'play' : 'pause';
+                if (world.state === 'pause') {
+                    world.hud.promt('info', 'Pause');
+                } else {
+                    world.hud.hidePromt();
+                }
+                break;
 
             case 38:
                 /*up*/

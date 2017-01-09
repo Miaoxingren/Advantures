@@ -1,14 +1,14 @@
 function init() {
     lynx.initPhysi();
 
-    var stats = lynx.initStats("stats-container");
-    var renderer = lynx.initRenderer('game-container');
+    var stats = lynx.initStats("stats");
+    var renderer = lynx.initRenderer('game');
 
     var world = new lynx.World("paw");
     var scene = world.scene;
     var camera = world.camera;
 
-    var control = lynx.initControl(camera);
+    var control = lynx.initControl(world, camera);
 
     var clock = new THREE.Clock();
 
@@ -47,7 +47,9 @@ function init() {
 
     function animate() {
         requestAnimationFrame(animate);
-        render();
+        if (world.state === 'play') {
+            render();
+        }
     }
 
     function render() {
@@ -55,15 +57,15 @@ function init() {
 
         control.update(delta);
         world.update();
-        scene.simulate(undefined, 1);
+        scene.simulate(undefined, 100);
 
         if (lynx.Mixers) {
             lynx.updateMixer(delta);
         }
-
         stats.update();
 
         renderer.render(scene, camera);
+
     }
 }
 window.onload = init;

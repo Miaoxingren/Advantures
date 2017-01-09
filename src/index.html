@@ -19,15 +19,21 @@
 </head>
 
 <body>
-    <div id="game-container"></div>
-    <div id="stats-container"></div>
+    <div id="game"></div>
+    <div id="stats"></div>
 
+    <!-- HUD -->
+    <div id="health">
+    </div>
+    <div id="promt"></div>
+
+    <!-- lib -->
     <script src="./js/lib/three.js"></script>
-    <script src="./js/lib/OBJLoader.js"></script>
-    <script src="./js/lib/MTLLoader.js"></script>
     <script src="./js/lib/stats.js"></script>
     <script src="./js/lib/physi.js"></script>
-    <script src="./js/lib/ThirdPersonControls.js"></script>
+
+    <!-- game -->
+    <script src="./js/game/PlayerControls.js"></script>
     <script src="./js/game/lynx.js"></script>
     <script src="./js/game/init.js"></script>
 </body>

@@ -73,8 +73,8 @@ var lynx = {
         return lynx.renderer;
     };
 
-    lynx.initControl = function(camera) {
-        var control = new THREE.PlayerControls(camera);
+    lynx.initControl = function(world, camera) {
+        var control = new THREE.PlayerControls(world, camera);
         control.enabled = false;
         control.movementSpeed = 50;
         control.jumpSpeed = 20;
@@ -98,6 +98,11 @@ var lynx = {
             wallDepth: 10,
             gravity: 100,
             monsterSpeed: 5,
+            models: ['merchant_cat', 'raptor', 'fox0'],
+            player: {
+                name: 'fox0',
+                health: 5,
+            },
             rooms: [{
                 position: {
                     x: -700,
@@ -148,25 +153,68 @@ var lynx = {
         }
     };
 
+})(lynx);
+
+(function(lynx) {
+    lynx.HUD = function(healthId, promtId) {
+        this.healthDom = document.getElementById(healthId);
+        this.promtDom = document.getElementById(promtId);
+    };
+
+    lynx.HUD.prototype.promt = function (type, msg) {
+        if (!this.promtDom) return;
+        this.promtDom.style.visibility = 'visible';
+        this.promtDom.class = type;
+        this.promtDom.innerHTML = msg;
+    };
+
+    lynx.HUD.prototype.hidePromt = function () {
+        if (!this.promtDom) return;
+        this.promtDom.style.visibility = 'hidden';
+    };
+
+    lynx.HUD.prototype.health = function (health) {
+        if (!this.healthDom) return;
+        if (!health) {
+            this.promt('danger', 'Game Over');
+        }
+        var msg = '';
+        var heart = '<span class="heart"></span>';
+        while (health--) {
+            msg += heart;
+        }
+        this.healthDom.innerHTML = msg;
+    };
+
 
 })(lynx);
 
 (function(lynx) {
-
     lynx.World = function(name, config) {
         this.name = name;
 
+        this.state = 'play';
+
         this.config = lynx.getWorldConfig(name, config);
 
+        this.initHUD();
         this.initScene();
         this.setSceneBg();
         this.initCamera();
         this.initLight();
         this.initBorder();
+        // this.initModels();
         this.initRooms();
         this.initPlayer();
         this.initNPC();
         this.initMonster();
+    };
+
+    lynx.World.prototype.initHUD = function() {
+        if (this.hud) {
+            return;
+        }
+        this.hud = new lynx.HUD('health', 'promt');
     };
 
     lynx.World.prototype.initScene = function() {
@@ -370,8 +418,32 @@ var lynx = {
         }
     };
 
+    lynx.World.prototype.initModels = function() {
+        var modelLib = this.models = [];
+        var models = this.config.models;
+        var i, model;
+
+        for (i = 0;
+            (model = models[i]); i++) {
+            var modelPath = 'asset/model/' + models[i] + '.json';
+            if (lynx.DEBUG) {
+                lynx.JSONLoader.load(modelPath, loadModel, lynx.loadProgress, lynx.loadError);
+            } else {
+                lynx.JSONLoader.load(modelPath, loadModel);
+            }
+        }
+
+        function loadModel(geometry, materials) {
+            modelLib[model] = {
+                geometry: geometry,
+                materials: materials
+            };
+        }
+    };
+
     lynx.World.prototype.initPlayer = function() {
         var world = this;
+        var health = this.config.player.health;
 
         if (lynx.DEBUG) {
             lynx.JSONLoader.load('asset/model/fox0.json', loadPlayer, lynx.loadProgress, lynx.loadError);
@@ -407,6 +479,7 @@ var lynx = {
             player.castShadow = true;
             player.name = 'player';
             player.add(mesh);
+            player.userData.health = health;
 
             mesh.position.y = -width / 2;
             player.position.set(0, 0, 0);
@@ -415,6 +488,7 @@ var lynx = {
             world.scene.add(player);
 
             world.player = player;
+            world.hud.health(health);
 
             lynx.Control.player = player;
             lynx.Control.enabled = true;
@@ -575,7 +649,8 @@ var lynx = {
         var yAxes = new THREE.Vector3(0, 1, 0);
         var zAxes = new THREE.Vector3(0, 0, 1);
 
-        for (var i = 0; (obj = objs[i]); i++) {
+        for (var i = 0;
+            (obj = objs[i]); i++) {
             if (obj.userData.type == 'monster') {
                 updateMonster(obj);
             }
@@ -604,5 +679,5 @@ var lynx = {
         }
     };
 
-    
+
 })(lynx);
