@@ -5,16 +5,6 @@
     <meta charset="utf-8">
     <title>Advantures</title>
     <link rel="shortcut icon" href="./favicon.ico">
-    <style>
-        body {
-            color: #ffffff;
-            background-color: #000000;
-            margin: 0px;
-            overflow: hidden;
-            font-family: Arial;
-            font-size: 14px;
-        }
-    </style>
     <link rel="stylesheet" type="text/css" href="./css/index.css" />
 </head>
 
@@ -27,14 +17,33 @@
     </div>
     <div id="promt"></div>
 
+    <div id="loading">
+        <svg width="100%" height="100%" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <circle cx="80" cy="200" r="20" fill="#4285F4">
+                <animateMotion path="M0,0 L0,20 L0,0" begin="0s" dur="1.4s" repeatCount="indefinite"></animateMotion>
+            </circle>
+            <circle cx="160" cy="200" r="20" fill="#0F9D58">
+                <animateMotion path="M0,0 L0,20 L0,0" begin="0.25s" dur="1.4s" repeatCount="indefinite"></animateMotion>
+            </circle>
+            <circle cx="240" cy="200" r="20" fill="#F4B400">
+                <animateMotion path="M0,0 L0,20 L0,0" begin="0.5s" dur="1.4s" repeatCount="indefinite"></animateMotion>
+            </circle>
+            <circle cx="320" cy="200" r="20" fill="#DB4437">
+                <animateMotion path="M0,0 L0,20 L0,0"begin="0.75s"  dur="1.4s" repeatCount="indefinite"></animateMotion>
+            </circle>
+        </svg>
+    </div>
+
     <!-- lib -->
     <script src="./js/lib/three.js"></script>
     <script src="./js/lib/stats.js"></script>
     <script src="./js/lib/physi.js"></script>
 
     <!-- game -->
-    <script src="./js/game/PlayerControls.js"></script>
     <script src="./js/game/lynx.js"></script>
+    <script src="./js/game/PlayerControls.js"></script>
+    <script src="./js/game/HeadUpDisplay.js"></script>
+    <script src="./js/game/World.js"></script>
     <script src="./js/game/init.js"></script>
 </body>
 

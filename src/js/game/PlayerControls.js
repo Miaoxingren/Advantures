@@ -1,6 +1,5 @@
-THREE.PlayerControls = function(world, camera, player, domElement) {
+lynx.PlayerControls = function(camera, player, domElement) {
 
-    this.world = world;
     this.camera = camera;
     this.player = player;
     this.domElement = (domElement !== undefined) ? domElement : document;
@@ -19,6 +18,7 @@ THREE.PlayerControls = function(world, camera, player, domElement) {
     this.lookVertical = true;
     this.autoForward = false;
 
+    //update moving state by mouse
     this.activeLook = true;
 
     this.heightSpeed = true;
@@ -40,6 +40,12 @@ THREE.PlayerControls = function(world, camera, player, domElement) {
     this.phi = 0;
     this.theta = 0;
 
+    // this.worldMouseDown;
+    // this.worldMouseUp;
+    // this.worldMouseMove;
+    // this.worldKeyDown;
+    // this.worldKeyUp;
+
     this.moveForward = false;
     this.moveBackward = false;
     this.moveLeft = false;
@@ -51,14 +57,10 @@ THREE.PlayerControls = function(world, camera, player, domElement) {
 
     this.viewHalfX = 0;
     this.viewHalfY = 0;
-    this.ViewLower = {
-        x: 0,
-        y: 0
-    };
-    this.ViewUpper = {
-        x: 0,
-        y: 0
-    };
+    this.ViewLowerX = 0;
+    this.ViewLowerY = 0;
+    this.ViewUpperX = 0;
+    this.ViewUpperY = 0;
 
     if (this.domElement !== document) {
 
@@ -80,10 +82,10 @@ THREE.PlayerControls = function(world, camera, player, domElement) {
 
         }
 
-        this.ViewLower.x = this.viewHalfX * 0.75;
-        this.ViewUpper.x = this.viewHalfX * 1.25;
-        this.ViewLower.y = this.viewHalfY * 0.75;
-        this.ViewUpper.y = this.viewHalfY * 1.25;
+        this.ViewLowerX = this.viewHalfX * 0.75;
+        this.ViewUpperX = this.viewHalfX * 1.25;
+        this.ViewLowerY = this.viewHalfY * 0.75;
+        this.ViewUpperY = this.viewHalfY * 1.25;
 
     };
 
@@ -116,6 +118,12 @@ THREE.PlayerControls = function(world, camera, player, domElement) {
 
         this.mouseDragOn = true;
 
+        if (this.worldMouseDown) {
+
+            this.worldMouseDown(event);
+
+        }
+
     };
 
     this.onMouseUp = function(event) {
@@ -141,6 +149,12 @@ THREE.PlayerControls = function(world, camera, player, domElement) {
 
         this.mouseDragOn = false;
 
+        if (this.worldMouseUp) {
+
+            this.worldMouseUp(event);
+
+        }
+
     };
 
     this.onMouseMove = function(event) {
@@ -151,17 +165,14 @@ THREE.PlayerControls = function(world, camera, player, domElement) {
         var mousePosX = this.domElement === document ? event.pageX : event.pageX - this.domElement.offsetLeft;
         var mousePosY = this.domElement === document ? event.pageY : event.pageY - this.domElement.offsetTop;
 
-        if (mousePosX >= this.ViewLower.x && mousePosX <= this.ViewUpper.x && mousePosY >= this.ViewLower.y && mousePosY <= this.ViewUpper.y) return;
+        if (mousePosX >= this.ViewLowerX && mousePosX <= this.ViewUpperX && mousePosY >= this.ViewLowerY && mousePosY <= this.ViewUpperY) return;
 
-        if (this.domElement === document) {
+        this.mouseX = mousePosX - this.viewHalfX;
+        this.mouseY = mousePosY - this.viewHalfY;
 
-            this.mouseX = mousePosX - this.viewHalfX;
-            this.mouseY = mousePosY - this.viewHalfY;
+        if (this.worldMouseMove) {
 
-        } else {
-
-            this.mouseX = mousePosX - this.viewHalfX;
-            this.mouseY = mousePosY - this.viewHalfY;
+            this.worldMouseMove(event);
 
         }
 
@@ -169,17 +180,10 @@ THREE.PlayerControls = function(world, camera, player, domElement) {
 
     this.onKeyDown = function(event) {
 
-        //event.preventDefault();
+        event.preventDefault();
+        event.stopPropagation();
 
         switch (event.keyCode) {
-            case 32:
-                this.world.state = this.world.state == 'pause' ? 'play' : 'pause';
-                if (world.state === 'pause') {
-                    world.hud.promt('info', 'Pause');
-                } else {
-                    world.hud.hidePromt();
-                }
-                break;
 
             case 38:
                 /*up*/
@@ -220,9 +224,18 @@ THREE.PlayerControls = function(world, camera, player, domElement) {
 
         }
 
+        if (this.worldKeyDown) {
+
+            this.worldKeyDown(event);
+
+        }
+
     };
 
     this.onKeyUp = function(event) {
+
+        event.preventDefault();
+        event.stopPropagation();
 
         switch (event.keyCode) {
 
@@ -262,6 +275,12 @@ THREE.PlayerControls = function(world, camera, player, domElement) {
                 /*F*/
                 this.moveDown = false;
                 break;
+
+        }
+
+        if (this.worldKeyUp) {
+
+            this.worldKeyUp(event);
 
         }
 
@@ -397,8 +416,8 @@ THREE.PlayerControls = function(world, camera, player, domElement) {
 
     this.domElement.addEventListener('contextmenu', contextmenu, false);
     this.domElement.addEventListener('mousemove', _onMouseMove, false);
-    // this.domElement.addEventListener('mousedown', _onMouseDown, false);
-    // this.domElement.addEventListener('mouseup', _onMouseUp, false);
+    this.domElement.addEventListener('mousedown', _onMouseDown, false);
+    this.domElement.addEventListener('mouseup', _onMouseUp, false);
 
     window.addEventListener('keydown', _onKeyDown, false);
     window.addEventListener('keyup', _onKeyUp, false);

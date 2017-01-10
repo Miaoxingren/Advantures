@@ -8,6 +8,12 @@ var lynx = {
 
 (function(lynx) {
 
+    lynx.bind = function(scope, fn) {
+        return function() {
+            fn.apply(scope, arguments);
+        };
+    };
+
     lynx.merge = function(dst, src) {
         var args = Array.prototype.slice.call(arguments, 1);
         for (var i = 0, obj;
@@ -73,25 +79,11 @@ var lynx = {
         return lynx.renderer;
     };
 
-    lynx.initControl = function(world, camera) {
-        var control = new THREE.PlayerControls(world, camera);
-        control.enabled = false;
-        control.movementSpeed = 50;
-        control.jumpSpeed = 20;
-        control.lookSpeed = 0.1;
-        lynx.Control = control;
-        return lynx.Control;
-    };
-
 })(lynx);
 
 (function(lynx) {
 
-    lynx.TextureLoader = lynx.TextureLoader || new THREE.TextureLoader();
-    lynx.JSONLoader = lynx.JSONLoader || new THREE.JSONLoader();
-    lynx.JSONLoader.setTexturePath('/asset/texture/');
-
-    lynx.Worlds = {
+    lynx.defaults = {
         paw: {
             size: 2000,
             wallHeight: 200,
@@ -101,6 +93,7 @@ var lynx = {
             models: ['merchant_cat', 'raptor', 'fox0'],
             player: {
                 name: 'fox0',
+                model: 'fox0',
                 health: 5,
             },
             rooms: [{
@@ -117,7 +110,8 @@ var lynx = {
                     x: 0,
                     z: 100
                 },
-                name: 'merchant_cat'
+                name: 'merchant_cat',
+                model: 'merchant_cat'
             }],
             monsters: [{
                 position: {
@@ -125,559 +119,27 @@ var lynx = {
                     z: 200
                 },
                 name: 'raptor',
+                model: 'raptor',
                 health: 100
             }]
         }
     };
 
-    lynx.Mixers = [];
+    lynx.state = {
+        INIT: 0,
+        PLAY: 1,
+        PAUSE: 2,
+        GAMEOVER: 3
+    };
 
 })(lynx);
 
 (function(lynx) {
 
-    lynx.getWorldConfig = function(name, config) {
-        var world = lynx.Worlds[name];
+    lynx.getConfig = function(name, config) {
+        var world = lynx.defaults[name];
         world = lynx.merge(world, config);
         return world;
     };
-
-    lynx.addMixer = function(mixer) {
-        lynx.Mixers.push(mixer);
-        return lynx.Mixers.length - 1;
-    };
-
-    lynx.updateMixer = function(delta) {
-        for (var i = 0, l = lynx.Mixers.length; i < l; i++) {
-            lynx.Mixers[i].update(delta);
-        }
-    };
-
-})(lynx);
-
-(function(lynx) {
-    lynx.HUD = function(healthId, promtId) {
-        this.healthDom = document.getElementById(healthId);
-        this.promtDom = document.getElementById(promtId);
-    };
-
-    lynx.HUD.prototype.promt = function (type, msg) {
-        if (!this.promtDom) return;
-        this.promtDom.style.visibility = 'visible';
-        this.promtDom.class = type;
-        this.promtDom.innerHTML = msg;
-    };
-
-    lynx.HUD.prototype.hidePromt = function () {
-        if (!this.promtDom) return;
-        this.promtDom.style.visibility = 'hidden';
-    };
-
-    lynx.HUD.prototype.health = function (health) {
-        if (!this.healthDom) return;
-        if (!health) {
-            this.promt('danger', 'Game Over');
-        }
-        var msg = '';
-        var heart = '<span class="heart"></span>';
-        while (health--) {
-            msg += heart;
-        }
-        this.healthDom.innerHTML = msg;
-    };
-
-
-})(lynx);
-
-(function(lynx) {
-    lynx.World = function(name, config) {
-        this.name = name;
-
-        this.state = 'play';
-
-        this.config = lynx.getWorldConfig(name, config);
-
-        this.initHUD();
-        this.initScene();
-        this.setSceneBg();
-        this.initCamera();
-        this.initLight();
-        this.initBorder();
-        // this.initModels();
-        this.initRooms();
-        this.initPlayer();
-        this.initNPC();
-        this.initMonster();
-    };
-
-    lynx.World.prototype.initHUD = function() {
-        if (this.hud) {
-            return;
-        }
-        this.hud = new lynx.HUD('health', 'promt');
-    };
-
-    lynx.World.prototype.initScene = function() {
-        if (this.scene) {
-            return;
-        }
-        var scene = new Physijs.Scene();
-        scene.setGravity(new THREE.Vector3(0, -this.config.gravity, 0));
-        this.scene = scene;
-    };
-
-    lynx.World.prototype.initCamera = function() {
-        if (this.camera) {
-            return;
-        }
-        var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.x = 850;
-        camera.position.y = 50;
-        camera.position.z = 900;
-        camera.lookAt(this.scene.position);
-        this.camera = camera;
-    };
-
-    lynx.World.prototype.setSceneBg = function() {
-        if (!this.scene) {
-            return;
-        }
-        var path = "/asset/texture/";
-        var format = '.jpg';
-        var urls = [
-            path + 'bg_left' + format, path + 'bg_right' + format,
-            path + 'bg_up' + format, path + 'bg_down' + format,
-            path + 'bg_front' + format, path + 'bg_back' + format
-        ];
-
-        var reflectionCube = new THREE.CubeTextureLoader().load(urls);
-        reflectionCube.format = THREE.RGBFormat;
-
-        this.scene.background = reflectionCube;
-    };
-
-    lynx.World.prototype.initLight = function() {
-        var lights = {};
-
-        var size = this.config.size,
-            height = this.config.wallHeight;
-
-        var directionalLight = new THREE.DirectionalLight(0xffffff);
-        directionalLight.position.set(-size / 2, height * 2, 0);
-        directionalLight.target.position.copy(this.scene.position);
-        directionalLight.castShadow = true;
-        directionalLight.shadow.camera.left = -size / 2;
-        directionalLight.shadow.camera.top = size / 2;
-        directionalLight.shadow.camera.right = size / 2;
-        directionalLight.shadow.camera.bottom = -size / 2;
-        directionalLight.shadow.camera.near = 200;
-        directionalLight.shadow.camera.far = 2500;
-        directionalLight.distance = 0;
-        directionalLight.intensity = 0.5;
-        directionalLight.shadow.mapSize.width = 512;
-        directionalLight.shadow.mapSize.height = 512;
-        // var cameraHelper = new THREE.CameraHelper( directionalLight.shadow.camera );
-        // directionalLight.add(cameraHelper);
-        lights.directional = directionalLight;
-        this.scene.add(directionalLight);
-
-        var pointLight = new THREE.PointLight(0xff0000, 1.25, 1000);
-        pointLight.position.set(0, 0, 50);
-        lights.point = pointLight;
-        // scene.add(pointLight);
-
-        var ambientLight = new THREE.AmbientLight(0x444444);
-        lights.ambient = ambientLight;
-        this.scene.add(ambientLight);
-
-        this.lights = lights;
-    };
-
-    lynx.World.prototype.initBorder = function() {
-
-        var size = this.config.size,
-            height = this.config.wallHeight,
-            depth = this.config.wallDepth;
-
-        var texture = lynx.TextureLoader.load("/asset/texture/stones.jpg");
-        var normalTexture = lynx.TextureLoader.load("/asset/texture/stones_normal.jpg");
-        texture.wrapS = THREE.RepeatWrapping;
-        texture.wrapT = THREE.RepeatWrapping;
-        texture.repeat.set(12, 6);
-
-        var material = Physijs.createMaterial(new THREE.MeshPhongMaterial({
-            color: 0xffffff,
-            map: texture,
-            side: THREE.DoubleSide,
-            normalMap: normalTexture
-        }), 0.8, 0.4);
-
-        var planeGeometry = new THREE.PlaneGeometry(size, size);
-        var ground = new Physijs.PlaneMesh(planeGeometry, material, 0);
-        ground.rotation.x = -Math.PI / 2;
-        ground.position.set(0, 0, 0);
-        ground.receiveShadow = true;
-        ground.name = 'ground';
-        this.scene.add(ground);
-
-        var boxGeometry = new THREE.BoxGeometry(depth, height, size);
-
-        var border = new Physijs.BoxMesh(boxGeometry, material, 0, {
-            restitution: 0.2
-        });
-        border.position.set(-size / 2, height / 2, 0);
-        border.receiveShadow = true;
-        border.castShadow = true;
-        border.name = 'border';
-
-        var borderRight = new Physijs.BoxMesh(boxGeometry, material, 0, {
-            restitution: 0.2
-        });
-        borderRight.position.set(size, 0, 0);
-        borderRight.receiveShadow = true;
-        borderRight.castShadow = true;
-        border.add(borderRight);
-
-        var borderTop = new Physijs.BoxMesh(boxGeometry, material, 0, {
-            restitution: 0.2
-        });
-        borderTop.rotation.y = Math.PI / 2;
-        borderTop.position.set(size / 2, 0, size / 2);
-        border.add(borderTop);
-
-        var borderBottom = new Physijs.BoxMesh(boxGeometry, material, 0, {
-            restitution: 0.2
-        });
-        borderBottom.rotation.y = Math.PI / 2;
-        borderBottom.position.set(size / 2, 0, -size / 2);
-        border.add(borderBottom);
-
-        this.scene.add(border);
-    };
-
-    lynx.World.prototype.initRooms = function() {
-
-        var size = this.config.size,
-            height = this.config.wallHeight,
-            depth = this.config.wallDepth;
-
-        var texture = lynx.TextureLoader.load("/asset/texture/stones.jpg");
-        var normalTexture = lynx.TextureLoader.load("/asset/texture/stones_normal.jpg");
-        texture.wrapS = THREE.RepeatWrapping;
-        texture.wrapT = THREE.RepeatWrapping;
-        texture.repeat.set(12, 6);
-
-        var material = Physijs.createMaterial(new THREE.MeshPhongMaterial({
-            color: 0xffffff,
-            map: texture,
-            // side: THREE.DoubleSide,
-            normalMap: normalTexture
-        }), 0.8, 0.4);
-
-        var rooms = this.config.rooms;
-
-        for (var i = 0, room;
-            (room = rooms[i]); i++) {
-            for (var j = 0, wallSide;
-                (wallSide = room.wallSides[j]); j++) {
-                var wall = {
-                    position: {
-                        y: height / 2
-                    },
-                    rotationY: 0,
-                    size: room.width
-                };
-                switch (wallSide) {
-                    case 'left':
-                        wall.position.x = room.position.x - room.width / 2;
-                        wall.position.z = room.position.z;
-                        wall.rotationY = Math.PI / 2;
-                        wall.size = room.height;
-                        break;
-                    case 'right':
-                        wall.position.x = room.position.x + room.width / 2;
-                        wall.position.z = room.position.z;
-                        wall.rotationY = Math.PI / 2;
-                        wall.size = room.height;
-                        break;
-                    case 'top':
-                        wall.position.x = room.position.x;
-                        wall.position.z = room.position.z - room.height / 2;
-                        break;
-                    default:
-                        wall.position.x = room.position.x;
-                        wall.position.z = room.position.z + room.height / 2;
-                }
-                var geometry = new THREE.BoxGeometry(wall.size, height, depth);
-                var wallMesh = new Physijs.BoxMesh(geometry, material, 0);
-                wallMesh.position.copy(wall.position);
-                wallMesh.rotation.y = wall.rotationY;
-                wallMesh.name = i + 'wallMesh' + j;
-                this.scene.add(wallMesh);
-            }
-        }
-    };
-
-    lynx.World.prototype.initModels = function() {
-        var modelLib = this.models = [];
-        var models = this.config.models;
-        var i, model;
-
-        for (i = 0;
-            (model = models[i]); i++) {
-            var modelPath = 'asset/model/' + models[i] + '.json';
-            if (lynx.DEBUG) {
-                lynx.JSONLoader.load(modelPath, loadModel, lynx.loadProgress, lynx.loadError);
-            } else {
-                lynx.JSONLoader.load(modelPath, loadModel);
-            }
-        }
-
-        function loadModel(geometry, materials) {
-            modelLib[model] = {
-                geometry: geometry,
-                materials: materials
-            };
-        }
-    };
-
-    lynx.World.prototype.initPlayer = function() {
-        var world = this;
-        var health = this.config.player.health;
-
-        if (lynx.DEBUG) {
-            lynx.JSONLoader.load('asset/model/fox0.json', loadPlayer, lynx.loadProgress, lynx.loadError);
-        } else {
-            lynx.JSONLoader.load('asset/model/fox0.json', loadPlayer);
-        }
-
-        function loadPlayer(geometry, materials) {
-
-            // geometry.computeVertexNormals();
-            // geometry.computeMorphNormals();
-
-            for (var i = 0; i < materials.length; i++) {
-                var material = materials[i];
-                material.morphTargets = true;
-                // material.morphNormals = true;
-                material.vertexColors = THREE.FaceColors;
-            }
-
-            geometry.computeBoundingBox();
-            var bound = geometry.boundingBox;
-            var width = bound.max.x - bound.min.x;
-            var height = bound.max.y - bound.min.y;
-            var depth = bound.max.z - bound.min.z;
-
-            var mesh = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
-
-            var physGeomtry = new THREE.BoxGeometry(width, width, depth);
-            var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
-            physMaterial.visible = false;
-
-            var player = new Physijs.BoxMesh(physGeomtry, physMaterial);
-            player.castShadow = true;
-            player.name = 'player';
-            player.add(mesh);
-            player.userData.health = health;
-
-            mesh.position.y = -width / 2;
-            player.position.set(0, 0, 0);
-            player.scale.set(0.2, 0.2, 0.2);
-
-            world.scene.add(player);
-
-            world.player = player;
-            world.hud.health(health);
-
-            lynx.Control.player = player;
-            lynx.Control.enabled = true;
-
-            var mixer = new THREE.AnimationMixer(mesh);
-            var clip = THREE.AnimationClip.CreateFromMorphTargetSequence('gallop', geometry.morphTargets, 30);
-            mixer.clipAction(clip).setDuration(1).play();
-
-            lynx.addMixer(mixer);
-
-        }
-    };
-
-    lynx.World.prototype.initNPC = function() {
-        var world = this;
-
-        var npcs = this.config.npcs;
-
-        var npcPos = new THREE.Vector3(0, 0, 0);
-
-        for (var i = 0;
-            (npc = npcs[i]); i++) {
-            var modelPath = 'asset/model/' + npc.name + '.json';
-            npcPos.x = npc.position.x;
-            npcPos.z = npc.position.z;
-            if (lynx.DEBUG) {
-                lynx.JSONLoader.load(modelPath, loadNPC, lynx.loadProgress, lynx.loadError);
-            } else {
-                lynx.JSONLoader.load(modelPath, loadNPC);
-            }
-        }
-
-        function loadNPC(geometry, materials) {
-
-            // geometry.computeVertexNormals();
-            // geometry.computeMorphNormals();
-
-            for (var i = 0; i < materials.length; i++) {
-                var material = materials[i];
-                material.morphTargets = true;
-                // material.morphNormals = true;
-                material.vertexColors = THREE.FaceColors;
-                material.side = THREE.DoubleSide;
-            }
-
-            geometry.computeBoundingBox();
-            var bound = geometry.boundingBox;
-            var width = bound.max.x - bound.min.x;
-            var height = bound.max.y - bound.min.y;
-            var depth = bound.max.z - bound.min.z;
-
-            var mesh = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
-
-            var physGeomtry = new THREE.BoxGeometry(width, height, depth);
-            var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
-            physMaterial.visible = false;
-
-            var npc = new Physijs.BoxMesh(physGeomtry, physMaterial, 0);
-            npc.castShadow = true;
-            npc.userData.type = 'npc';
-            npc.name = 'npc';
-            npc.add(mesh);
-
-            // mesh.position.y = -width / 2;
-            npc.position.x = npcPos.x;
-            npc.position.z = npcPos.z;
-
-            world.scene.add(npc);
-
-            if (geometry.morphTargets && geometry.morphTargets.length) {
-
-                var mixer = new THREE.AnimationMixer(mesh);
-                var clip = THREE.AnimationClip.CreateFromMorphTargetSequence('gallop', geometry.morphTargets, 30);
-                mixer.clipAction(clip).setDuration(1).play();
-
-                lynx.addMixer(mixer);
-            }
-
-        }
-    };
-
-    lynx.World.prototype.initMonster = function() {
-        var world = this;
-
-        var monsters = this.config.monsters;
-
-        var monsterPos = new THREE.Vector3(0, 0, 0);
-
-        for (var i = 0;
-            (monster = monsters[i]); i++) {
-            var modelPath = 'asset/model/' + monster.name + '.json';
-            monsterPos.x = monster.position.x;
-            monsterPos.z = monster.position.z;
-            if (lynx.DEBUG) {
-                lynx.JSONLoader.load(modelPath, loadMonster, lynx.loadProgress, lynx.loadError);
-            } else {
-                lynx.JSONLoader.load(modelPath, loadMonster);
-            }
-        }
-
-        function loadMonster(geometry, materials) {
-
-            // geometry.computeVertexNormals();
-            // geometry.computeMorphNormals();
-
-            for (var i = 0; i < materials.length; i++) {
-                var material = materials[i];
-                material.morphTargets = true;
-                // material.morphNormals = true;
-                material.vertexColors = THREE.FaceColors;
-                material.side = THREE.DoubleSide;
-            }
-
-            geometry.computeBoundingBox();
-            var bound = geometry.boundingBox;
-            var width = bound.max.x - bound.min.x;
-            var height = bound.max.y - bound.min.y;
-            var depth = bound.max.z - bound.min.z;
-
-            var mesh = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
-
-            var physGeomtry = new THREE.BoxGeometry(width, width, depth);
-            var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
-            physMaterial.visible = false;
-
-            var monster = new Physijs.BoxMesh(physGeomtry, physMaterial);
-            monster.castShadow = true;
-            monster.userData.type = 'monster';
-            monster.name = 'monster';
-            monster.userData.direction = 0;
-            monster.userData.step = 0;
-            monster.add(mesh);
-
-            mesh.position.y = -width / 2;
-            monster.position.x = monsterPos.x;
-            monster.position.z = monsterPos.z;
-            monster.lookAtPoint = new THREE.Vector3(monster.position.x, monster.position.y, monster.position.z + 1);
-
-            world.scene.add(monster);
-
-            if (geometry.morphTargets && geometry.morphTargets.length) {
-
-                var mixer = new THREE.AnimationMixer(mesh);
-                var clip = THREE.AnimationClip.CreateFromMorphTargetSequence('gallop', geometry.morphTargets, 30);
-                mixer.clipAction(clip).setDuration(1).play();
-
-                lynx.addMixer(mixer);
-            }
-
-        }
-    };
-
-    lynx.World.prototype.update = function() {
-        var objs = this.scene.children;
-        var angles = [0, 180, 90, 270];
-        var speed = this.config.monsterSpeed;
-        var xAxes = new THREE.Vector3(1, 0, 0);
-        var yAxes = new THREE.Vector3(0, 1, 0);
-        var zAxes = new THREE.Vector3(0, 0, 1);
-
-        for (var i = 0;
-            (obj = objs[i]); i++) {
-            if (obj.userData.type == 'monster') {
-                updateMonster(obj);
-            }
-        }
-
-        function updateMonster(monster) {
-            var velocity = monster.getLinearVelocity();
-
-            var direction = monster.lookAtPoint.clone().sub(monster.position).normalize();
-
-            if (monster.userData.step++ == 1500) {
-                monster.userData.step = 0;
-                direction.applyAxisAngle(yAxes, THREE.Math.degToRad(angles[Math.floor(Math.random() * 100) % 4]));
-            }
-
-            var cosXAxes = direction.clone().dot(xAxes) / (direction.length() * xAxes.length());
-            var cosZAxes = direction.clone().dot(zAxes) / (direction.length() * zAxes.length());
-
-            velocity.x = cosXAxes * speed;
-            velocity.z = cosZAxes * speed;
-
-            monster.setLinearVelocity(velocity);
-
-            monster.lookAtPoint.set(monster.position.x + velocity.x, monster.position.y, monster.position.z + velocity.z);
-            monster.lookAt(monster.lookAtPoint);
-        }
-    };
-
 
 })(lynx);
