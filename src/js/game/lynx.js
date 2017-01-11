@@ -90,10 +90,14 @@ var lynx = {
             wallDepth: 10,
             gravity: 100,
             monsterSpeed: 5,
-            models: ['merchant_cat', 'raptor', 'fox0'],
+            models: [
+                'merchant_cat', 'Market_02', 'melon', 'bear0','bear1','bear2','blackWidow','bunny0','bear3','bunny1','chow','deer','crab','elk','fish0',
+                'fish1','fish2','fish3','eagle','fox1','fox0','flamingo','frog0','goldenRetreiver0','frog2','goat','goldenRetreiver1',
+                'horse1','horse0','hummingBird0','hummingBird1','moose','owl','mountainLion','parrot2','raccoon','panther0',
+                'parrot1','raven','seal0','stork','scorpion','seal1','toad0','wolf','vulture','toad1','gator','tarantula0'],
             player: {
-                name: 'fox0',
-                model: 'fox0',
+                name: 'panther0',
+                model: 'panther0',
                 health: 5,
             },
             rooms: [{
@@ -114,14 +118,14 @@ var lynx = {
                 model: 'merchant_cat'
             }],
             monsters: [{
+                health: 10,
+                model: 'melon',
+                name: 'melon',
                 position: {
-                    x: 0,
-                    z: 200
-                },
-                name: 'raptor',
-                model: 'raptor',
-                health: 100
-            }]
+                    x: 100,
+                    z: 100
+                }
+            }, ]
         }
     };
 

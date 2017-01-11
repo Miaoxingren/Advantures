@@ -33,7 +33,8 @@
         var models = this.config.models;
         var i, model;
 
-        for (i = 0; (model = models[i]); i++) {
+        for (i = 0;
+            (model = models[i]); i++) {
             loadModel(model, this);
         }
 
@@ -434,6 +435,9 @@
         player.castShadow = true;
         player.name = this.config.player.name;
         player.userData.health = this.config.player.health;
+        player.userData.width = width;
+        player.userData.height = height;
+        player.userData.depth = depth;
         player.add(threeObj);
 
         threeObj.position.y = -width / 2;
@@ -569,6 +573,5 @@
             monster.lookAt(monster.lookAtPoint);
         }
     };
-
 
 })(lynx);

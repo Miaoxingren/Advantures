@@ -4,7 +4,6 @@
         this.healthDom = document.getElementById(healthId);
         this.promtDom = document.getElementById(promtId);
         this.loadingDom = document.getElementById(loadingId);
-
     };
 
     lynx.HeadUpDisplay.prototype.loading = function () {
