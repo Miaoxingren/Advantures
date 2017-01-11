@@ -69,7 +69,7 @@
             this.initCamera();
             this.initLight();
             this.initBorder();
-            this.initRooms();
+            this.initWalls();
             this.initNPC();
             this.initMonster();
             this.initPlayer();
@@ -214,7 +214,7 @@
         this.scene.add(border);
     };
 
-    lynx.World.prototype.initRooms = function() {
+    lynx.World.prototype.initWalls = function() {
 
         var size = this.config.size,
             height = this.config.wallHeight,
@@ -234,48 +234,18 @@
             normalMap: normalTexture
         }), 0.8, 0.4);
 
-        var rooms = this.config.rooms;
-
-        for (var i = 0, room;
-            (room = rooms[i]); i++) {
-            for (var j = 0, wallSide;
-                (wallSide = room.wallSides[j]); j++) {
-                var wall = {
-                    position: {
-                        y: height / 2
-                    },
-                    rotationY: 0,
-                    size: room.width
-                };
-                switch (wallSide) {
-                    case 'left':
-                        wall.position.x = room.position.x - room.width / 2;
-                        wall.position.z = room.position.z;
-                        wall.rotationY = Math.PI / 2;
-                        wall.size = room.height;
-                        break;
-                    case 'right':
-                        wall.position.x = room.position.x + room.width / 2;
-                        wall.position.z = room.position.z;
-                        wall.rotationY = Math.PI / 2;
-                        wall.size = room.height;
-                        break;
-                    case 'top':
-                        wall.position.x = room.position.x;
-                        wall.position.z = room.position.z - room.height / 2;
-                        break;
-                    default:
-                        wall.position.x = room.position.x;
-                        wall.position.z = room.position.z + room.height / 2;
-                }
-                var geometry = new THREE.BoxGeometry(wall.size, height, depth);
-                var wallMesh = new Physijs.BoxMesh(geometry, material, 0);
-                wallMesh.position.copy(wall.position);
-                wallMesh.rotation.y = wall.rotationY;
-                wallMesh.name = i + 'wallMesh' + j;
-                this.scene.add(wallMesh);
-            }
+        var walls = this.config.walls;
+        for (var i = 0, wall; (wall = walls[i]); i++) {
+            var geometry = new THREE.BoxGeometry(wall.width, height, depth);
+            var wallMesh = new Physijs.BoxMesh(geometry, material, 0);
+            wallMesh.position.x = wall.position.x;
+            wallMesh.position.y = height / 2;
+            wallMesh.position.z = wall.position.z;
+            wallMesh.rotation.y = wall.vertical ? Math.PI / 2 : 0;
+            wallMesh.name = 'wallMesh-' + i;
+            this.scene.add(wallMesh);
         }
+
     };
 
     lynx.World.prototype.initNPC = function() {

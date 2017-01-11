@@ -91,24 +91,17 @@ var lynx = {
             gravity: 100,
             monsterSpeed: 5,
             models: [
-                'merchant_cat', 'Market_02', 'melon', 'bear0','bear1','bear2','blackWidow','bunny0','bear3','bunny1','chow','deer','crab','elk','fish0',
-                'fish1','fish2','fish3','eagle','fox1','fox0','flamingo','frog0','goldenRetreiver0','frog2','goat','goldenRetreiver1',
-                'horse1','horse0','hummingBird0','hummingBird1','moose','owl','mountainLion','parrot2','raccoon','panther0',
-                'parrot1','raven','seal0','stork','scorpion','seal1','toad0','wolf','vulture','toad1','gator','tarantula0'],
+                'merchant_cat', 'melon', 'bear0', 'bear1', 'bear2', 'blackWidow', 'bunny0', 'bear3', 'bunny1', 'chow', 'deer', 'crab', 'elk', 'fish0',
+                'fish1', 'fish2', 'fish3', 'eagle', 'fox1', 'fox0', 'flamingo', 'frog0', 'goldenRetreiver0', 'frog2', 'goat', 'goldenRetreiver1',
+                'horse1', 'horse0', 'hummingBird0', 'hummingBird1', 'moose', 'owl', 'mountainLion', 'parrot2', 'raccoon', 'panther0',
+                'parrot1', 'raven', 'seal0', 'stork', 'scorpion', 'seal1', 'toad0', 'wolf', 'vulture', 'toad1', 'gator', 'tarantula0'
+            ],
             player: {
                 name: 'panther0',
                 model: 'panther0',
                 health: 5,
             },
-            rooms: [{
-                position: {
-                    x: -700,
-                    z: -800
-                },
-                width: 600,
-                height: 400,
-                wallSides: ['bottom', 'right']
-            }],
+            walls: [],
             npcs: [{
                 position: {
                     x: 0,
@@ -143,7 +136,163 @@ var lynx = {
     lynx.getConfig = function(name, config) {
         var world = lynx.defaults[name];
         world = lynx.merge(world, config);
+        world.walls = createWalls(world.size);
         return world;
+
+        function createWalls(size) {
+            var walls = [{
+                position: {
+                    x: -size / 8 * 3,
+                    z: -size / 8 * 3 + size / 8 / 2
+                },
+                width: size / 8,
+                vertical: true
+            }, {
+                position: {
+                    x: -size / 8 * 3,
+                    z: -size / 8 + size / 8 * 3 / 2
+                },
+                width: size / 8 * 3,
+                vertical: true
+            }, {
+                position: {
+                    x: -size / 4,
+                    z: -size / 4 + size / 8 * 3 / 2
+                },
+                width: size / 8 * 3,
+                vertical: true
+            }, {
+                position: {
+                    x: -size / 8,
+                    z: 0
+                },
+                width: size / 4,
+                vertical: true
+            }, {
+                position: {
+                    x: 0,
+                    z: -size / 2 + size / 8 / 2
+                },
+                width: size / 8,
+                vertical: true
+            }, {
+                position: {
+                    x: 0,
+                    z: -size / 4 + size / 8 / 2
+                },
+                width: size / 8,
+                vertical: true
+            }, {
+                position: {
+                    x: 0,
+                    z: size / 4 + size / 8 / 2
+                },
+                width: size / 8,
+                vertical: true
+            }, {
+                position: {
+                    x: size / 8,
+                    z: -size / 8 + size / 8 / 2 / 2
+                },
+                width: size / 8 / 2,
+                vertical: true
+            }, {
+                position: {
+                    x: size / 8,
+                    z: size / 8 - size / 8 / 2 / 2
+                },
+                width: size / 8 / 2,
+                vertical: true
+            }, {
+                position: {
+                    x: size / 4,
+                    z: -size / 8 + size / 8 * 3 / 2
+                },
+                width: size / 8 * 3,
+                vertical: true
+            }, {
+                position: {
+                    x: size / 8 * 3,
+                    z: -size / 4
+                },
+                width: size / 4,
+                vertical: true
+            }, {
+                position: {
+                    x: size / 8 * 3,
+                    z: size / 8 * 3 / 2
+                },
+                width: size / 8 * 3,
+                vertical: true
+            }, {
+                position: {
+                    x: -size / 8 * 3 / 2,
+                    z: -size / 8 * 3
+                },
+                width: size / 8 * 3
+            }, {
+                position: {
+                    x: size / 4,
+                    z: -size / 8 * 3
+                },
+                width: size / 4
+            }, {
+                position: {
+                    x: -size / 4 + size / 8 * 5 / 2,
+                    z: -size / 4
+                },
+                width: size / 8 * 5
+            }, {
+                position: {
+                    x: 0,
+                    z: -size / 8
+                },
+                width: size / 4
+            }, {
+                position: {
+                    x: -size / 2 + size / 8 / 2,
+                    z: 0
+                },
+                width: size / 8
+            }, {
+                position: {
+                    x: size / 2 - size / 8 / 2,
+                    z: 0
+                },
+                width: size / 8
+            }, {
+                position: {
+                    x: -size / 8 + size / 8 * 3 / 2,
+                    z: size / 8
+                },
+                width: size / 8 * 3
+            }, {
+                position: {
+                    x: -size / 4,
+                    z: size / 4
+                },
+                width: size / 4
+            }, {
+                position: {
+                    x: size / 8,
+                    z: size / 4
+                },
+                width: size / 4
+            }, {
+                position: {
+                    x: -size / 8,
+                    z: size / 8 * 3
+                },
+                width: size / 2
+            }, {
+                position: {
+                    x: size / 4 + size / 8 / 2,
+                    z: size / 8 * 3
+                },
+                width: size / 8
+            }];
+            return walls;
+        }
     };
 
 })(lynx);

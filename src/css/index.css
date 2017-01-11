@@ -86,3 +86,31 @@ body {
     background-color: #fff;
     display: none;
 }
+
+@keyframes load-circle {
+    0 {
+        transform: translate(0, 0);
+    }
+    50% {
+        transform: translate(0, 20%);
+    }
+    100% {
+        transform: translate(0, 0);
+    }
+}
+
+#loading circle {
+    animation: load-circle 1.4s linear infinite;
+}
+
+#loading circle:nth-child(1) {
+    animation-delay: 0.25s;
+}
+
+#loading circle:nth-child(2) {
+    animation-delay: 0.5s;
+}
+
+#loading circle:nth-child(3) {
+    animation-delay: 0.75s;
+}
