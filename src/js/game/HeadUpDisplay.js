@@ -1,9 +1,34 @@
 
 (function(lynx) {
-    lynx.HeadUpDisplay = function(healthId, promtId, loadingId) {
+    lynx.HeadUpDisplay = function(healthId, promtId, loadingId, identityId) {
         this.healthDom = document.getElementById(healthId);
         this.promtDom = document.getElementById(promtId);
         this.loadingDom = document.getElementById(loadingId);
+        this.identityDom = document.getElementById(identityId);
+        this.musicDom = document.getElementById('music');
+        this.musicDom.loop = true;
+    };
+
+    lynx.HeadUpDisplay.prototype.playMusic = function () {
+        if (!this.musicDom) return;
+        this.musicDom.play();
+    };
+
+    lynx.HeadUpDisplay.prototype.closeMusic = function () {
+        if (!this.musicDom) return;
+        this.musicDom.pause();
+    };
+
+    lynx.HeadUpDisplay.prototype.identity = function (name, top, left) {
+        if (!this.identityDom) return;
+        this.identityDom.style.display = 'block';
+        this.identityDom.style.top = top + 'px';
+        this.identityDom.style.left = left + 'px';
+    };
+
+    lynx.HeadUpDisplay.prototype.hideIdentity = function () {
+        if (!this.identityDom) return;
+        this.identityDom.style.display = 'none';
     };
 
     lynx.HeadUpDisplay.prototype.loading = function () {

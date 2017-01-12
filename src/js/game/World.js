@@ -15,7 +15,7 @@
 
     lynx.World.prototype.initHUD = function() {
         if (this.hud) return;
-        this.hud = new lynx.HeadUpDisplay('health', 'promt', 'loading');
+        this.hud = new lynx.HeadUpDisplay('health', 'promt', 'loading', 'identity');
         this.hud.loading();
     };
 
@@ -76,6 +76,7 @@
             this.initControl();
 
             this.hud.loadComplete();
+            this.hud.playMusic();
             this.state = lynx.state.PLAY;
         }
     };
@@ -249,6 +250,7 @@
     };
 
     lynx.World.prototype.initNPC = function() {
+        this.npcs = [];
 
         var npcs = this.config.npcs;
         var modelLib = this.models;
@@ -293,6 +295,7 @@
             physiObj.position.z = npc.position.z;
 
             this.scene.add(physiObj);
+            this.npcs.push(physiObj);
 
             if (geometry.morphTargets && geometry.morphTargets.length) {
 
@@ -412,7 +415,8 @@
 
         threeObj.position.y = -width / 2;
 
-        player.position.set(0, 0, 0);
+        player.position.x = this.config.player.position.x;
+        player.position.z = this.config.player.position.z;
         player.scale.set(0.2, 0.2, 0.2);
 
         this.scene.add(player);
@@ -443,37 +447,54 @@
     };
 
     lynx.World.prototype.onMouseDown = function(event) {
-        var raycaster = new THREE.Raycaster();
-        var ballGemotry = new THREE.SphereGeometry(0.4, 14, 10);
-        var ballMaterial = Physijs.createMaterial(new THREE.MeshPhongMaterial({
-            color: 0x202020
-        }));
-        var pos = new THREE.Vector3();
-        var quat = new THREE.Quaternion();
-        var mouseCoords = new THREE.Vector2((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
+        this.hud.promt('info', 'Welcom to Advantures! Our king is caught by evil. Could you help us get him out?');
+        this.state = lynx.state.PAUSE;
 
-        raycaster.setFromCamera(mouseCoords, this.camera);
+        function throwBall() {
+            var raycaster = new THREE.Raycaster();
+            var ballGemotry = new THREE.SphereGeometry(0.4, 14, 10);
+            var ballMaterial = Physijs.createMaterial(new THREE.MeshPhongMaterial({
+                color: 0x202020
+            }));
+            var pos = new THREE.Vector3();
+            var quat = new THREE.Quaternion();
+            var mouseCoords = new THREE.Vector2((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
 
-        // Creates a ball and throws it
-        var ball = new Physijs.SphereMesh(ballGemotry, ballMaterial);
+            raycaster.setFromCamera(mouseCoords, this.camera);
 
-        pos.copy(raycaster.ray.direction);
-        pos.add(raycaster.ray.origin);
-        quat.set(0, 0, 0, 1);
+            // Creates a ball and throws it
+            var ball = new Physijs.SphereMesh(ballGemotry, ballMaterial);
 
-        ball.position.copy(pos);
-        ball.quaternion.copy(quat);
+            pos.copy(raycaster.ray.direction);
+            pos.add(raycaster.ray.origin);
+            quat.set(0, 0, 0, 1);
 
-        this.scene.add(ball);
+            ball.position.copy(pos);
+            ball.quaternion.copy(quat);
 
-        pos.copy(raycaster.ray.direction);
-        pos.multiplyScalar(100);
-        ball.setLinearVelocity(new THREE.Vector3(pos.x, pos.y, pos.z));
+            this.scene.add(ball);
+
+            pos.copy(raycaster.ray.direction);
+            pos.multiplyScalar(100);
+            ball.setLinearVelocity(new THREE.Vector3(pos.x, pos.y, pos.z));
+        }
     };
 
     lynx.World.prototype.onMouseUp = function(event) {};
 
-    lynx.World.prototype.onMouseMove = function(event) {};
+    lynx.World.prototype.onMouseMove = function(event) {
+        var mouseCoords = new THREE.Vector2((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
+        var raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouseCoords, this.camera);
+        var intersections = raycaster.intersectObjects(this.npcs);
+        if (intersections && intersections[0]) {
+            this.domElement.style.cursor = 'pointer';
+            this.hud.identity('merchant_cat', event.pageY, event.pageX);
+        } else {
+            this.domElement.style.cursor = 'auto';
+            this.hud.hideIdentity();
+        }
+    };
 
     lynx.World.prototype.onKeyDown = function(event) {
         switch (event.keyCode) {

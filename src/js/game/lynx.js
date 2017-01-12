@@ -90,35 +90,17 @@ var lynx = {
             wallDepth: 10,
             gravity: 100,
             monsterSpeed: 5,
+            monsterNum: 30,
             models: [
                 'merchant_cat', 'melon', 'bear0', 'bear1', 'bear2', 'blackWidow', 'bunny0', 'bear3', 'bunny1', 'chow', 'deer', 'crab', 'elk', 'fish0',
                 'fish1', 'fish2', 'fish3', 'eagle', 'fox1', 'fox0', 'flamingo', 'frog0', 'goldenRetreiver0', 'frog2', 'goat', 'goldenRetreiver1',
                 'horse1', 'horse0', 'hummingBird0', 'hummingBird1', 'moose', 'owl', 'mountainLion', 'parrot2', 'raccoon', 'panther0',
                 'parrot1', 'raven', 'seal0', 'stork', 'scorpion', 'seal1', 'toad0', 'wolf', 'vulture', 'toad1', 'gator', 'tarantula0'
             ],
-            player: {
-                name: 'panther0',
-                model: 'panther0',
-                health: 5,
-            },
+            player: {},
             walls: [],
-            npcs: [{
-                position: {
-                    x: 0,
-                    z: 100
-                },
-                name: 'merchant_cat',
-                model: 'merchant_cat'
-            }],
-            monsters: [{
-                health: 10,
-                model: 'melon',
-                name: 'melon',
-                position: {
-                    x: 100,
-                    z: 100
-                }
-            }, ]
+            npcs: [],
+            monsters: []
         }
     };
 
@@ -137,6 +119,9 @@ var lynx = {
         var world = lynx.defaults[name];
         world = lynx.merge(world, config);
         world.walls = createWalls(world.size);
+        world.npcs = createNPCs(world.size);
+        world.player = createPlayer(world.size);
+        world.monsters = createMontsers(world.size, world.monsterNum);
         return world;
 
         function createWalls(size) {
@@ -160,6 +145,13 @@ var lynx = {
                     z: -size / 4 + size / 8 * 3 / 2
                 },
                 width: size / 8 * 3,
+                vertical: true
+            }, {
+                position: {
+                    x: -size / 8,
+                    z: -size / 2 + size / 8 / 2
+                },
+                width: size / 8,
                 vertical: true
             }, {
                 position: {
@@ -293,6 +285,54 @@ var lynx = {
             }];
             return walls;
         }
+
+        function createNPCs(size) {
+            var npcs = [{
+                position: {
+                    x: -size / 16,
+                    z: -size / 2 + size / 8 / 3
+                },
+                name: 'Merchant cat',
+                model: 'merchant_cat'
+            }];
+            return npcs;
+        }
+
+        function createPlayer(size) {
+            var player = {
+                name: 'panther0',
+                model: 'panther0',
+                health: 5,
+                position: {
+                    x: -size / 16,
+                    z: -size / 2 + size / 8 / 3 * 2
+                }
+            };
+            return player;
+        }
+
+        function createMontsers(size, count) {
+            var monsters = [];
+
+            for (var i = 0; i < count; i++) {
+                var monster = {
+                    health: 10,
+                    model: '',
+                    name: '',
+                    position: {}
+                };
+                monster.health = Math.floor(Math.random() * 100);
+                monster.model = world.models[Math.floor(Math.random() * 400) % world.models.length];
+                monster.name = monster.model + i;
+                var x = (Math.floor(Math.random() * 10) % 4 + 1) * (Math.random() > 0.5 ? 1 : -1);
+                var z = (Math.floor(Math.random() * 10) % 4 + 1) * (Math.random() > 0.5 ? 1 : -1);
+                monster.position.x = x * size / 8 + size / 16 * (x > 0 ? -1 : 1);
+                monster.position.z = z * size / 8 + size / 16 * (z > 0 ? -1 : 1);
+                monsters.push(monster);
+            }
+            return monsters;
+        }
+
     };
 
 })(lynx);
