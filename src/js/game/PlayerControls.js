@@ -165,10 +165,15 @@ lynx.PlayerControls = function(camera, player, domElement) {
         var mousePosX = this.domElement === document ? event.pageX : event.pageX - this.domElement.offsetLeft;
         var mousePosY = this.domElement === document ? event.pageY : event.pageY - this.domElement.offsetTop;
 
-        if (mousePosX >= this.ViewLowerX && mousePosX <= this.ViewUpperX && mousePosY >= this.ViewLowerY && mousePosY <= this.ViewUpperY) return;
+        if (mousePosX >= this.ViewLowerX && mousePosX <= this.ViewUpperX && mousePosY >= this.ViewLowerY && mousePosY <= this.ViewUpperY) {
+            this.mouseX = 0;
+            this.mouseY = 0;
+        } else {
 
-        this.mouseX = mousePosX - this.viewHalfX;
-        this.mouseY = mousePosY - this.viewHalfY;
+            this.mouseX = mousePosX - this.viewHalfX;
+            this.mouseY = mousePosY - this.viewHalfY;
+        }
+
 
         if (this.worldMouseMove) {
 

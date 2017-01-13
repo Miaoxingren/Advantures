@@ -9,6 +9,23 @@
         this.musicDom.loop = true;
     };
 
+    lynx.HeadUpDisplay.prototype.tellStory = function (type, story) {
+        if (!this.promtDom) return;
+        if (type && story) {
+            this.story = story;
+            this.msgIndex = 0;
+        }
+        if (!this.story || (this.msgIndex >= this.story.length)) {
+            this.story = undefined;
+            this.msgIndex = undefined;
+            this.hidePromt();
+            return;
+        }
+        this.promtDom.style.display = 'block';
+        this.promtDom.class = type;
+        this.promtDom.innerHTML = this.story[this.msgIndex++];
+    };
+
     lynx.HeadUpDisplay.prototype.playMusic = function () {
         if (!this.musicDom) return;
         this.musicDom.play();

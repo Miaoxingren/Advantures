@@ -72,8 +72,11 @@
             this.initWalls();
             this.initNPC();
             this.initMonster();
+            this.initStories();
             this.initPlayer();
             this.initControl();
+
+            this.story = 'welcome';
 
             this.hud.loadComplete();
             this.hud.playMusic();
@@ -296,6 +299,7 @@
 
             this.scene.add(physiObj);
             this.npcs.push(physiObj);
+            this.npcs[npc.name] = physiObj;
 
             if (geometry.morphTargets && geometry.morphTargets.length) {
 
@@ -353,6 +357,7 @@
             physiObj.add(threeObj);
 
             threeObj.position.y = -width / 2;
+            physiObj.scale.set(0.2, 0.2, 0.2);
             physiObj.position.x = monster.position.x;
             physiObj.position.z = monster.position.z;
             physiObj.lookAtPoint = new THREE.Vector3(physiObj.position.x, physiObj.position.y, physiObj.position.z + 1);
@@ -373,6 +378,18 @@
         function loadMonster(geometry, materials) {
 
 
+        }
+    };
+
+    lynx.World.prototype.initStories = function() {
+        if (!this.config.stories) return;
+        var stories = this.config.stories;
+        for (var i = 0, len = stories.length; i < len; i++) {
+            var character = stories[i].character;
+            if (this.npcs[character]) {
+                this.npcs[character].userData.stories = stories[i].stories;
+                this.npcs[character].userData.currentStory = 0;
+            }
         }
     };
 
@@ -447,8 +464,11 @@
     };
 
     lynx.World.prototype.onMouseDown = function(event) {
-        this.hud.promt('info', 'Welcom to Advantures! Our king is caught by evil. Could you help us get him out?');
-        this.state = lynx.state.PAUSE;
+        if (this.selectObj && this.npcs[this.selectObj]) {
+            var npc = this.npcs[this.selectObj];
+            this.hud.tellStory('info', npc.userData.stories[npc.userData.currentStory].messages);
+            this.state = lynx.state.STORY;
+        }
 
         function throwBall() {
             var raycaster = new THREE.Raycaster();
@@ -490,9 +510,11 @@
         if (intersections && intersections[0]) {
             this.domElement.style.cursor = 'pointer';
             this.hud.identity('merchant_cat', event.pageY, event.pageX);
+            this.selectObj = intersections[0].object.name;
         } else {
             this.domElement.style.cursor = 'auto';
             this.hud.hideIdentity();
+            this.selectObj = '';
         }
     };
 
@@ -505,6 +527,10 @@
                 } else {
                     this.hud.hidePromt();
                 }
+                break;
+
+            case 13:
+                this.hud.tellStory();
                 break;
         }
     };

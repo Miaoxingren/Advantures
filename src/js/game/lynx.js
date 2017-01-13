@@ -100,7 +100,19 @@ var lynx = {
             player: {},
             walls: [],
             npcs: [],
-            monsters: []
+            monsters: [],
+            stories: [{
+                character: 'Merchant cat',
+                stories: [{
+                    name: 'welcome',
+                    messages: [
+                        '你好，喵勇士moechan。',
+                        '在喵神melonpi的保护下，喵喵村一直保持着和平并享受着用之不尽的猫粮。',
+                        '然而，一个拥有着邪恶力量的恶魔铲屎官闯进了喵喵村，并带走了喵神melonpi。',
+                        '喵神melonpi和恶魔铲屎官就在这座迷宫中，请你击退各种各样的怪物并将喵神melonpi带回喵喵村。'
+                    ]
+                }]
+            }]
         }
     };
 
@@ -108,7 +120,8 @@ var lynx = {
         INIT: 0,
         PLAY: 1,
         PAUSE: 2,
-        GAMEOVER: 3
+        GAMEOVER: 3,
+        STORY: 4
     };
 
 })(lynx);
@@ -325,7 +338,9 @@ var lynx = {
                 monster.model = world.models[Math.floor(Math.random() * 400) % world.models.length];
                 monster.name = monster.model + i;
                 var x = (Math.floor(Math.random() * 10) % 4 + 1) * (Math.random() > 0.5 ? 1 : -1);
+                x = x == -1 ? 1 : x;
                 var z = (Math.floor(Math.random() * 10) % 4 + 1) * (Math.random() > 0.5 ? 1 : -1);
+                z = z == -4 ? 4 : z;
                 monster.position.x = x * size / 8 + size / 16 * (x > 0 ? -1 : 1);
                 monster.position.z = z * size / 8 + size / 16 * (z > 0 ? -1 : 1);
                 monsters.push(monster);
