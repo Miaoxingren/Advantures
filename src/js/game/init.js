@@ -15,7 +15,7 @@ function init() {
 
     function animate() {
         requestAnimationFrame(animate);
-        if (world.state === lynx.state.PLAY) {
+        if (world.state === lynx.worldState.PLAY) {
             render();
         }
     }

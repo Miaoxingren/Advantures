@@ -5,7 +5,7 @@
         this.domElement = domElement;
         this.config = lynx.getConfig(name, config);
 
-        this.state = lynx.state.INIT;
+        this.state = lynx.worldState.INIT;
 
         this.initHUD();
         this.initLoader();
@@ -61,7 +61,7 @@
     };
 
     lynx.World.prototype.initWorld = function() {
-        if (this.state === lynx.state.INIT) {
+        if (this.state === lynx.worldState.INIT) {
 
             this.mixers = [];
 
@@ -79,8 +79,8 @@
             this.story = 'welcome';
 
             this.hud.loadComplete();
-            this.hud.playMusic();
-            this.state = lynx.state.PLAY;
+            // this.hud.playMusic();
+            this.state = lynx.worldState.PLAY;
         }
     };
 
@@ -239,7 +239,8 @@
         }), 0.8, 0.4);
 
         var walls = this.config.walls;
-        for (var i = 0, wall; (wall = walls[i]); i++) {
+        for (var i = 0, wall;
+            (wall = walls[i]); i++) {
             var geometry = new THREE.BoxGeometry(wall.width, height, depth);
             var wallMesh = new Physijs.BoxMesh(geometry, material, 0);
             wallMesh.position.x = wall.position.x;
@@ -290,6 +291,7 @@
             var physiObj = new Physijs.BoxMesh(physGeomtry, physMaterial, 0);
             physiObj.castShadow = true;
             physiObj.name = npc.name;
+            physiObj.userData.id = npc.id || physiObj.uuid;
             physiObj.userData.type = 'npc';
             physiObj.add(threeObj);
 
@@ -299,7 +301,7 @@
 
             this.scene.add(physiObj);
             this.npcs.push(physiObj);
-            this.npcs[npc.name] = physiObj;
+            this.npcs[physiObj.userData.id] = this.npcs[this.npcs.length - 1];
 
             if (geometry.morphTargets && geometry.morphTargets.length) {
 
@@ -351,6 +353,7 @@
             var physiObj = new Physijs.BoxMesh(physGeomtry, physMaterial);
             physiObj.castShadow = true;
             physiObj.name = monster.name;
+            physiObj.userData.id = physiObj.id || physiObj.uuid;
             physiObj.userData.type = 'monster';
             physiObj.userData.direction = 0;
             physiObj.userData.step = 0;
@@ -375,10 +378,6 @@
 
         }
 
-        function loadMonster(geometry, materials) {
-
-
-        }
     };
 
     lynx.World.prototype.initStories = function() {
@@ -387,6 +386,7 @@
         for (var i = 0, len = stories.length; i < len; i++) {
             var character = stories[i].character;
             if (this.npcs[character]) {
+                // stories[i].stories.state = lynx.storyState.CREATED;
                 this.npcs[character].userData.stories = stories[i].stories;
                 this.npcs[character].userData.currentStory = 0;
             }
@@ -464,10 +464,11 @@
     };
 
     lynx.World.prototype.onMouseDown = function(event) {
-        if (this.selectObj && this.npcs[this.selectObj]) {
-            var npc = this.npcs[this.selectObj];
-            this.hud.tellStory('info', npc.userData.stories[npc.userData.currentStory].messages);
-            this.state = lynx.state.STORY;
+        if (this.selectedObjId && this.npcs[this.selectedObjId]) {
+            var npc = this.npcs[this.selectedObjId];
+            var story = npc.userData.stories[npc.userData.currentStory];
+            this.hud.tellStory(story);
+            this.state = lynx.worldState.STORY;
         }
 
         function throwBall() {
@@ -509,20 +510,20 @@
         var intersections = raycaster.intersectObjects(this.npcs);
         if (intersections && intersections[0]) {
             this.domElement.style.cursor = 'pointer';
-            this.hud.identity('merchant_cat', event.pageY, event.pageX);
-            this.selectObj = intersections[0].object.name;
+            this.hud.identity(intersections[0].object.name, event.pageY, event.pageX);
+            this.selectedObjId = intersections[0].object.userData.id;
         } else {
             this.domElement.style.cursor = 'auto';
             this.hud.hideIdentity();
-            this.selectObj = '';
+            this.selectedObjId = '';
         }
     };
 
     lynx.World.prototype.onKeyDown = function(event) {
         switch (event.keyCode) {
             case 32:
-                this.state = this.state == lynx.state.PAUSE ? lynx.state.PLAY : lynx.state.PAUSE;
-                if (this.state === lynx.state.PAUSE) {
+                this.state = this.state == lynx.worldState.PAUSE ? lynx.worldState.PLAY : lynx.worldState.PAUSE;
+                if (this.state === lynx.worldState.PAUSE) {
                     this.hud.promt('info', 'Pause');
                 } else {
                     this.hud.hidePromt();

@@ -67,14 +67,15 @@ var lynx = {
     };
 
     lynx.initRenderer = function(id) {
+        var container = document.getElementById(id);
         var renderer = new THREE.WebGLRenderer({
             antialias: true
         });
         renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setSize(container.clientWidth, container.clientHeight);
         renderer.shadowMap.enabled = true;
         renderer.shadowMapSoft = true;
-        document.getElementById(id).appendChild(renderer.domElement);
+        container.appendChild(renderer.domElement);
         lynx.renderer = renderer;
         return lynx.renderer;
     };
@@ -82,6 +83,28 @@ var lynx = {
 })(lynx);
 
 (function(lynx) {
+
+    lynx.worldState = {
+        INIT: 0,
+        PLAY: 1,
+        PAUSE: 2,
+        GAMEOVER: 3,
+        STORY: 4
+    };
+
+    lynx.storyState = {
+        CREATED: 'created',
+        RUNNING: 'running',
+        COMPLETED: 'completed'
+    };
+
+})(lynx);
+
+(function(lynx) {
+
+    var created = lynx.storyState.CREATED;
+    var running = lynx.storyState.RUNNING;
+    var completed = lynx.storyState.COMPLETED;
 
     lynx.defaults = {
         paw: {
@@ -102,29 +125,26 @@ var lynx = {
             npcs: [],
             monsters: [],
             stories: [{
-                character: 'Merchant cat',
+                character: 'MerchantCat',
                 stories: [{
                     name: 'welcome',
-                    messages: [
-                        '你好，喵勇士moechan。',
-                        '在喵神melonpi的保护下，喵喵村一直保持着和平并享受着用之不尽的猫粮。',
-                        '然而，一个拥有着邪恶力量的恶魔铲屎官闯进了喵喵村，并带走了喵神melonpi。',
-                        '喵神melonpi和恶魔铲屎官就在这座迷宫中，请你击退各种各样的怪物并将喵神melonpi带回喵喵村。'
-                    ]
+                    state: created,
+                    messages: {
+                        created: [
+                            '你好，喵勇士moechan。',
+                            '在喵神melonpi的保护下，喵喵村一直保持着和平并享受着用之不尽的猫粮。',
+                            '然而，一个拥有着邪恶力量的恶魔铲屎官闯进了喵喵村，并带走了喵神melonpi。',
+                            '喵神melonpi和恶魔铲屎官就在这座迷宫中，请你击退各种各样的怪物并将喵神melonpi带回喵喵村。'
+                        ],
+                        running: ['喵勇士moechan, 喵神melonpi和恶魔铲屎官就在这座迷宫中，请你将喵神melonpi带回喵喵村。']
+                    }
                 }]
             }]
         }
     };
 
-    lynx.state = {
-        INIT: 0,
-        PLAY: 1,
-        PAUSE: 2,
-        GAMEOVER: 3,
-        STORY: 4
-    };
-
 })(lynx);
+
 
 (function(lynx) {
 
@@ -306,7 +326,8 @@ var lynx = {
                     z: -size / 2 + size / 8 / 3
                 },
                 name: 'Merchant cat',
-                model: 'merchant_cat'
+                model: 'merchant_cat',
+                id: 'MerchantCat'
             }];
             return npcs;
         }
