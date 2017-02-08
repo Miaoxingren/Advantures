@@ -5,13 +5,10 @@ function init() {
     var renderer = lynx.initRenderer('game');
 
     var world = new lynx.World("paw", renderer.domElement);
-    var scene = world.scene;
-    var camera = world.camera;
 
     var clock = new THREE.Clock();
 
     animate();
-    // scene.simulate();
 
     function animate() {
         requestAnimationFrame(animate);
@@ -24,7 +21,6 @@ function init() {
         var delta = clock.getDelta();
 
         world.update(delta);
-        world.scene.simulate(undefined, 100);
 
         stats.update();
 

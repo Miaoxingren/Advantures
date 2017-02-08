@@ -1,11 +1,16 @@
 (function(lynx) {
-    lynx.HeadUpDisplay = function(healthId, promtId, loadingId, identityId) {
-        this.healthDom = document.getElementById(healthId);
-        this.promtDom = document.getElementById(promtId);
-        this.loadingDom = document.getElementById(loadingId);
-        this.identityDom = document.getElementById(identityId);
-        this.musicDom = document.getElementById('music');
-        this.musicDom.loop = true;
+
+    lynx.MsgCtrl = function () {
+    };
+
+    lynx.HeadUpDisplay = function() {
+        this.healthDom = document.getElementById('health');
+        this.promtDom = document.getElementById('promt');
+        this.loadingDom = document.getElementById('loading');
+        this.identityDom = document.getElementById('identity');
+
+        // this.musicDom = document.getElementById('music');
+        // this.musicDom.loop = true;
     };
 
     lynx.HeadUpDisplay.prototype.tellStory = function(story) {
@@ -22,7 +27,7 @@
             this.story = undefined;
             this.msgIndex = undefined;
             this.hidePromt();
-            return;
+            return true;
         }
         this.promtDom.style.display = 'block';
         this.promtDom.class = 'info';

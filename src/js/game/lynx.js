@@ -88,8 +88,7 @@ var lynx = {
         INIT: 0,
         PLAY: 1,
         PAUSE: 2,
-        GAMEOVER: 3,
-        STORY: 4
+        GAMEOVER: 3
     };
 
     lynx.storyState = {
@@ -184,6 +183,7 @@ var lynx = {
                     x: -size / 8,
                     z: -size / 2 + size / 8 / 2
                 },
+                tag: 'welcome',
                 width: size / 8,
                 vertical: true
             }, {

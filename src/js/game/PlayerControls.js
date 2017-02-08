@@ -104,12 +104,15 @@ lynx.PlayerControls = function(camera, player, domElement) {
 
             switch (event.button) {
 
-                case 0:
-                    this.moveForward = true;
-                    break;
-
+                // case 0:
+                //     this.moveForward = true;
+                //     break;
+                //
+                // case 2:
+                //     this.moveBackward = true;
+                //     break;
                 case 2:
-                    this.moveBackward = true;
+                    this.rotate = true;
                     break;
 
             }
@@ -135,14 +138,16 @@ lynx.PlayerControls = function(camera, player, domElement) {
 
             switch (event.button) {
 
-                case 0:
-                    this.moveForward = false;
-                    break;
-
+                // case 0:
+                //     this.moveForward = false;
+                //     break;
+                //
+                // case 2:
+                //     this.moveBackward = false;
+                //     break;
                 case 2:
-                    this.moveBackward = false;
+                    this.rotate = false;
                     break;
-
             }
 
         }
@@ -349,6 +354,8 @@ lynx.PlayerControls = function(camera, player, domElement) {
             this.player.setLinearVelocity(velocity);
 
         }
+
+        if (!this.rotate) return;
 
         var actualLookSpeed = delta * this.lookSpeed;
 

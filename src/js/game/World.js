@@ -15,7 +15,7 @@
 
     lynx.World.prototype.initHUD = function() {
         if (this.hud) return;
-        this.hud = new lynx.HeadUpDisplay('health', 'promt', 'loading', 'identity');
+        this.hud = new lynx.HeadUpDisplay();
         this.hud.loading();
     };
 
@@ -31,11 +31,9 @@
         this.models = [];
 
         var models = this.config.models;
-        var i, model;
 
-        for (i = 0;
-            (model = models[i]); i++) {
-            loadModel(model, this);
+        for (var i = 0, len = models.length; i < len; i++) {
+            loadModel(models[i], this);
         }
 
         function loadModel(model, world) {
@@ -68,15 +66,14 @@
             this.initScene();
             this.initCamera();
             this.initLight();
-            this.initBorder();
+            this.initBound();
             this.initWalls();
             this.initNPC();
             this.initMonster();
             this.initStories();
+            this.initPlotCtrl();
             this.initPlayer();
             this.initControl();
-
-            this.story = 'welcome';
 
             this.hud.loadComplete();
             // this.hud.playMusic();
@@ -109,13 +106,14 @@
     };
 
     lynx.World.prototype.initCamera = function() {
-        if (this.camera) return;
+        if (this.playerCamera) return;
         var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera.position.x = 850;
         camera.position.y = 50;
         camera.position.z = 900;
         camera.lookAt(this.scene.position);
-        this.camera = camera;
+        this.playerCamera = camera;
+        this.camera = this.playerCamera;
     };
 
     lynx.World.prototype.initLight = function() {
@@ -155,67 +153,97 @@
         this.lights = lights;
     };
 
-    lynx.World.prototype.initBorder = function() {
+    lynx.World.prototype.initBound = function() {
 
-        var size = this.config.size,
-            height = this.config.wallHeight,
-            depth = this.config.wallDepth;
+        var _initGround = lynx.bind(this, initGround);
+        _initGround();
 
-        var texture = this.TextureLoader.load("/asset/texture/stones.jpg"),
-            normalTexture = this.TextureLoader.load("/asset/texture/stones_normal.jpg");
-        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-        normalTexture.wrapS = normalTexture.wrapT = THREE.RepeatWrapping;
-        texture.repeat.set(12, 6);
-        normalTexture.repeat.set(12, 6);
+        var _initBorder = lynx.bind(this, initBorder);
+        _initBorder();
 
-        var material = Physijs.createMaterial(new THREE.MeshPhongMaterial({
-            color: 0xffffff,
-            map: texture,
-            side: THREE.DoubleSide,
-            normalMap: normalTexture
-        }), 0.8, 0.4);
+        function initGround() {
+            var size = this.config.size,
+                height = this.config.wallHeight,
+                depth = this.config.wallDepth;
 
-        var planeGeometry = new THREE.PlaneGeometry(size, size);
-        var ground = new Physijs.PlaneMesh(planeGeometry, material, 0);
-        ground.rotation.x = -Math.PI / 2;
-        ground.position.set(0, 0, 0);
-        ground.receiveShadow = true;
-        ground.name = 'ground';
-        this.scene.add(ground);
+            var texture = this.TextureLoader.load("/asset/texture/stones.jpg"),
+                normalTexture = this.TextureLoader.load("/asset/texture/stones_normal.jpg");
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            normalTexture.wrapS = normalTexture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(48, 48);
+            normalTexture.repeat.set(48, 48);
 
-        var boxGeometry = new THREE.BoxGeometry(depth, height, size);
+            var material = Physijs.createMaterial(new THREE.MeshPhongMaterial({
+                color: 0xffffff,
+                map: texture,
+                side: THREE.DoubleSide,
+                normalMap: normalTexture
+            }), 0.8, 0.4);
 
-        var border = new Physijs.BoxMesh(boxGeometry, material, 0, {
-            restitution: 0.2
-        });
-        border.position.set(-size / 2, height / 2, 0);
-        border.receiveShadow = true;
-        border.castShadow = true;
-        border.name = 'border';
+            var planeGeometry = new THREE.PlaneGeometry(size, size);
+            var ground = new Physijs.PlaneMesh(planeGeometry, material, 0);
+            ground.rotation.x = -Math.PI / 2;
+            ground.position.set(0, 0, 0);
+            ground.receiveShadow = true;
+            ground.name = 'ground';
+            this.scene.add(ground);
+        }
 
-        var borderRight = new Physijs.BoxMesh(boxGeometry, material, 0, {
-            restitution: 0.2
-        });
-        borderRight.position.set(size, 0, 0);
-        borderRight.receiveShadow = true;
-        borderRight.castShadow = true;
-        border.add(borderRight);
+        function initBorder() {
+            var size = this.config.size,
+                height = this.config.wallHeight,
+                depth = this.config.wallDepth;
 
-        var borderTop = new Physijs.BoxMesh(boxGeometry, material, 0, {
-            restitution: 0.2
-        });
-        borderTop.rotation.y = Math.PI / 2;
-        borderTop.position.set(size / 2, 0, size / 2);
-        border.add(borderTop);
+            var texture = this.TextureLoader.load("/asset/texture/stones.jpg"),
+                normalTexture = this.TextureLoader.load("/asset/texture/stones_normal.jpg");
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            normalTexture.wrapS = normalTexture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(12, 6);
+            normalTexture.repeat.set(12, 6);
 
-        var borderBottom = new Physijs.BoxMesh(boxGeometry, material, 0, {
-            restitution: 0.2
-        });
-        borderBottom.rotation.y = Math.PI / 2;
-        borderBottom.position.set(size / 2, 0, -size / 2);
-        border.add(borderBottom);
+            var material = Physijs.createMaterial(new THREE.MeshPhongMaterial({
+                color: 0xffffff,
+                map: texture,
+                side: THREE.DoubleSide,
+                normalMap: normalTexture
+            }), 0.8, 0.4);
 
-        this.scene.add(border);
+            var boxGeometry = new THREE.BoxGeometry(depth, height, size);
+
+            var border = new Physijs.BoxMesh(boxGeometry, material, 0, {
+                restitution: 0.2
+            });
+            border.position.set(-size / 2, height / 2, 0);
+            border.receiveShadow = true;
+            border.castShadow = true;
+            border.name = 'border';
+
+            var borderRight = new Physijs.BoxMesh(boxGeometry, material, 0, {
+                restitution: 0.2
+            });
+            borderRight.position.set(size, 0, 0);
+            borderRight.receiveShadow = true;
+            borderRight.castShadow = true;
+            border.add(borderRight);
+
+            var borderTop = new Physijs.BoxMesh(boxGeometry, material, 0, {
+                restitution: 0.2
+            });
+            borderTop.rotation.y = Math.PI / 2;
+            borderTop.position.set(size / 2, 0, size / 2);
+            border.add(borderTop);
+
+            var borderBottom = new Physijs.BoxMesh(boxGeometry, material, 0, {
+                restitution: 0.2
+            });
+            borderBottom.rotation.y = Math.PI / 2;
+            borderBottom.position.set(size / 2, 0, -size / 2);
+            border.add(borderBottom);
+
+            this.scene.add(border);
+        }
+
+
     };
 
     lynx.World.prototype.initWalls = function() {
@@ -248,70 +276,8 @@
             wallMesh.position.z = wall.position.z;
             wallMesh.rotation.y = wall.vertical ? Math.PI / 2 : 0;
             wallMesh.name = 'wallMesh-' + i;
+            wallMesh.userData.tag = wall.tag;
             this.scene.add(wallMesh);
-        }
-
-    };
-
-    lynx.World.prototype.initNPC = function() {
-        this.npcs = [];
-
-        var npcs = this.config.npcs;
-        var modelLib = this.models;
-
-        for (var i = 0, npc;
-            (npc = npcs[i]); i++) {
-            var model = modelLib[npc.model];
-            var geometry = model.geometry;
-            var materials = model.materials;
-
-            // geometry.computeVertexNormals();
-            // geometry.computeMorphNormals();
-
-            for (var m = 0; m < materials.length; m++) {
-                var material = materials[m];
-                material.morphTargets = true;
-                // material.morphNormals = true;
-                material.vertexColors = THREE.FaceColors;
-                material.side = THREE.DoubleSide;
-            }
-
-            geometry.computeBoundingBox();
-            var bound = geometry.boundingBox;
-            var width = bound.max.x - bound.min.x;
-            var height = bound.max.y - bound.min.y;
-            var depth = bound.max.z - bound.min.z;
-
-            var threeObj = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
-
-            var physGeomtry = new THREE.BoxGeometry(width, height, depth);
-            var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
-            physMaterial.visible = false;
-
-            var physiObj = new Physijs.BoxMesh(physGeomtry, physMaterial, 0);
-            physiObj.castShadow = true;
-            physiObj.name = npc.name;
-            physiObj.userData.id = npc.id || physiObj.uuid;
-            physiObj.userData.type = 'npc';
-            physiObj.add(threeObj);
-
-            // threeObj.position.y = -width / 2;
-            physiObj.position.x = npc.position.x;
-            physiObj.position.z = npc.position.z;
-
-            this.scene.add(physiObj);
-            this.npcs.push(physiObj);
-            this.npcs[physiObj.userData.id] = this.npcs[this.npcs.length - 1];
-
-            if (geometry.morphTargets && geometry.morphTargets.length) {
-
-                var mixer = new THREE.AnimationMixer(threeObj);
-                var clip = THREE.AnimationClip.CreateFromMorphTargetSequence('gallop', geometry.morphTargets, 30);
-                mixer.clipAction(clip).setDuration(1).play();
-
-                this.addMixer(mixer);
-            }
-
         }
 
     };
@@ -380,6 +346,69 @@
 
     };
 
+    lynx.World.prototype.initNPC = function() {
+        this.npcs = [];
+
+        var npcs = this.config.npcs;
+        var modelLib = this.models;
+
+        for (var i = 0, npc;
+            (npc = npcs[i]); i++) {
+            var model = modelLib[npc.model];
+            var geometry = model.geometry;
+            var materials = model.materials;
+
+            // geometry.computeVertexNormals();
+            // geometry.computeMorphNormals();
+
+            for (var m = 0; m < materials.length; m++) {
+                var material = materials[m];
+                material.morphTargets = true;
+                // material.morphNormals = true;
+                material.vertexColors = THREE.FaceColors;
+                material.side = THREE.DoubleSide;
+            }
+
+            geometry.computeBoundingBox();
+            var bound = geometry.boundingBox;
+            var width = bound.max.x - bound.min.x;
+            var height = bound.max.y - bound.min.y;
+            var depth = bound.max.z - bound.min.z;
+
+            var threeObj = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
+
+            var physGeomtry = new THREE.BoxGeometry(width, height, depth);
+            var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
+            physMaterial.visible = false;
+
+            var physiObj = new Physijs.BoxMesh(physGeomtry, physMaterial, 0);
+            physiObj.castShadow = true;
+            physiObj.name = npc.name;
+            physiObj.userData.id = npc.id || physiObj.uuid;
+            physiObj.userData.type = 'npc';
+            physiObj.add(threeObj);
+
+            // threeObj.position.y = -width / 2;
+            physiObj.position.x = npc.position.x;
+            physiObj.position.z = npc.position.z;
+
+            this.scene.add(physiObj);
+            this.npcs.push(physiObj);
+            this.npcs[physiObj.userData.id] = this.npcs[this.npcs.length - 1];
+
+            if (geometry.morphTargets && geometry.morphTargets.length) {
+
+                var mixer = new THREE.AnimationMixer(threeObj);
+                var clip = THREE.AnimationClip.CreateFromMorphTargetSequence('gallop', geometry.morphTargets, 30);
+                mixer.clipAction(clip).setDuration(1).play();
+
+                this.addMixer(mixer);
+            }
+
+        }
+
+    };
+
     lynx.World.prototype.initStories = function() {
         if (!this.config.stories) return;
         var stories = this.config.stories;
@@ -391,6 +420,12 @@
                 this.npcs[character].userData.currentStory = 0;
             }
         }
+    };
+
+    lynx.World.prototype.initPlotCtrl = function() {
+        if (this.plotCtrl) return;
+        this.plotCtrl = new lynx.PlotCtrl(this);
+        this.plot = null;
     };
 
     lynx.World.prototype.initPlayer = function() {
@@ -468,7 +503,6 @@
             var npc = this.npcs[this.selectedObjId];
             var story = npc.userData.stories[npc.userData.currentStory];
             this.hud.tellStory(story);
-            this.state = lynx.worldState.STORY;
         }
 
         function throwBall() {
@@ -531,7 +565,11 @@
                 break;
 
             case 13:
-                this.hud.tellStory();
+                var storyOver = this.hud.tellStory();
+                var npc = this.npcs[this.selectedObjId];
+                if (storyOver && npc) {
+                    this.plot = npc.userData.currentStory;
+                }
                 break;
         }
     };
@@ -551,7 +589,33 @@
         }
     };
 
+    lynx.World.prototype.updateStroy = function(delta) {
+        if (!this.storyObj) {
+            var chs = this.scene.children;
+            for (var i = 0; i < chs.length; i++) {
+                if (chs[i].userData && chs[i].userData.name === 'welcomebreak') {
+                    this.storyObj = chs[i];
+                }
+            }
+        }
+        if (this.storyObj.position.y <= -this.storyObj._physijs.height) {
+            this.storyObj.__dirtyPosition = false;
+            this.state = lynx.worldState.PLAY;
+        } else {
+            this.storyObj.__dirtyPosition = true;
+            this.storyObj.position.y -= 1;
+            this.camera.lookAt(this.storyObj.position);
+        }
+    };
+
     lynx.World.prototype.update = function(delta) {
+        if (this.plot) {
+            this.plotCtrl.update(this.plot);
+            this.control.enabled = false;
+        } else {
+            this.control.enabled = true;
+        }
+
         var objs = this.scene.children;
         var angles = [0, 180, 90, 270];
         var speed = this.config.monsterSpeed;
@@ -568,6 +632,8 @@
 
         this.control.update(delta);
         this.updateMixer(delta);
+
+        this.scene.simulate(undefined, 100);
 
         function updateMonster(monster) {
             var velocity = monster.getLinearVelocity();
