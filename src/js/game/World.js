@@ -1,4 +1,5 @@
 (function(lynx) {
+
     lynx.World = function(name, domElement, config) {
 
         this.name = name;
@@ -20,9 +21,9 @@
     };
 
     lynx.World.prototype.initLoader = function() {
-        this.TextureLoader = new THREE.TextureLoader();
-        this.JSONLoader = new THREE.JSONLoader();
-        this.JSONLoader.setTexturePath('/asset/texture/');
+        this.textureLoader = new THREE.TextureLoader();
+        this.jsonLoader = new THREE.JSONLoader();
+        this.jsonLoader.setTexturePath('/asset/texture/');
     };
 
     lynx.World.prototype.initModels = function() {
@@ -39,9 +40,9 @@
         function loadModel(model, world) {
             var modelPath = 'asset/model/' + model + '.json';
             if (lynx.DEBUG) {
-                world.JSONLoader.load(modelPath, addModel, lynx.loadProgress, lynx.loadError);
+                world.jsonLoader.load(modelPath, addModel, lynx.loadProgress, lynx.loadError);
             } else {
-                world.JSONLoader.load(modelPath, addModel);
+                world.jsonLoader.load(modelPath, addModel);
             }
 
             function addModel(geometry, materials) {
@@ -66,8 +67,9 @@
             this.initScene();
             this.initCamera();
             this.initLight();
-            this.initBound();
-            this.initWalls();
+            // this.initBound();
+            // this.initWalls();
+            this.initBuilder();
             this.initNPC();
             this.initMonster();
             this.initStories();
@@ -148,133 +150,8 @@
         this.lights = lights;
     };
 
-    lynx.World.prototype.initBound = function() {
-
-        var _initGround = lynx.bind(this, initGround);
-        _initGround();
-
-        var _initBorder = lynx.bind(this, initBorder);
-        _initBorder();
-
-        function initGround() {
-            var size = this.config.size,
-                height = this.config.wallHeight,
-                depth = this.config.wallDepth;
-
-            var texture = this.TextureLoader.load("/asset/texture/stones.jpg"),
-                normalTexture = this.TextureLoader.load("/asset/texture/stones_normal.jpg");
-            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-            normalTexture.wrapS = normalTexture.wrapT = THREE.RepeatWrapping;
-            texture.repeat.set(48, 48);
-            normalTexture.repeat.set(48, 48);
-
-            var material = Physijs.createMaterial(new THREE.MeshPhongMaterial({
-                color: 0xffffff,
-                map: texture,
-                side: THREE.DoubleSide,
-                normalMap: normalTexture
-            }), 0.8, 0.4);
-
-            var planeGeometry = new THREE.PlaneGeometry(size, size);
-            var ground = new Physijs.PlaneMesh(planeGeometry, material, 0);
-            ground.rotation.x = -Math.PI / 2;
-            ground.position.set(0, 0, 0);
-            ground.receiveShadow = true;
-            ground.name = 'ground';
-            this.scene.add(ground);
-        }
-
-        function initBorder() {
-            var size = this.config.size,
-                height = this.config.wallHeight,
-                depth = this.config.wallDepth;
-
-            var texture = this.TextureLoader.load("/asset/texture/stones.jpg"),
-                normalTexture = this.TextureLoader.load("/asset/texture/stones_normal.jpg");
-            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-            normalTexture.wrapS = normalTexture.wrapT = THREE.RepeatWrapping;
-            texture.repeat.set(12, 6);
-            normalTexture.repeat.set(12, 6);
-
-            var material = Physijs.createMaterial(new THREE.MeshPhongMaterial({
-                color: 0xffffff,
-                map: texture,
-                side: THREE.DoubleSide,
-                normalMap: normalTexture
-            }), 0.8, 0.4);
-
-            var boxGeometry = new THREE.BoxGeometry(depth, height, size);
-
-            var border = new Physijs.BoxMesh(boxGeometry, material, 0, {
-                restitution: 0.2
-            });
-            border.position.set(-size / 2, height / 2, 0);
-            border.receiveShadow = true;
-            border.castShadow = true;
-            border.name = 'border';
-
-            var borderRight = new Physijs.BoxMesh(boxGeometry, material, 0, {
-                restitution: 0.2
-            });
-            borderRight.position.set(size, 0, 0);
-            borderRight.receiveShadow = true;
-            borderRight.castShadow = true;
-            border.add(borderRight);
-
-            var borderTop = new Physijs.BoxMesh(boxGeometry, material, 0, {
-                restitution: 0.2
-            });
-            borderTop.rotation.y = Math.PI / 2;
-            borderTop.position.set(size / 2, 0, size / 2);
-            border.add(borderTop);
-
-            var borderBottom = new Physijs.BoxMesh(boxGeometry, material, 0, {
-                restitution: 0.2
-            });
-            borderBottom.rotation.y = Math.PI / 2;
-            borderBottom.position.set(size / 2, 0, -size / 2);
-            border.add(borderBottom);
-
-            this.scene.add(border);
-        }
-
-
-    };
-
-    lynx.World.prototype.initWalls = function() {
-
-        var size = this.config.size,
-            height = this.config.wallHeight,
-            depth = this.config.wallDepth;
-
-        var texture = this.TextureLoader.load("/asset/texture/stones.jpg"),
-            normalTexture = this.TextureLoader.load("/asset/texture/stones_normal.jpg");
-        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-        normalTexture.wrapS = normalTexture.wrapT = THREE.RepeatWrapping;
-        texture.repeat.set(12, 6);
-        normalTexture.repeat.set(12, 6);
-
-        var material = Physijs.createMaterial(new THREE.MeshPhongMaterial({
-            color: 0xffffff,
-            map: texture,
-            // side: THREE.DoubleSide,
-            normalMap: normalTexture
-        }), 0.8, 0.4);
-
-        var walls = this.config.walls;
-        for (var i = 0, wall;
-            (wall = walls[i]); i++) {
-            var geometry = new THREE.BoxGeometry(wall.width, height, depth);
-            var wallMesh = new Physijs.BoxMesh(geometry, material, 0);
-            wallMesh.position.x = wall.position.x;
-            wallMesh.position.y = height / 2;
-            wallMesh.position.z = wall.position.z;
-            wallMesh.rotation.y = wall.vertical ? Math.PI / 2 : 0;
-            wallMesh.name = 'wallMesh-' + i;
-            wallMesh.userData.tag = wall.tag;
-            this.scene.add(wallMesh);
-        }
-
+    lynx.World.prototype.initBuilder = function () {
+        this.builder = new lynx.Builder(this.config, this.scene);
     };
 
     lynx.World.prototype.initMonster = function() {
@@ -410,9 +287,9 @@
         for (var i = 0, len = stories.length; i < len; i++) {
             var character = stories[i].character;
             if (this.npcs[character]) {
-                // stories[i].stories.state = lynx.storyState.CREATED;
+                // stories[i].stories.state = lynx.storyState.CREATE;
                 this.npcs[character].userData.stories = stories[i].stories;
-                this.npcs[character].userData.currentStory = 0;
+                this.npcs[character].userData.storyIndex = 0;
             }
         }
     };
@@ -494,9 +371,20 @@
     };
 
     lynx.World.prototype.clickNPC = function(npc) {
+        // this.selectedNPC = npc;
+        // var story = npc.userData.stories[npc.userData.storyIndex];
+        // this.hud.tellStory(story);
+
+        if (this.hud.isTalking()) return;
+
+        this.control.enabled = false;
+
+        // set
+        // get conversation
         this.selectedNPC = npc;
-        var story = npc.userData.stories[npc.userData.currentStory];
-        this.hud.tellStory(story);
+        var story = npc.userData.stories[npc.userData.storyIndex];
+        var conversation = story.messages[story.state];
+        this.hud.setConversation(conversation);
     };
 
     lynx.World.prototype.clickHandler = function (event) {
@@ -518,6 +406,7 @@
     };
 
     lynx.World.prototype.onMouseDown = function(event) {
+
         switch (event.button) {
 
             case 0:
@@ -588,10 +477,16 @@
                 break;
 
             case 13:
-                var storyOver = this.hud.tellStory();
+                if (!this.hud.isTalking()) return;
+                var dialogOver = !this.hud.talk();
                 var npc = this.selectedNPC;
-                if (storyOver && npc) {
-                    this.plot = storyOver;//npc.userData.currentStory;
+                if (!this.hud.isTalking() && npc) {
+                    // this.plotCtrl.dialogOver(npc);
+                    var story = npc.userData.stories[npc.userData.storyIndex];
+                    if (story.state === lynx.storyState.CREATE) {
+                        story.state = lynx.storyState.ACCEPT;
+                    }
+                    this.plot = story.name;//npc.userData.storyIndex;
                 }
                 break;
         }
@@ -679,6 +574,135 @@
             monster.lookAtPoint.set(monster.position.x + velocity.x, monster.position.y, monster.position.z + velocity.z);
             monster.lookAt(monster.lookAtPoint);
         }
+    };
+
+    lynx.World.prototype.initBound = function() {
+
+        var _initGround = lynx.bind(this, initGround);
+        _initGround();
+
+        var _initBorder = lynx.bind(this, initBorder);
+        _initBorder();
+
+        function initGround() {
+            var size = this.config.size,
+                height = this.config.wallHeight,
+                depth = this.config.wallDepth;
+
+            var texture = this.textureLoader.load("/asset/texture/stones.jpg"),
+                normalTexture = this.textureLoader.load("/asset/texture/stones_normal.jpg");
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            normalTexture.wrapS = normalTexture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(48, 48);
+            normalTexture.repeat.set(48, 48);
+
+            var material = Physijs.createMaterial(new THREE.MeshPhongMaterial({
+                color: 0xffffff,
+                map: texture,
+                side: THREE.DoubleSide,
+                normalMap: normalTexture
+            }), 0.8, 0.4);
+
+            var planeGeometry = new THREE.PlaneGeometry(size, size);
+            var ground = new Physijs.PlaneMesh(planeGeometry, material, 0);
+            ground.rotation.x = -Math.PI / 2;
+            ground.position.set(0, 0, 0);
+            ground.receiveShadow = true;
+            ground.name = 'ground';
+            this.scene.add(ground);
+        }
+
+        function initBorder() {
+            var size = this.config.size,
+                height = this.config.wallHeight,
+                depth = this.config.wallDepth;
+
+            var texture = this.textureLoader.load("/asset/texture/stones.jpg"),
+                normalTexture = this.textureLoader.load("/asset/texture/stones_normal.jpg");
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            normalTexture.wrapS = normalTexture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(12, 6);
+            normalTexture.repeat.set(12, 6);
+
+            var material = Physijs.createMaterial(new THREE.MeshPhongMaterial({
+                color: 0xffffff,
+                map: texture,
+                side: THREE.DoubleSide,
+                normalMap: normalTexture
+            }), 0.8, 0.4);
+
+            var boxGeometry = new THREE.BoxGeometry(depth, height, size);
+
+            var border = new Physijs.BoxMesh(boxGeometry, material, 0, {
+                restitution: 0.2
+            });
+            border.position.set(-size / 2, height / 2, 0);
+            border.receiveShadow = true;
+            border.castShadow = true;
+            border.name = 'border';
+
+            var borderRight = new Physijs.BoxMesh(boxGeometry, material, 0, {
+                restitution: 0.2
+            });
+            borderRight.position.set(size, 0, 0);
+            borderRight.receiveShadow = true;
+            borderRight.castShadow = true;
+            border.add(borderRight);
+
+            var borderTop = new Physijs.BoxMesh(boxGeometry, material, 0, {
+                restitution: 0.2
+            });
+            borderTop.rotation.y = Math.PI / 2;
+            borderTop.position.set(size / 2, 0, size / 2);
+            border.add(borderTop);
+
+            var borderBottom = new Physijs.BoxMesh(boxGeometry, material, 0, {
+                restitution: 0.2
+            });
+            borderBottom.rotation.y = Math.PI / 2;
+            borderBottom.position.set(size / 2, 0, -size / 2);
+            border.add(borderBottom);
+
+            this.scene.add(border);
+        }
+
+
+    };
+
+    lynx.World.prototype.initWalls = function() {
+
+        var size = this.config.size,
+            height = this.config.wallHeight,
+            depth = this.config.wallDepth;
+
+        var texture = this.textureLoader.load("/asset/texture/stones.jpg"),
+            normalTexture = this.textureLoader.load("/asset/texture/stones_normal.jpg");
+        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+        normalTexture.wrapS = normalTexture.wrapT = THREE.RepeatWrapping;
+        texture.repeat.set(12, 6);
+        normalTexture.repeat.set(12, 6);
+
+        var material = Physijs.createMaterial(new THREE.MeshPhongMaterial({
+            color: 0xffffff,
+            map: texture,
+            // side: THREE.DoubleSide,
+            normalMap: normalTexture
+        }), 0.8, 0.4);
+
+        var walls = this.config.walls;
+        for (var i = 0, wall;
+            (wall = walls[i]); i++) {
+            var geometry = new THREE.BoxGeometry(wall.width, height, depth);
+            var wallMesh = new Physijs.BoxMesh(geometry, material, 0);
+            wallMesh.position.x = wall.position.x;
+            wallMesh.position.y = height / 2;
+            wallMesh.position.z = wall.position.z;
+            wallMesh.rotation.y = wall.vertical ? Math.PI / 2 : 0;
+            wallMesh.name = 'wallMesh-' + i;
+            wallMesh.userData.tag = wall.tag;
+            this.scene.add(wallMesh);
+        }
+
     };
 
 })(lynx);

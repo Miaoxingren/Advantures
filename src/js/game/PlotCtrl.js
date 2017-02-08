@@ -3,7 +3,9 @@
         this.initPlots(world);
     };
 
-    lynx.PlotCtrl.prototype.initPlots = function(world) {
+    var plotCtrlProto = lynx.PlotCtrl.prototype;
+
+    plotCtrlProto.initPlots = function(world) {
         if (this.plots) return;
 
         this.plots = [{
@@ -30,7 +32,19 @@
 
     };
 
-    lynx.PlotCtrl.prototype.update = function(plotName, world) {
+    plotCtrlProto.dialogOver = function(npc, world) {
+        var plot;
+        for (var i = 0, len = this.plots.length; i < len; i++) {
+            if (this.plots[i].name === plotName) {
+                plot = this.plots[i];
+            }
+        }
+        if (plot && plot.update) {
+            plot.update();
+        }
+    };
+
+    plotCtrlProto.update = function(plotName, world) {
         var plot;
         for (var i = 0, len = this.plots.length; i < len; i++) {
             if (this.plots[i].name === plotName) {

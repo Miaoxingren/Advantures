@@ -142,7 +142,7 @@ lynx.PlayerControls = function(camera, player, domElement) {
                 // case 2:
                 //     this.moveBackward = false;
                 //     break;
-                
+
             }
 
         }

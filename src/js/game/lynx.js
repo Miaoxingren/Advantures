@@ -92,18 +92,14 @@ var lynx = {
     };
 
     lynx.storyState = {
-        CREATED: 'created',
-        RUNNING: 'running',
-        COMPLETED: 'completed'
+        CREATE: 0,
+        ACCEPT: 1,
+        COMPLET: 2
     };
 
 })(lynx);
 
 (function(lynx) {
-
-    var created = lynx.storyState.CREATED;
-    var running = lynx.storyState.RUNNING;
-    var completed = lynx.storyState.COMPLETED;
 
     lynx.defaults = {
         paw: {
@@ -127,16 +123,17 @@ var lynx = {
                 character: 'MerchantCat',
                 stories: [{
                     name: 'welcome',
-                    state: created,
-                    messages: {
-                        created: [
+                    state: lynx.storyState.CREATE,
+                    messages: [
+                        [
                             '你好，喵勇士moechan。',
                             '在喵神melonpi的保护下，喵喵村一直保持着和平并享受着用之不尽的猫粮。',
                             '然而，一个拥有着邪恶力量的恶魔铲屎官闯进了喵喵村，并带走了喵神melonpi。',
                             '喵神melonpi和恶魔铲屎官就在这座迷宫中，请你击退各种各样的怪物并将喵神melonpi带回喵喵村。'
-                        ],
-                        running: ['喵勇士moechan, 喵神melonpi和恶魔铲屎官就在这座迷宫中，请你将喵神melonpi带回喵喵村。']
-                    }
+                        ], [
+                            '喵勇士moechan, 喵神melonpi和恶魔铲屎官就在这座迷宫中，请你将喵神melonpi带回喵喵村。'
+                        ]
+                    ]
                 }]
             }]
         }
@@ -144,13 +141,12 @@ var lynx = {
 
 })(lynx);
 
-
 (function(lynx) {
 
     lynx.getConfig = function(name, config) {
         var world = lynx.defaults[name];
         world = lynx.merge(world, config);
-        world.walls = createWalls(world.size);
+        // world.walls = createWalls(world.size);
         world.npcs = createNPCs(world.size);
         world.player = createPlayer(world.size);
         world.monsters = createMontsers(world.size, world.monsterNum);

@@ -9,12 +9,12 @@
     var playerProto = lynx.Player.prototype;
 
     playerProto.addTask = function (task) {
-        if (task.state === lynx.taskState.COMPLETED) return;
+        if (task.state === lynx.taskState.COMPLET) return;
         this.tasks.push(task);
     };
 
     playerProto.checkTask = function (task) {
-        if (task.state === lynx.taskState.COMPLETED) {
+        if (task.state === lynx.taskState.COMPLET) {
             this.endTask(task);
         }
     };
