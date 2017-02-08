@@ -141,11 +141,6 @@
         lights.directional = directionalLight;
         this.scene.add(directionalLight);
 
-        var pointLight = new THREE.PointLight(0xff0000, 1.25, 1000);
-        pointLight.position.set(0, 0, 50);
-        lights.point = pointLight;
-        // scene.add(pointLight);
-
         var ambientLight = new THREE.AmbientLight(0x444444);
         lights.ambient = ambientLight;
         this.scene.add(ambientLight);
@@ -498,11 +493,37 @@
         this.control = control;
     };
 
+    lynx.World.prototype.clickNPC = function(npc) {
+        this.selectedNPC = npc;
+        var story = npc.userData.stories[npc.userData.currentStory];
+        this.hud.tellStory(story);
+    };
+
+    lynx.World.prototype.clickHandler = function (event) {
+        var mouseCoords = this.domElement === document ? new THREE.Vector2((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1) : new THREE.Vector2((event.clientX / this.domElement.offsetWidth) * 2 - 1, -(event.clientY / this.domElement.offsetHeight) * 2 + 1);
+
+        var raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouseCoords, this.camera);
+
+        var intersections = raycaster.intersectObjects(this.npcs);
+        if (intersections && intersections[0]) {
+            this.selectedObjId = intersections[0].object.userData.id;
+            if (this.selectedObjId && this.npcs[this.selectedObjId]) {
+                this.isClickNPC = true;
+                this.clickNPC(this.npcs[this.selectedObjId]);
+            }
+        } else {
+            this.isClickNPC = false;
+        }
+    };
+
     lynx.World.prototype.onMouseDown = function(event) {
-        if (this.selectedObjId && this.npcs[this.selectedObjId]) {
-            var npc = this.npcs[this.selectedObjId];
-            var story = npc.userData.stories[npc.userData.currentStory];
-            this.hud.tellStory(story);
+        switch (event.button) {
+
+            case 0:
+                this.clickHandler(event);
+                break;
+
         }
 
         function throwBall() {
@@ -538,18 +559,20 @@
     lynx.World.prototype.onMouseUp = function(event) {};
 
     lynx.World.prototype.onMouseMove = function(event) {
-        var mouseCoords = new THREE.Vector2((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
+        var mouseCoords = this.domElement === document ? new THREE.Vector2((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1) : new THREE.Vector2((event.clientX / this.domElement.offsetWidth) * 2 - 1, -(event.clientY / this.domElement.offsetHeight) * 2 + 1);
+
         var raycaster = new THREE.Raycaster();
         raycaster.setFromCamera(mouseCoords, this.camera);
+
         var intersections = raycaster.intersectObjects(this.npcs);
         if (intersections && intersections[0]) {
             this.domElement.style.cursor = 'pointer';
-            this.hud.identity(intersections[0].object.name, event.pageY, event.pageX);
-            this.selectedObjId = intersections[0].object.userData.id;
+            // this.hud.identity(intersections[0].object.name, event.pageY, event.pageX);
+            // this.selectedObjId = intersections[0].object.userData.id;
         } else {
             this.domElement.style.cursor = 'auto';
-            this.hud.hideIdentity();
-            this.selectedObjId = '';
+            // this.hud.hideIdentity();
+            // this.selectedObjId = '';
         }
     };
 
@@ -566,9 +589,9 @@
 
             case 13:
                 var storyOver = this.hud.tellStory();
-                var npc = this.npcs[this.selectedObjId];
+                var npc = this.selectedNPC;
                 if (storyOver && npc) {
-                    this.plot = npc.userData.currentStory;
+                    this.plot = storyOver;//npc.userData.currentStory;
                 }
                 break;
         }

@@ -17,13 +17,13 @@
                         }
                     }
                 }
-                if (this.wall.position.y <= -this.wall._physijs.height) {
+                if (this.wall.position.y <= -this.wall._physijs.height / 2 - 10) {
                     this.wall.__dirtyPosition = false;
-                    world.state = lynx.worldState.PLAY;
+                    world.plot = null;
                 } else {
                     this.wall.__dirtyPosition = true;
                     this.wall.position.y -= 1;
-                    world.camera.lookAt(this.wall.position);
+                    world.camera.lookAt(this.wall.position.clone().add(new THREE.Vector3(0, this.wall._physijs.height / 2, 0)));
                 }
             }
         }];

@@ -24,10 +24,11 @@
             if (this.story.state === lynx.storyState.CREATED) {
                 this.story.state = lynx.storyState.RUNNING;
             }
+            var name = this.story.name;
             this.story = undefined;
             this.msgIndex = undefined;
             this.hidePromt();
-            return true;
+            return name;
         }
         this.promtDom.style.display = 'block';
         this.promtDom.class = 'info';

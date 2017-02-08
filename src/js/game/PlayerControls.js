@@ -111,9 +111,6 @@ lynx.PlayerControls = function(camera, player, domElement) {
                 // case 2:
                 //     this.moveBackward = true;
                 //     break;
-                case 2:
-                    this.rotate = true;
-                    break;
 
             }
 
@@ -145,9 +142,7 @@ lynx.PlayerControls = function(camera, player, domElement) {
                 // case 2:
                 //     this.moveBackward = false;
                 //     break;
-                case 2:
-                    this.rotate = false;
-                    break;
+                
             }
 
         }
@@ -355,7 +350,7 @@ lynx.PlayerControls = function(camera, player, domElement) {
 
         }
 
-        if (!this.rotate) return;
+
 
         var actualLookSpeed = delta * this.lookSpeed;
 
