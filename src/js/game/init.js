@@ -24,7 +24,7 @@ function init() {
 
         stats.update();
 
-        renderer.render(world.scene, world.camera);
+        renderer.render(world.scene, world.getCamera());
 
     }
 }

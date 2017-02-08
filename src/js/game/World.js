@@ -14,26 +14,28 @@
 
     };
 
-    lynx.World.prototype.initHUD = function() {
+    var worldProto = lynx.World.prototype;
+
+    worldProto.initHUD = function() {
         if (this.hud) return;
         this.hud = new lynx.HeadUpDisplay();
         this.hud.loading();
     };
 
-    lynx.World.prototype.initLoader = function() {
+    worldProto.initLoader = function() {
         this.textureLoader = new THREE.TextureLoader();
         this.jsonLoader = new THREE.JSONLoader();
         this.jsonLoader.setTexturePath('/asset/texture/');
     };
 
-    lynx.World.prototype.initModels = function() {
+    worldProto.initModels = function() {
         if (this.models) return;
 
         this.models = [];
 
         var models = this.config.models;
 
-        for (var i = 0, len = models.length; i < len; i++) {
+        for (var i = 0, iLen = models.length; i < iLen; i++) {
             loadModel(models[i], this);
         }
 
@@ -59,31 +61,35 @@
         }
     };
 
-    lynx.World.prototype.initWorld = function() {
-        if (this.state === lynx.worldState.INIT) {
+    worldProto.initWorld = function() {
+        if (this.state !== lynx.worldState.INIT) return;
 
-            this.mixers = [];
+        this.mixers = [];
 
-            this.initScene();
-            this.initCamera();
-            this.initLight();
-            // this.initBound();
-            // this.initWalls();
-            this.initBuilder();
-            this.initNPC();
-            this.initMonster();
-            this.initStories();
-            this.initPlotCtrl();
-            this.initPlayer();
-            this.initControl();
+        this.initScene();
 
-            this.hud.loadComplete();
-            // this.hud.playMusic();
-            this.state = lynx.worldState.PLAY;
-        }
+        // this.initCamera();
+        this.initCamCtrl();
+
+        this.initLight();
+
+        // this.initBound();
+        // this.initWalls();
+        this.initBuilder();
+
+        this.initNPC();
+        this.initMonster();
+        this.initStories();
+        this.initPlotCtrl();
+        this.initPlayer();
+        this.initControl();
+
+        this.hud.loadComplete();
+        // this.hud.playMusic();
+        this.state = lynx.worldState.PLAY;
     };
 
-    lynx.World.prototype.initScene = function() {
+    worldProto.initScene = function() {
         if (this.scene) return;
         var scene = new Physijs.Scene();
         scene.setGravity(new THREE.Vector3(0, -this.config.gravity, 0));
@@ -91,7 +97,7 @@
         this.setSceneBg();
     };
 
-    lynx.World.prototype.setSceneBg = function() {
+    worldProto.setSceneBg = function() {
         if (!this.scene) return;
         var path = "/asset/texture/" + this.name + "/";
         var format = '.jpg';
@@ -107,19 +113,20 @@
         this.scene.background = reflectionCube;
     };
 
-    lynx.World.prototype.initCamera = function() {
-        if (this.playerCamera) return;
-        var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.x = 850;
-        camera.position.y = 50;
-        camera.position.z = 900;
-        camera.lookAt(this.scene.position);
-        this.playerCamera = camera;
-        this.camera = this.playerCamera;
+    worldProto.initCamCtrl = function () {
+        if (this.camCtrl) return;
+        this.camCtrl = new lynx.CameraCtrl();
     };
 
-    lynx.World.prototype.initLight = function() {
-        var lights = {};
+    worldProto.getCamera = function () {
+        if (!this.camCtrl) return;
+        return this.camCtrl.camera;
+    };
+
+    worldProto.initLight = function() {
+        if (this.lights) return;
+
+        this.lights = [];
 
         var size = this.config.size,
             height = this.config.wallHeight;
@@ -140,21 +147,20 @@
         directionalLight.shadow.mapSize.height = 512;
         // var cameraHelper = new THREE.CameraHelper( directionalLight.shadow.camera );
         // directionalLight.add(cameraHelper);
-        lights.directional = directionalLight;
+        this.lights.push(directionalLight);
         this.scene.add(directionalLight);
 
         var ambientLight = new THREE.AmbientLight(0x444444);
-        lights.ambient = ambientLight;
+        this.lights.push(ambientLight);
         this.scene.add(ambientLight);
 
-        this.lights = lights;
     };
 
-    lynx.World.prototype.initBuilder = function () {
+    worldProto.initBuilder = function() {
         this.builder = new lynx.Builder(this.config, this.scene);
     };
 
-    lynx.World.prototype.initMonster = function() {
+    worldProto.initMonster = function() {
 
         var monsters = this.config.monsters;
         var modelLib = this.models;
@@ -218,7 +224,7 @@
 
     };
 
-    lynx.World.prototype.initNPC = function() {
+    worldProto.initNPC = function() {
         this.npcs = [];
 
         var npcs = this.config.npcs;
@@ -281,7 +287,7 @@
 
     };
 
-    lynx.World.prototype.initStories = function() {
+    worldProto.initStories = function() {
         if (!this.config.stories) return;
         var stories = this.config.stories;
         for (var i = 0, len = stories.length; i < len; i++) {
@@ -294,13 +300,13 @@
         }
     };
 
-    lynx.World.prototype.initPlotCtrl = function() {
+    worldProto.initPlotCtrl = function() {
         if (this.plotCtrl) return;
         this.plotCtrl = new lynx.PlotCtrl(this);
         this.plot = null;
     };
 
-    lynx.World.prototype.initPlayer = function() {
+    worldProto.initPlayer = function() {
 
         var model = this.models[this.config.player.model];
         var geometry = model.geometry;
@@ -356,9 +362,9 @@
 
     };
 
-    lynx.World.prototype.initControl = function() {
+    worldProto.initControl = function() {
         if (this.control) return;
-        var control = new lynx.PlayerControls(this.camera, this.player, this.domElement);
+        var control = new lynx.PlayerCtrl(this.getCamera(), this.player, this.domElement);
         control.movementSpeed = 50;
         control.jumpSpeed = 20;
         control.lookSpeed = 0.1;
@@ -370,7 +376,7 @@
         this.control = control;
     };
 
-    lynx.World.prototype.clickNPC = function(npc) {
+    worldProto.clickNPC = function(npc) {
         // this.selectedNPC = npc;
         // var story = npc.userData.stories[npc.userData.storyIndex];
         // this.hud.tellStory(story);
@@ -387,11 +393,11 @@
         this.hud.setConversation(conversation);
     };
 
-    lynx.World.prototype.clickHandler = function (event) {
+    worldProto.clickHandler = function(event) {
         var mouseCoords = this.domElement === document ? new THREE.Vector2((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1) : new THREE.Vector2((event.clientX / this.domElement.offsetWidth) * 2 - 1, -(event.clientY / this.domElement.offsetHeight) * 2 + 1);
 
         var raycaster = new THREE.Raycaster();
-        raycaster.setFromCamera(mouseCoords, this.camera);
+        raycaster.setFromCamera(mouseCoords, this.getCamera());
 
         var intersections = raycaster.intersectObjects(this.npcs);
         if (intersections && intersections[0]) {
@@ -405,7 +411,7 @@
         }
     };
 
-    lynx.World.prototype.onMouseDown = function(event) {
+    worldProto.onMouseDown = function(event) {
 
         switch (event.button) {
 
@@ -425,7 +431,7 @@
             var quat = new THREE.Quaternion();
             var mouseCoords = new THREE.Vector2((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
 
-            raycaster.setFromCamera(mouseCoords, this.camera);
+            raycaster.setFromCamera(mouseCoords, this.getCamera());
 
             // Creates a ball and throws it
             var ball = new Physijs.SphereMesh(ballGemotry, ballMaterial);
@@ -445,13 +451,13 @@
         }
     };
 
-    lynx.World.prototype.onMouseUp = function(event) {};
+    worldProto.onMouseUp = function(event) {};
 
-    lynx.World.prototype.onMouseMove = function(event) {
+    worldProto.onMouseMove = function(event) {
         var mouseCoords = this.domElement === document ? new THREE.Vector2((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1) : new THREE.Vector2((event.clientX / this.domElement.offsetWidth) * 2 - 1, -(event.clientY / this.domElement.offsetHeight) * 2 + 1);
 
         var raycaster = new THREE.Raycaster();
-        raycaster.setFromCamera(mouseCoords, this.camera);
+        raycaster.setFromCamera(mouseCoords, this.getCamera());
 
         var intersections = raycaster.intersectObjects(this.npcs);
         if (intersections && intersections[0]) {
@@ -465,7 +471,7 @@
         }
     };
 
-    lynx.World.prototype.onKeyDown = function(event) {
+    worldProto.onKeyDown = function(event) {
         switch (event.keyCode) {
             case 32:
                 this.state = this.state == lynx.worldState.PAUSE ? lynx.worldState.PLAY : lynx.worldState.PAUSE;
@@ -486,28 +492,28 @@
                     if (story.state === lynx.storyState.CREATE) {
                         story.state = lynx.storyState.ACCEPT;
                     }
-                    this.plot = story.name;//npc.userData.storyIndex;
+                    this.plot = story.name; //npc.userData.storyIndex;
                 }
                 break;
         }
     };
 
-    lynx.World.prototype.onKeyUp = function(event) {
+    worldProto.onKeyUp = function(event) {
         switch (event.keyCode) {}
     };
 
-    lynx.World.prototype.addMixer = function(mixer) {
+    worldProto.addMixer = function(mixer) {
         this.mixers.push(mixer);
         return this.mixers.length - 1;
     };
 
-    lynx.World.prototype.updateMixer = function(delta) {
+    worldProto.updateMixer = function(delta) {
         for (var i = 0, l = this.mixers.length; i < l; i++) {
             this.mixers[i].update(delta);
         }
     };
 
-    lynx.World.prototype.updateStroy = function(delta) {
+    worldProto.updateStroy = function(delta) {
         if (!this.storyObj) {
             var chs = this.scene.children;
             for (var i = 0; i < chs.length; i++) {
@@ -522,11 +528,11 @@
         } else {
             this.storyObj.__dirtyPosition = true;
             this.storyObj.position.y -= 1;
-            this.camera.lookAt(this.storyObj.position);
+            this.getCamera().lookAt(this.storyObj.position);
         }
     };
 
-    lynx.World.prototype.update = function(delta) {
+    worldProto.update = function(delta) {
         if (this.plot) {
             this.plotCtrl.update(this.plot);
             this.control.enabled = false;
@@ -576,7 +582,7 @@
         }
     };
 
-    lynx.World.prototype.initBound = function() {
+    worldProto.initBound = function() {
 
         var _initGround = lynx.bind(this, initGround);
         _initGround();
@@ -669,7 +675,7 @@
 
     };
 
-    lynx.World.prototype.initWalls = function() {
+    worldProto.initWalls = function() {
 
         var size = this.config.size,
             height = this.config.wallHeight,
@@ -705,4 +711,42 @@
 
     };
 
+    worldProto.initCamera = function() {
+        if (this.cameras) return;
+
+        this.cameras = [];
+
+        var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.x = 850;
+        camera.position.y = 50;
+        camera.position.z = 900;
+        camera.lookAt(this.scene.position);
+
+        camera.tag = 'player';
+        this.cameras.push(camera);
+        this.camera = camera;
+    };
+
+    worldProto.switchCamera = function(tag) {
+        if (!this.cameras) return;
+
+        var list = this.cameras;
+        for (var i = 0, iLen = list.length; i < iLen; i++) {
+            if (list[i].tag === tag) {
+                this.camera = list[i];
+                break;
+            }
+        }
+
+    };
+
+    worldProto.addCamera = function (camera) {
+        if (!this.cameras) return;
+        if (camera.tag) {
+            this.cameras.push(camera);
+        } else {
+            this.cameras = this.cameras.concat(camera);
+        }
+
+    };
 })(lynx);

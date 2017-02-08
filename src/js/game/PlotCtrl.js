@@ -25,7 +25,7 @@
                 } else {
                     this.wall.__dirtyPosition = true;
                     this.wall.position.y -= 1;
-                    world.camera.lookAt(this.wall.position.clone().add(new THREE.Vector3(0, this.wall._physijs.height / 2, 0)));
+                    world.getCamera().lookAt(this.wall.position.clone().add(new THREE.Vector3(0, this.wall._physijs.height / 2, 0)));
                 }
             }
         }];
