@@ -8,6 +8,10 @@ var lynx = {
 
 (function(lynx) {
 
+    lynx.isArray = function (target) {
+        return target && Object.prototype.toString.call(target) === '[object Array]';
+    };
+
     lynx.bind = function(scope, fn) {
         return function() {
             fn.apply(scope, arguments);
@@ -91,10 +95,16 @@ var lynx = {
         GAMEOVER: 3
     };
 
-    lynx.storyState = {
+    lynx.taskState = {
         CREATE: 0,
         ACCEPT: 1,
         COMPLET: 2
+    };
+
+    lynx.tag = {
+        PLAYER: 0,
+        NPC: 1,
+        MONSTER: 2
     };
 
 })(lynx);
@@ -103,7 +113,7 @@ var lynx = {
 
     lynx.defaults = {
         paw: {
-            size: 2000,
+            size: 3000,
             wallHeight: 200,
             wallDepth: 10,
             gravity: 100,
@@ -118,24 +128,7 @@ var lynx = {
             player: {},
             walls: [],
             npcs: [],
-            monsters: [],
-            stories: [{
-                character: 'MerchantCat',
-                stories: [{
-                    name: 'welcome',
-                    state: lynx.storyState.CREATE,
-                    messages: [
-                        [
-                            '你好，喵勇士moechan。',
-                            '在喵神melonpi的保护下，喵喵村一直保持着和平并享受着用之不尽的猫粮。',
-                            '然而，一个拥有着邪恶力量的恶魔铲屎官闯进了喵喵村，并带走了喵神melonpi。',
-                            '喵神melonpi和恶魔铲屎官就在这座迷宫中，请你击退各种各样的怪物并将喵神melonpi带回喵喵村。'
-                        ], [
-                            '喵勇士moechan, 喵神melonpi和恶魔铲屎官就在这座迷宫中，请你将喵神melonpi带回喵喵村。'
-                        ]
-                    ]
-                }]
-            }]
+            monsters: []
         }
     };
 
@@ -321,7 +314,7 @@ var lynx = {
                     x: -size / 16,
                     z: -size / 2 + size / 8 / 3
                 },
-                name: 'Merchant cat',
+                name: 'Merchant Cat',
                 model: 'merchant_cat',
                 id: 'MerchantCat'
             }];

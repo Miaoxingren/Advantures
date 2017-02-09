@@ -16,7 +16,7 @@
         camera.position.z = 900;
         // camera.lookAt(this.scene.position);
 
-        camera.tag = 'player';
+        camera.tag = lynx.tag.PLAYER;
         this.cameras.push(camera);
         this.camera = camera;
     };
