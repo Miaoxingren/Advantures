@@ -28,7 +28,7 @@
             name: 'welcome'
         };
 
-        chap0.camera = (function(size) {
+        chap0.camera = (function(size, wallHeight) {
             var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
             camera.position.x = -size / 16;
             camera.position.y = -size / 2 + size / 8;

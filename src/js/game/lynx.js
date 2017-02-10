@@ -326,6 +326,7 @@ var lynx = {
                 name: 'panther0',
                 model: 'panther0',
                 health: 5,
+                money: 50,
                 position: {
                     x: -size / 16,
                     z: -size / 2 + size / 8 / 3 * 2

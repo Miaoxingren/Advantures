@@ -1,3 +1,5 @@
+/* common style */
+
 html, body {
     width: 100%;
     height: 100%;
@@ -6,10 +8,26 @@ html, body {
     color: #FFF;
 }
 
+ul {
+    list-style: none;
+}
+
+.show {
+    visibility: visible;
+}
+
+.hidden {
+    visibility: hidden;
+}
+
+/* game container */
+
 #game {
     width: 100%;
     height: 100%;
 }
+
+/* render status */
 
 #stats {
     position: absolute;
@@ -17,7 +35,271 @@ html, body {
     top: 0;
 }
 
-#promt {
+/* money & health */
+
+#points {
+    text-align: center;
+    font-size: 30px;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+#points>li {
+    float: left;
+    height: 40px;
+    margin-right: 20px;
+    margin-top: 5px;
+    text-align: center;
+}
+
+#points>li>span {
+    padding-right: 5px;
+    vertical-align: middle;
+    line-height: 40px;
+}
+
+#points>li>span.icon-heart {
+    color: #e51c23;
+}
+
+#points>li>span.icon-moneybag {
+    color: #a1887f;
+}
+
+/* task & bag */
+
+#tools {
+    font-size: 40px;
+    color: #222;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+#tools>li {
+    width: 50px;
+    height: 50px;
+    margin: 10px;
+    border-radius: 50%;
+    background-color: #bbb;
+    text-align: center;
+}
+
+#tools>li:hover {
+    cursor: pointer;
+}
+
+#tools>li>span {
+    line-height: 50px;
+}
+
+#task:hover .icon-date_range:before {
+    content: "\e616";
+}
+
+#good:hover .icon-cube:before {
+    content: "\e901";
+}
+
+/* task list */
+
+#taskList {
+    width: 50%;
+    height: 50%;
+    margin: auto;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    display: none;
+    background-color: #2ba5bb;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+#taskList::-webkit-scrollbar {
+    width: 0.5em;
+}
+
+#taskList::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: #848484;
+}
+
+.mission {
+    color: #ddd;
+    background-color: transparent;
+}
+
+.mission:hover {
+    color: #2ba5bb;
+    background-color: #15525d;
+}
+
+.mission .title {
+    padding: 15px;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.mission .title>span {
+    padding-right: 5px;
+    vertical-align: middle;
+}
+
+.mission .icon-radio_button_unchecked {
+    color: #275f5f;
+}
+
+.mission .icon-check_circle {
+    color: #91DC5A;
+}
+
+.mission .description {
+    padding: 0;
+    height: 0;
+    overflow: hidden;
+    visibility: hidden;
+    opacity: 0;
+    background-color: #15525d;
+    transition: all .5s;
+    font-size: 20px;
+    position: relative;
+}
+
+.mission .description::before {
+    position: absolute;
+    left: 15px;
+    top: 0;
+    content: "";
+    border-width: 10px;
+    border-style: solid;
+    border-color: #607d8b transparent transparent transparent;
+}
+
+.mission.selected .description {
+    visibility: visible;
+    padding: 15px;
+    height: 100%;
+    opacity: 1;
+}
+
+/* good list */
+
+#goodList {
+    box-sizing: content-box;
+    width: 560px;
+    height: 50%;
+    margin: auto;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    display: none;
+    background-color: #2ba5bb;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+#goodList::-webkit-scrollbar {
+    width: 10px;
+}
+
+#goodList::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: #1A1A1A;
+}
+
+.good {
+    display: inline-block;
+    width: 100px;
+    height: 100px;
+    box-sizing: border-box;
+    margin: 10px 5px;
+    border: 5px solid #15525d;
+    position: relative;
+    text-align: center;
+}
+
+.good .title {
+    width: 90px;
+    height: 90px;
+    position: relative;
+}
+
+.good .title>img {
+    width: 100%;
+    height: 100%;
+}
+
+.good .title>.count {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.good .title>.name {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 10px;
+    background-color: #2ba5bb;
+    opacity: 0;
+}
+
+.good:hover .title>.name {
+    opacity: 0.8;
+}
+
+.good .description {
+    position: absolute;
+    left: 0;
+    right: 0;
+    padding: 15px;
+    margin-top: 5px;
+    height: 0;
+    overflow: hidden;
+    visibility: hidden;
+    opacity: 0;
+    background-color: #15525d;
+    transition: all .5s;
+    text-align: center;
+}
+
+.good.selected .title::before {
+    position: absolute;
+    left: 0;
+    bottom: -20px;
+    z-index: 1;
+    content: "";
+    border-width: 10px;
+    border-style: solid;
+    border-color: #607d8b transparent transparent transparent;
+}
+
+.good.selected .description {
+    visibility: visible;
+    height: auto;
+    opacity: 1;
+}
+
+.good.selected {
+    overflow: visible;
+    position: static;
+}
+
+/* dialog */
+
+.msg {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
@@ -30,53 +312,26 @@ html, body {
     display: none;
 }
 
-#promt.info {
+.msg.info {
     background-color: #009688;
 }
 
-#promt.danger {
+.msg.danger {
     background-color: #ff6550;
 }
 
-#health {
+#promt {
+    width: 50%;
+    height: 50%;
+    margin: auto;
     position: absolute;
-    top: 0;
+    left: 0;
     right: 0;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
-#health .heart {
-    display: inline-block;
-    margin: 10px 5px;
-}
-
-.heart {
-    position: relative;
-    width: 25px;
-    height: 20px;
-}
-
-.heart::before {
-    position: absolute;
-    left: 50%;
-    transform-origin: 0% 100%;
-    transform: rotate(-45deg);
-    background-color: red;
-    content: " ";
-    width: 50%;
-    height: 100%;
-    border-radius: 50% 50% 0 0;
-}
-
-.heart::after {
-    position: absolute;
-    transform-origin: 100% 100%;
-    transform: rotate(45deg);
-    background-color: red;
-    content: " ";
-    width: 50%;
-    height: 100%;
-    border-radius: 50% 50% 0 0;
-}
+/* identity */
 
 #identity {
     position: absolute;
@@ -94,6 +349,8 @@ html, body {
     vertical-align: middle;
 }
 
+/* loading style */
+
 #loading {
     position: absolute;
     top: 0;
@@ -103,7 +360,7 @@ html, body {
     margin: auto;
     width: 100%;
     height: 100%;
-    background-color: #fff;
+    background-color: #263238;
     display: block;
 }
 
@@ -112,7 +369,7 @@ html, body {
         transform: translate(0, 0);
     }
     50% {
-        transform: translate(0, 20%);
+        transform: translate(0, 40%);
     }
     100% {
         transform: translate(0, 0);

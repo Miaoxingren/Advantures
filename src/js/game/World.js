@@ -85,7 +85,7 @@
 
         this.hud.loadComplete();
         // this.hud.playMusic();
-        this.state = lynx.worldState.PLAY;
+        // this.state = lynx.worldState.PLAY;
     };
 
     worldProto.initScene = function() {
@@ -282,8 +282,12 @@
 
         this.scene.add(player);
 
-        this.player = new lynx.Player(player, this.config.player.health);
-        this.hud.health(this.config.player.health);
+        var plr = new lynx.Player(player, this.config.player.health, this.config.player.money);
+        this.player = plr;
+        this.hud.playerState(this.config.player.health, this.config.player.money);//setPlayer(this.player);
+        this.hud.toolsCtrl.getPlayer = function () {
+            return plr;
+        };
 
         var mixer = new THREE.AnimationMixer(threeObj);
         var clip = THREE.AnimationClip.CreateFromMorphTargetSequence('gallop', geometry.morphTargets, 30);
@@ -408,6 +412,9 @@
                 } else {
                     this.hud.hidePromt();
                 }
+                if (this.state === lynx.worldState.INIT)
+                    this.state = lynx.worldState.PLAY;
+
                 break;
 
             case 13:

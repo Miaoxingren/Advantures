@@ -1,8 +1,20 @@
 (function(lynx) {
 
-    lynx.Player = function(graph, health) {
+    lynx.Player = function(graph, health, money) {
         this.graph = graph;
         this.health = health;
+        this.money = money;
+        this.goods = [{
+            src: '/img/key_return.png',
+            count: 1,
+            name: 'key',
+            description: 'key_return.'
+        }, {
+            src: '/img/merchant_cat.jpg',
+            count: 1,
+            name: 'key',
+            description: 'merchant_cat.'
+        }];
         this.tasks = [];
     };
 
