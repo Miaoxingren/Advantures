@@ -43,10 +43,10 @@
         this.toolsDom.addEventListener('click', toolsclick);
 
         var taskclick = lynx.bind(this, this.taskHandler);
-        this.taskDom.addEventListener('click', taskclick);
+        // this.taskDom.addEventListener('click', taskclick);
 
         var goodclick = lynx.bind(this, this.goodHandler);
-        this.goodDom.addEventListener('click', goodclick);
+        // this.goodDom.addEventListener('click', goodclick);
 
     };
 

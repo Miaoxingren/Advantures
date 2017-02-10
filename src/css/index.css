@@ -184,7 +184,7 @@ ul {
     border-color: #607d8b transparent transparent transparent;
 }
 
-.mission.selected .description {
+.mission:hover .description {
     visibility: visible;
     padding: 15px;
     height: 100%;
@@ -209,7 +209,7 @@ ul {
     overflow-y: scroll;
 }
 
-#goodList::-webkit-scrollbar {    
+#goodList::-webkit-scrollbar {
     width: 10px;
 }
 
@@ -232,14 +232,11 @@ ul {
     background-color: #2ba5bb;
     position: relative;
     text-align: center;
+    margin-bottom: 0;
 }
 
 .good:hover {
-    border-color: #15525d;
-    background-color: #15525d;
-}
-
-.good.selected {
+    margin-bottom: 48px;
     border-color: #15525d;
     background-color: #15525d;
     overflow: visible;
@@ -250,6 +247,17 @@ ul {
     width: 90px;
     height: 90px;
     position: relative;
+}
+
+.good:hover .title::before {
+    position: absolute;
+    left: 0;
+    bottom: -20px;
+    z-index: 1;
+    content: "";
+    border-width: 10px;
+    border-style: solid;
+    border-color: #607d8b transparent transparent transparent;
 }
 
 .good .title>img {
@@ -292,18 +300,8 @@ ul {
     text-align: center;
 }
 
-.good.selected .title::before {
-    position: absolute;
-    left: 0;
-    bottom: -20px;
-    z-index: 1;
-    content: "";
-    border-width: 10px;
-    border-style: solid;
-    border-color: #607d8b transparent transparent transparent;
-}
+.good:hover .description {
 
-.good.selected .description {
     visibility: visible;
     height: auto;
     opacity: 1;
