@@ -231,6 +231,7 @@ ul {
     border: 5px solid #2ba5bb;
     background-color: #2ba5bb;
     position: relative;
+    cursor: pointer;
     text-align: center;
     margin-bottom: 0;
 }

@@ -46,7 +46,7 @@
         // this.taskDom.addEventListener('click', taskclick);
 
         var goodclick = lynx.bind(this, this.goodHandler);
-        // this.goodDom.addEventListener('click', goodclick);
+        this.goodDom.addEventListener('click', goodclick);
 
     };
 
@@ -56,19 +56,31 @@
         event.preventDefault();
         event.stopPropagation();
 
-        var goodElem = getGood(event.target);
+        var goodElem = getGoodElem(event.target);
 
         if (!goodElem) return;
 
-        if (goodElem.classList.contains('selected')) {
-            goodElem.classList.remove('selected');
-            goodElem.style.marginBottom = '0';
-        } else {
-            deselectAll(this.goodDom);
-            goodElem.classList.add('selected');
-            changeMargin(goodElem);
+        useGood.apply(this, [goodElem, goodElem.getAttribute('goodNum')]);
+
+        // if (goodElem.classList.contains('selected')) {
+        //     goodElem.classList.remove('selected');
+        //     goodElem.style.marginBottom = '0';
+        // } else {
+        //     deselectAll(this.goodDom);
+        //     goodElem.classList.add('selected');
+        //     changeMargin(goodElem);
+        // }
+
+        function useGood(elem, goodNum) {
+            var good = this.getPlayer().goods[goodNum];
+            if (!good) return;
+
+            if (good.count > 0) {
+                good.count--;
+                elem.outerHTML = this.createGood(good, goodNum);
+                return true;
+            }
         }
-        console.log(event);
 
         function changeMargin(elem) {
             if (!elem.childNodes) return;
@@ -84,7 +96,7 @@
             }
         }
 
-        function getGood(elem) {
+        function getGoodElem(elem) {
             var node = elem;
             while (node.id !== 'goodList' && node !== document) {
                 if (node.classList.contains('good')) {
@@ -117,7 +129,6 @@
         if (taskElem) {
             taskElem.classList.toggle('selected');
         }
-        console.log(event);
 
         function getMission(elem) {
             var node = elem;
@@ -140,7 +151,6 @@
         if (event.target.id === 'good' || event.target.parentNode.id === 'good') {
             this.toggleGoods();
         }
-        console.log(event);
     };
 
     toolProto.toggleTasks = function() {
@@ -186,7 +196,7 @@
 
         var goodsHTML = '';
         for (var i = 0, iLen = goods.length; i < iLen; i++) {
-            var goodHTML = createGood(goods[i]);
+            var goodHTML = this.createGood(goods[i], i);
             goodsHTML += goodHTML;
         }
 
@@ -194,17 +204,18 @@
         this.goodDom.innerHTML = goodsHTML;
         this.goodShow = true;
 
-        function createGood(good) {
-            var goodHTML = '<div class="good">' +
-                '<div class="title">' +
-                '<img src="' + good.src + '">' +
-                '<span class="count">' + good.count + '</span>' +
-                '<span class="name">' + good.name + '</span>' +
-                '</div>' +
-                '<div class="description">' + good.description + '</div>' +
-                '</div>';
-            return goodHTML;
-        }
+    };
+
+    toolProto.createGood = function (good, goodNum) {
+        var goodHTML = '<div class="good" goodnum="' + goodNum + '">' +
+            '<div class="title">' +
+            '<img src="' + good.src + '">' +
+            '<span class="count">' + good.count + '</span>' +
+            '<span class="name">' + good.name + '</span>' +
+            '</div>' +
+            '<div class="description">' + good.description + '</div>' +
+            '</div>';
+        return goodHTML;
     };
 
     lynx.HeadUpDisplay = function() {
