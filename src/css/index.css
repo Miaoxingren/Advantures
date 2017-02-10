@@ -195,7 +195,7 @@ ul {
 
 #goodList {
     box-sizing: content-box;
-    width: 560px;
+    width: 510px;
     height: 50%;
     margin: auto;
     position: absolute;
@@ -209,8 +209,13 @@ ul {
     overflow-y: scroll;
 }
 
-#goodList::-webkit-scrollbar {
+#goodList::-webkit-scrollbar {    
     width: 10px;
+}
+
+#goodList::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px #1A1A1A;
+    border-radius: 10px;
 }
 
 #goodList::-webkit-scrollbar-thumb {
@@ -223,10 +228,22 @@ ul {
     width: 100px;
     height: 100px;
     box-sizing: border-box;
-    margin: 10px 5px;
-    border: 5px solid #15525d;
+    border: 5px solid #2ba5bb;
+    background-color: #2ba5bb;
     position: relative;
     text-align: center;
+}
+
+.good:hover {
+    border-color: #15525d;
+    background-color: #15525d;
+}
+
+.good.selected {
+    border-color: #15525d;
+    background-color: #15525d;
+    overflow: visible;
+    position: static;
 }
 
 .good .title {
@@ -290,11 +307,6 @@ ul {
     visibility: visible;
     height: auto;
     opacity: 1;
-}
-
-.good.selected {
-    overflow: visible;
-    position: static;
 }
 
 /* dialog */

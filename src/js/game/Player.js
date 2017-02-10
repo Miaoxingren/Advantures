@@ -14,6 +14,56 @@
             count: 1,
             name: 'key',
             description: 'merchant_cat.'
+        }, {
+            src: '/img/merchant_cat.jpg',
+            count: 1,
+            name: 'key',
+            description: 'merchant_cat.'
+        }, {
+            src: '/img/merchant_cat.jpg',
+            count: 1,
+            name: 'key',
+            description: 'merchant_cat.'
+        }, {
+            src: '/img/merchant_cat.jpg',
+            count: 1,
+            name: 'key',
+            description: 'merchant_cat.'
+        }, {
+            src: '/img/merchant_cat.jpg',
+            count: 1,
+            name: 'key',
+            description: 'merchant_cat.'
+        }, {
+            src: '/img/merchant_cat.jpg',
+            count: 1,
+            name: 'key',
+            description: 'merchant_cat.'
+        }, {
+            src: '/img/merchant_cat.jpg',
+            count: 1,
+            name: 'key',
+            description: 'merchant_cat.'
+        }, {
+            src: '/img/merchant_cat.jpg',
+            count: 1,
+            name: 'key',
+            description: 'merchant_cat.'
+        }, {
+            src: '/img/merchant_cat.jpg',
+            count: 1,
+            name: 'key',
+            description: 'merchant_cat.'
+        }, {
+            src: '/img/merchant_cat.jpg',
+            count: 1,
+            name: 'key',
+            description: 'merchant_cat.'
+        }, {
+            src: '/img/merchant_cat.jpg',
+            count: 1,
+            name: 'key',
+            description: 'merchant_cat.'
         }];
         this.tasks = [];
     };
