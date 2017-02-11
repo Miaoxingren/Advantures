@@ -8,7 +8,7 @@ var lynx = {
 
 (function(lynx) {
 
-    lynx.isArray = function (target) {
+    lynx.isArray = function(target) {
         return target && Object.prototype.toString.call(target) === '[object Array]';
     };
 
@@ -104,7 +104,12 @@ var lynx = {
     lynx.tag = {
         PLAYER: 0,
         NPC: 1,
-        MONSTER: 2
+        MONSTER: 2,
+        MONEY: 3,
+        HEALTH: 4,
+        TASK: 5,
+        UFO: 6,
+        SHELF: 7
     };
 
 })(lynx);
@@ -123,7 +128,8 @@ var lynx = {
                 'merchant_cat', 'melon', 'bear0', 'bear1', 'bear2', 'blackWidow', 'bunny0', 'bear3', 'bunny1', 'chow', 'deer', 'crab', 'elk', 'fish0',
                 'fish1', 'fish2', 'fish3', 'eagle', 'fox1', 'fox0', 'flamingo', 'frog0', 'goldenRetreiver0', 'frog2', 'goat', 'goldenRetreiver1',
                 'horse1', 'horse0', 'hummingBird0', 'hummingBird1', 'moose', 'owl', 'mountainLion', 'parrot2', 'raccoon', 'panther0',
-                'parrot1', 'raven', 'seal0', 'stork', 'scorpion', 'seal1', 'toad0', 'wolf', 'vulture', 'toad1', 'gator', 'tarantula0'
+                'parrot1', 'raven', 'seal0', 'stork', 'scorpion', 'seal1', 'toad0', 'wolf', 'vulture', 'toad1', 'gator', 'tarantula0',
+                'coin', 'cat_food_yellow', 'shelf'
             ],
             player: {},
             walls: [],
@@ -140,6 +146,7 @@ var lynx = {
         var world = lynx.defaults[name];
         world = lynx.merge(world, config);
         // world.walls = createWalls(world.size);
+        world.goods = createGoods(world.size);
         world.npcs = createNPCs(world.size);
         world.player = createPlayer(world.size);
         world.monsters = createMontsers(world.size, world.monsterNum);
@@ -319,6 +326,30 @@ var lynx = {
                 id: 'MerchantCat'
             }];
             return npcs;
+        }
+
+        function createGoods(size) {
+            var originX = -size / 2;
+            var originZ = -size / 2;
+            var roomSize = size / 8; // 0 - 3
+            var gridSize = roomSize / 8; // 1- 8
+            var offset = gridSize / 2;
+            var goods = [{
+                position: {
+                    x: originX + 3 * roomSize + 8 * gridSize - offset,
+                    z: originZ + 0 * roomSize + 8 * gridSize - offset
+                },
+                goods: [{
+                    name: 'coin',
+                    model: 'coin',
+                    tag: lynx.tag.MONEY
+                }, {
+                    name: 'cat food',
+                    model: 'cat_food_yellow',
+                    tag: lynx.tag.HEALTH
+                }]
+            }];
+            return goods;
         }
 
         function createPlayer(size) {

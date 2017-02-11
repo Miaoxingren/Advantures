@@ -74,6 +74,8 @@
 
         this.initBuilder();
 
+        this.initGood();
+
         // this.initMonster();
 
         this.initNpcCtrl();
@@ -228,6 +230,82 @@
 
         }
 
+    };
+
+    worldProto.initGood = function() {
+        if (this.goods) return;
+
+        this.goods = [];
+
+        var size = this.config.size;
+        var originX = -size / 2;
+        var originZ = -size / 2;
+        var roomSize = size / 8; // 0 - 3
+        var gridSize = roomSize / 8; // 1- 4
+        var offset = gridSize / 2;
+
+        var shelfs = this.config.goods;
+        var modelLib = this.models;
+
+        for (var i = 0, shelf; (shelf = shelfs[i]); i++) {
+            var shelfObj = createObj('shelf', gridSize, lynx.tag.SHELF);
+
+            // threeObj.position.y = -width / 2;
+            shelfObj.position.x = shelf.position.x;
+            shelfObj.position.z = shelf.position.z;
+
+            var item0 = shelf.goods[0];
+            var obj0 = createObj(item0.model, gridSize / 16, item0.tag);
+            shelfObj.add(obj0);
+            obj0.position.y = 2;
+
+            var item1 = shelf.goods[1];
+            var obj1 = createObj(item1.model, gridSize / 16, item1.tag);
+            shelfObj.add(obj1);
+            obj1.position.y = 6;
+
+            this.scene.add(shelfObj);
+            this.goods.push(shelfObj);
+
+        }
+
+        function createObj(modelType, size, tag) {
+            var model = modelLib[modelType];
+            var geometry = model.geometry;
+            var materials = model.materials;
+
+            for (var m = 0; m < materials.length; m++) {
+                var material = materials[m];
+                material.vertexColors = THREE.FaceColors;
+                material.side = THREE.DoubleSide;
+            }
+
+            geometry.computeBoundingBox();
+            var bound = geometry.boundingBox;
+            var width = bound.max.x - bound.min.x;
+            var height = bound.max.y - bound.min.y;
+            var depth = bound.max.z - bound.min.z;
+
+            var threeObj = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
+
+            var physGeomtry = new THREE.BoxGeometry(width, height, depth);
+            var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
+            physMaterial.visible = false;
+
+            var physiObj = new Physijs.BoxMesh(physGeomtry, physMaterial, 0);
+            physiObj.castShadow = true;
+            // physiObj.name = good.name;
+            physiObj.tag = tag;
+            physiObj.add(threeObj);
+
+            var cp = [width, height, depth];
+            cp.sort();
+
+            var scale = size / cp[2];
+            physiObj.scale.set(scale, scale, scale);
+
+            return physiObj;
+        }
     };
 
     worldProto.initPlotCtrl = function() {
