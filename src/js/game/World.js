@@ -74,7 +74,7 @@
 
         this.initBuilder();
 
-        this.initGood();
+        // this.initGood();
 
         // this.initMonster();
 
@@ -158,7 +158,7 @@
     };
 
     worldProto.initBuilder = function() {
-        this.builder = new lynx.Builder(this.config, this.scene);
+        this.builder = new lynx.Builder(this.config, this.scene, this.models);
     };
 
     worldProto.initNpcCtrl = function() {
@@ -257,7 +257,7 @@
             var item0 = shelf.goods[0];
             var obj0 = createObj(item0.model, gridSize / 16, item0.tag);
             shelfObj.add(obj0);
-            obj0.position.y = 2;
+            obj0.position.y = 1 ;
 
             var item1 = shelf.goods[1];
             var obj1 = createObj(item1.model, gridSize / 16, item1.tag);
@@ -298,10 +298,10 @@
             physiObj.tag = tag;
             physiObj.add(threeObj);
 
-            var cp = [width, height, depth];
-            cp.sort();
+            var unit = [width, height, depth];
+            unit.sort();
 
-            var scale = size / cp[2];
+            var scale = size / unit[2];
             physiObj.scale.set(scale, scale, scale);
 
             return physiObj;
@@ -402,18 +402,34 @@
         this.hud.setConversation(conversation);
     };
 
+    worldProto.clickShelf = function (id) {
+        var goods = this.builder.getShelfGoods(id);
+        if (goods) {
+            this.player.addGoods(goods);
+        }
+    };
+
     worldProto.clickHandler = function(event) {
         var mouseCoords = this.domElement === document ? new THREE.Vector2((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1) : new THREE.Vector2((event.clientX / this.domElement.offsetWidth) * 2 - 1, -(event.clientY / this.domElement.offsetHeight) * 2 + 1);
 
         var raycaster = new THREE.Raycaster();
         raycaster.setFromCamera(mouseCoords, this.getCamera());
 
-        var intersections = raycaster.intersectObjects(this.npcs);
+        var intersections = raycaster.intersectObjects(this.scene.children);
+        // var intersections = raycaster.intersectObjects(this.npcs);
         if (intersections && intersections[0]) {
-            var npc = this.npcCtrl.getNPC(intersections[0].object.name);
-            if (npc) {
-                this.isClickNPC = true;
-                this.clickNPC(npc);
+            if (!intersections[0].object.tag) return;
+            if (intersections[0].object.tag === lynx.tag.NPC) {
+
+                var npc = this.npcCtrl.getNPC(intersections[0].object.name);
+                if (npc) {
+                    this.isClickNPC = true;
+                    this.clickNPC(npc);
+                }
+
+            }
+            if (intersections[0].object.tag === lynx.tag.SHELF) {
+                    this.clickShelf(intersections[0].object.id);
             }
         } else {
             this.isClickNPC = false;

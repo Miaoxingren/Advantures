@@ -1,8 +1,33 @@
 (function(lynx) {
 
-    lynx.Builder = function(config, scene) {
+    lynx.SHELF = function (id, graph, goods) {
+        this.id = id;
+        this.graph = graph;
+        this.goods = goods;
+
+    };
+
+    var shelfProto = lynx.SHELF.prototype;
+
+    shelfProto.removeGoods = function () {
+        if (!this.goods || !this.goods.length) return;
+
+        var children = this.graph.children;
+
+        for (var i = 0; i < children.length; i++) {
+            if (children[i].tag) {
+                this.graph.remove(children[i]);
+                i -= 2;
+            }
+        }
+
+        return this.goods;
+    };
+
+    lynx.Builder = function(config, scene, models) {
         this.config = config;
         this.scene = scene;
+        this.models = models;
         this.textureLoader = new THREE.TextureLoader();
         this.initBuildings();
     };
@@ -11,9 +36,11 @@
 
     builderProto.initBuildings = function() {
         this.config.walls = this.createWalls(this.config.size);
+        this.config.shelves = this.createShelves(this.config.size);
         this.initGround();
         this.initBorder();
         this.initWalls();
+        this.initShelves();
     };
 
     builderProto.initGround = function() {
@@ -297,6 +324,141 @@
             this.scene.add(wallMesh);
         }
 
+    };
+
+    builderProto.createShelves = function(size) {
+        var goods = [{
+            coordinate: {
+                x: 3,
+                z: 0,
+                s: 8,
+                t: 1
+            },
+            goods: [{
+                name: 'coin',
+                model: 'coin',
+                count: 1,
+                tag: lynx.tag.MONEY
+            }, {
+                name: 'cat food',
+                model: 'cat_food_yellow',
+                count: 1,
+                tag: lynx.tag.HEALTH
+            }]
+        }, {
+            coordinate: {
+                x: 3,
+                z: 0,
+                s: 7,
+                t: 1
+            },
+            goods: [{
+                name: 'coin',
+                model: 'coin',
+                count: 1,
+                tag: lynx.tag.MONEY
+            }, {
+                name: 'cat food',
+                model: 'cat_food_yellow',
+                count: 1,
+                tag: lynx.tag.HEALTH
+            }]
+        }];
+        return goods;
+    };
+
+    builderProto.initShelves = function() {
+        if (this.shelves) return;
+
+        this.shelves = [];
+
+        var size = this.config.size;
+        var originX = -size / 2;
+        var originZ = -size / 2;
+        var roomSize = size / 8; // 0 - 3
+        var gridSize = roomSize / 8; // 1- 8
+        var offset = gridSize / 2;
+
+        var shelfs = this.config.shelves;
+        var modelLib = this.models;
+
+        for (var i = 0, shelf; (shelf = shelfs[i]); i++) {
+            var shelfObj = createObj('shelf', gridSize, lynx.tag.SHELF);
+
+            // threeObj.position.y = -width / 2;
+            shelfObj.position.x = originX + shelf.coordinate.x * roomSize + shelf.coordinate.s * gridSize - offset;
+            shelfObj.position.z = originZ + shelf.coordinate.z * roomSize + shelf.coordinate.t * gridSize - offset;
+
+            var item0 = shelf.goods[0];
+            var obj0 = createObj(item0.model, gridSize / 16, item0.tag);
+            shelfObj.add(obj0);
+            obj0.position.y = 1 ;
+
+            var item1 = shelf.goods[1];
+            var obj1 = createObj(item1.model, gridSize / 16, item1.tag);
+            shelfObj.add(obj1);
+            obj1.position.y = 6;
+
+            this.scene.add(shelfObj);
+
+            var shelf_ = new lynx.SHELF(shelfObj.id, shelfObj, shelf.goods);
+            this.shelves.push(shelf_);
+        }
+        function createObj(modelType, size, tag) {
+            var model = modelLib[modelType];
+            var geometry = model.geometry;
+            var materials = model.materials;
+
+            for (var m = 0; m < materials.length; m++) {
+                var material = materials[m];
+                material.vertexColors = THREE.FaceColors;
+                material.side = THREE.DoubleSide;
+            }
+
+            geometry.computeBoundingBox();
+            var bound = geometry.boundingBox;
+            var width = bound.max.x - bound.min.x;
+            var height = bound.max.y - bound.min.y;
+            var depth = bound.max.z - bound.min.z;
+
+            var threeObj = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
+
+            var physGeomtry = new THREE.BoxGeometry(width, height, depth);
+            var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
+            physMaterial.visible = false;
+
+            var physiObj = new Physijs.BoxMesh(physGeomtry, physMaterial, 0);
+            physiObj.castShadow = true;
+            // physiObj.name = good.name;
+            physiObj.tag = tag;
+            physiObj.add(threeObj);
+
+            var unit = [width, height, depth];
+            unit.sort();
+
+            var scale = size / unit[2];
+            physiObj.scale.set(scale, scale, scale);
+
+            return physiObj;
+        }
+    };
+
+    builderProto.getShelf = function (id) {
+        if (!this.shelves) return;
+
+        for (var i = 0; i < this.shelves.length; i++) {
+            if (this.shelves[i].id === id) {
+                return this.shelves[i];
+            }
+        }
+    };
+
+    builderProto.getShelfGoods = function (id) {
+        var shelf = this.getShelf(id);
+
+        if (shelf) {
+            return shelf.removeGoods();
+        }
     };
 
 })(lynx);

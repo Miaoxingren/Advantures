@@ -120,7 +120,7 @@ var lynx = {
         paw: {
             size: 3000,
             wallHeight: 200,
-            wallDepth: 10,
+            wallDepth: 1,
             gravity: 100,
             monsterSpeed: 5,
             monsterNum: 30,
@@ -335,9 +335,15 @@ var lynx = {
             var gridSize = roomSize / 8; // 1- 8
             var offset = gridSize / 2;
             var goods = [{
+                coordinate: {
+                    x: 3,
+                    z: 0,
+                    s: 8,
+                    t: 1
+                },
                 position: {
                     x: originX + 3 * roomSize + 8 * gridSize - offset,
-                    z: originZ + 0 * roomSize + 8 * gridSize - offset
+                    z: originZ + 0 * roomSize + 1 * gridSize - offset
                 },
                 goods: [{
                     name: 'coin',
