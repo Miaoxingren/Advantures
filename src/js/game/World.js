@@ -77,6 +77,7 @@
         // this.initGood();
 
         // this.initMonster();
+        this.initMonsterCtrl();
 
         this.initNpcCtrl();
 
@@ -161,6 +162,101 @@
         this.builder = new lynx.Builder(this.config, this.scene, this.models);
     };
 
+    worldProto.initMonsterCtrl = function() {
+        if (this.monsterCtrl) return;
+
+        this.initMonster();
+
+        this.monsterCtrl = new lynx.MonsterCtrl(this.config.monsterSpeed, this.monsters);
+    };
+
+    worldProto.initMonster = function() {
+        if (this.monsters) return;
+
+        this.monsters = [];
+
+        var that = this;
+
+        var size = this.config.size;
+        var originX = -size / 2;
+        var originZ = -size / 2;
+        var roomSize = size / 8; // 0 - 7
+        var gridSize = roomSize / 8; // 1- 8
+        var offset = gridSize / 2;
+
+        var monsters = this.config.monsters;
+        var modelLib = this.models;
+
+        for (var i = 0, monster;
+            (monster = monsters[i]); i++) {
+
+            var physiObj = createObj(monster.model, gridSize / 2, lynx.tag.MONSTER);
+            physiObj.name = monster.name;
+            physiObj.userData.direction = 0;
+            physiObj.userData.step = 0;
+
+            physiObj.position.x = originX + monster.coordinate.x * roomSize + monster.coordinate.s * gridSize;
+            physiObj.position.z = originZ + monster.coordinate.z * roomSize + monster.coordinate.t * gridSize;
+
+            physiObj.lookAtPoint = new THREE.Vector3(physiObj.position.x, physiObj.position.y, physiObj.position.z + 1);
+
+            this.scene.add(physiObj);
+
+            this.monsters.push({graph: physiObj, data: monster});
+        }
+
+        function createObj(modelType, size, tag) {
+            var model = modelLib[modelType];
+            var geometry = model.geometry;
+            var materials = model.materials;
+
+            // geometry.computeVertexNormals();
+            // geometry.computeMorphNormals();
+
+            for (var m = 0; m < materials.length; m++) {
+                var material = materials[m];
+                material.morphTargets = true;
+                // material.morphNormals = true;
+                material.vertexColors = THREE.FaceColors;
+                material.side = THREE.DoubleSide;
+            }
+
+            geometry.computeBoundingBox();
+            var bound = geometry.boundingBox;
+            var width = bound.max.x - bound.min.x;
+            var height = bound.max.y - bound.min.y;
+            var depth = bound.max.z - bound.min.z;
+
+            var threeObj = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
+            var physGeomtry = new THREE.BoxGeometry(width, height, depth);
+            var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
+            physMaterial.visible = false;
+
+            var physiObj = new Physijs.BoxMesh(physGeomtry, physMaterial, width * height * depth * 99);
+            physiObj.castShadow = true;
+            physiObj.tag = tag;
+            physiObj.add(threeObj);
+            threeObj.position.y = -height / 4;
+
+            var unit = [width, height, depth];
+            unit.sort();
+
+            var scale = size / unit[2];
+            physiObj.scale.set(scale, scale, scale);
+
+            if (geometry.morphTargets && geometry.morphTargets.length) {
+
+                var mixer = new THREE.AnimationMixer(threeObj);
+                var clip = THREE.AnimationClip.CreateFromMorphTargetSequence('gallop', geometry.morphTargets, 30);
+                mixer.clipAction(clip).setDuration(1).play();
+
+                that.addMixer(mixer);
+            }
+
+            return physiObj;
+        }
+    };
+
     worldProto.initNpcCtrl = function() {
         if (this.npcCtrl) return;
 
@@ -177,9 +273,35 @@
         var npcs = this.config.npcs;
         var modelLib = this.models;
 
+        var size = this.config.size;
+        var originX = -size / 2;
+        var originZ = -size / 2;
+        var roomSize = size / 8; // 0 - 7
+        var gridSize = roomSize / 8; // 1- 8
+        var offset = gridSize / 2;
+
+        var that = this;
+
         for (var i = 0, npc;
             (npc = npcs[i]); i++) {
-            var model = modelLib[npc.model];
+
+            var physiObj = createObj(npc.model, gridSize * 0.9, lynx.tag.NPC);
+            physiObj.name = npc.name;
+
+            if (npc.name === 'Melonpi') {
+                physiObj.position.y = 5 / 2;
+            }
+
+            // threeObj.position.y = -width / 2;
+            physiObj.position.x = originX + npc.coordinate.x * roomSize + npc.coordinate.s * gridSize;
+            physiObj.position.z = originZ + npc.coordinate.z * roomSize + npc.coordinate.t * gridSize;
+
+            this.scene.add(physiObj);
+            this.npcs.push(physiObj);
+        }
+
+        function createObj(modelType, size, tag) {
+            var model = modelLib[modelType];
             var geometry = model.geometry;
             var materials = model.materials;
 
@@ -208,28 +330,26 @@
 
             var physiObj = new Physijs.BoxMesh(physGeomtry, physMaterial, 0);
             physiObj.castShadow = true;
-            physiObj.name = npc.name;
-            physiObj.tag = lynx.tag.NPC;
+            physiObj.tag = tag;
             physiObj.add(threeObj);
 
-            // threeObj.position.y = -width / 2;
-            physiObj.position.x = npc.position.x;
-            physiObj.position.z = npc.position.z;
+            var unit = [width, height, depth];
+            unit.sort();
 
-            this.scene.add(physiObj);
-            this.npcs.push(physiObj);
+            var scale = size / unit[2];
+            physiObj.scale.set(scale, scale, scale);
 
-            if (geometry.morphTargets && geometry.morphTargets.length) {
+            // if (geometry.morphTargets && geometry.morphTargets.length) {
+            //
+            //     var mixer = new THREE.AnimationMixer(threeObj);
+            //     var clip = THREE.AnimationClip.CreateFromMorphTargetSequence('gallop', geometry.morphTargets, 30);
+            //     mixer.clipAction(clip).setDuration(1).play();
+            //
+            //     that.addMixer(mixer);
+            // }
 
-                var mixer = new THREE.AnimationMixer(threeObj);
-                var clip = THREE.AnimationClip.CreateFromMorphTargetSequence('gallop', geometry.morphTargets, 30);
-                mixer.clipAction(clip).setDuration(1).play();
-
-                this.addMixer(mixer);
-            }
-
+            return physiObj;
         }
-
     };
 
     worldProto.initGood = function() {
@@ -356,7 +476,7 @@
 
         player.position.x = this.config.player.position.x;
         player.position.z = this.config.player.position.z;
-        player.scale.set(0.2, 0.2, 0.2);
+        player.scale.set(0.05, 0.05, 0.05);
 
         this.scene.add(player);
 
@@ -367,11 +487,11 @@
             return plr;
         };
 
-        var mixer = new THREE.AnimationMixer(threeObj);
-        var clip = THREE.AnimationClip.CreateFromMorphTargetSequence('gallop', geometry.morphTargets, 30);
-        mixer.clipAction(clip).setDuration(1).play();
-
-        this.addMixer(mixer);
+        // var mixer = new THREE.AnimationMixer(threeObj);
+        // var clip = THREE.AnimationClip.CreateFromMorphTargetSequence('gallop', geometry.morphTargets, 30);
+        // mixer.clipAction(clip).setDuration(1).play();
+        //
+        // this.addMixer(mixer);
 
     };
 
@@ -393,6 +513,40 @@
 
         if (this.hud.isTalking()) return;
 
+        var task;
+
+        if (npc.name === 'Bear Bob') {
+            task = npc.getCurTask();
+            if (task && task.state === lynx.taskState.ACCEPT) {
+                if (task.isComplete(this.player)) {
+                    task.state = lynx.taskState.COMPLET;
+                }
+            }
+        }
+
+        if (npc.name === 'Raccoon Rose' || npc.name === 'Deer David') {
+            task = npc.getCurTask();
+            if (task && task.state === lynx.taskState.ACCEPT) {
+                if (this.builder.checkWoods(this.npcCtrl.getNPC('Deer David').graph.position)) {
+                    task.state = lynx.taskState.COMPLET;
+                }
+            }
+        }
+
+        if (npc.name === 'Horse Harry') {
+            task = npc.getCurTask();
+            if (task && task.state === lynx.taskState.ACCEPT) {
+                var goods = this.player.getGoodsIf(isFlower);
+                if (goods.length >= 10) {
+                    task.state = lynx.taskState.COMPLET;
+                }
+            }
+        }
+
+        function isFlower(good) {
+            return good.name.indexOf('flower') !== -1;
+        }
+
         this.control.enabled = false;
 
         // set
@@ -406,6 +560,30 @@
         var goods = this.builder.getShelfGoods(id);
         if (goods) {
             this.player.addGoods(goods);
+        }
+        this.hud.money(this.player.money);
+    };
+
+    worldProto.clickTree = function (id) {
+        var tree = this.builder.getTree(id);
+        if (!tree) return;
+        if (tree.name === 'flower') {
+            if (tree.empty) {
+                this.hud.promt('info', 'Nothing.');
+            } else {
+                tree.empty = true;
+                var i = Math.random() * 10 % 10;
+                this.player.addGood({name: 'flower' + i, count: 1, src: '/img/merchant_cat.jpg',
+                description: 'merchant_cat.'});
+            }
+        }
+    };
+
+    worldProto.clickMonster = function (id) {
+        var monster = this.monsterCtrl.getMonster(id);
+        if (!monster) return;
+        if (monster.graph.name === 'boss') {
+            monster.hurt(1);
         }
     };
 
@@ -429,7 +607,15 @@
 
             }
             if (intersections[0].object.tag === lynx.tag.SHELF) {
-                    this.clickShelf(intersections[0].object.id);
+                this.clickShelf(intersections[0].object.id);
+            }
+
+            if (intersections[0].object.tag === lynx.tag.TREE) {
+                this.clickTree(intersections[0].object.id);
+            }
+
+            if (intersections[0].object.tag === lynx.tag.MONSTER) {
+                this.clickMonster(intersections[0].object.id);
             }
         } else {
             this.isClickNPC = false;
@@ -486,13 +672,16 @@
 
         // var intersections = raycaster.intersectObjects(this.npcs);
         var intersections = raycaster.intersectObjects(this.scene.children);
-        if (intersections && intersections[0] && intersections[0].object.tag === lynx.tag.NPC) {
+        if (intersections && intersections[0] && intersections[0].object.tag) {
             this.domElement.style.cursor = 'pointer';
+            if (intersections[0].object.tag === lynx.tag.MONSTER) {
+                this.hud.identity(intersections[0].object.health, event.pageY, event.pageX);
+            }
             // this.hud.identity(intersections[0].object.name, event.pageY, event.pageX);
             // this.selectedObjId = intersections[0].object.userData.id;
         } else {
             this.domElement.style.cursor = 'auto';
-            // this.hud.hideIdentity();
+            this.hud.hideIdentity();
             // this.selectedObjId = '';
         }
     };
@@ -512,18 +701,37 @@
                 break;
 
             case 13:
-                if (!this.hud.isTalking()) return;
-                var dialogOver = !this.hud.talk();
-                var npc = this.selectedNPC;
-                if (!this.hud.isTalking() && npc) {
-                    // this.plotCtrl.dialogOver(npc);
-                    npc.updateTask();
-                    var task = npc.getCurTask();
-                    this.player.addTask(task);
-                    this.plotCtrl.setPlot(task.name);
-                    // this.plot = npc.getCurTask().name;
-                }
+                this.talkToNPC();
+                // if (!this.hud.isTalking()) return;
+                // var dialogOver = !this.hud.talk();
+                // var npc = this.selectedNPC;
+                // if (!this.hud.isTalking() && npc) {
+                //     // this.plotCtrl.dialogOver(npc);
+                //     npc.updateTask();
+                //     var task = npc.getCurTask();
+                //     this.player.addTask(task);
+                //     this.plotCtrl.setPlot(task.name);
+                //     // this.plot = npc.getCurTask().name;
+                // }
                 break;
+        }
+    };
+
+    worldProto.talkToNPC = function () {
+        if (!this.hud.isTalking()) return;
+        var dialogOver = !this.hud.talk();
+        var npc = this.selectedNPC;
+        if (!this.hud.isTalking() && npc) {
+            // this.plotCtrl.dialogOver(npc);
+            npc.updateTask();
+            var task = npc.getCurTask();
+            this.player.addTask(task);
+            this.plotCtrl.setPlot(task.name);
+            // this.plot = npc.getCurTask().name;
+
+            if (npc.name === 'Raccoon Rose' && task.state === lynx.taskState.ACCEPT) {
+                this.builder.changeWoods();
+            }
         }
     };
 
@@ -547,6 +755,8 @@
             this.plotCtrl.update();
         }
         this.control.enabled = !(this.hud.isTalking() || this.plotCtrl.ploting);
+
+        this.monsterCtrl.updateMonster(this.player.graph.position.clone());
 
         this.control.update(delta);
         this.updateMixer(delta);

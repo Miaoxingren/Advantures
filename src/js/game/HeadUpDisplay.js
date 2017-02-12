@@ -276,6 +276,7 @@
 
     hudProto.identity = function(name, top, left) {
         if (!this.identityDom) return;
+        this.identityDom.innerHTML = '<img src="/img/merchant_cat.jpg" alt="merchant_cat"><span>' + name + '</span>';
         this.identityDom.style.display = 'block';
         this.identityDom.style.top = top + 'px';
         this.identityDom.style.left = left + 'px';

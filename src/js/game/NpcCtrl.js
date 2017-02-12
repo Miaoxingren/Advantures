@@ -43,6 +43,85 @@
                         ]
                     ]
                 }]
+            }, {
+                character: 'Bear Bob',
+                tasks: [{
+                    name: 'food',
+                    state: lynx.taskState.CREATE,
+                    messages: [
+                        [
+                            '我快饿死了， 如果你能够给我5份食物，我能够帮你打开这扇门。'
+                        ], [
+                            '我快饿死了， 如果你能够给我5份食物，我能够帮你打开这扇门。'
+                        ], [
+                            '感谢你的食物， 门已经开了。'
+                        ]
+                    ],
+                    isComplete: function (player) {
+                        if (player.removeGood('cat food', 5)) return true;
+                        return false;
+                    }
+                }]
+            }, {
+                character: 'Raccoon Rose',
+                tasks: [{
+                    name: 'wood',
+                    state: lynx.taskState.CREATE,
+                    messages: [
+                        [
+                            '这里有一些木头， 如果你能够帮我把木头搬到Deer David那里，我就能够帮你打开这扇门。'
+                        ], [
+                            '这里有一些木头， 如果你能够帮我把木头搬到Deer David那里，我就能够帮你打开这扇门。'
+                        ], [
+                            '感谢你的帮忙， 门已经开了。'
+                        ]
+                    ]
+                }]
+            }, {
+                character: 'Deer David',
+                tasks: [{
+                    name: 'wood',
+                    state: lynx.taskState.CREATE,
+                    messages: [
+                        [
+                            '本来这儿放着许多木头，前几天却不见了，我的木头去了哪儿...'
+                        ], [
+                            '本来这儿放着许多木头，前几天却不见了，我的木头去了哪儿...'
+                        ], [
+                            '我的木头回来了...是谁放回来的...'
+                        ]
+                    ]
+                }]
+            }, {
+                character: 'Horse Harry',
+                tasks: [{
+                    name: 'flower',
+                    state: lynx.taskState.CREATE,
+                    messages: [
+                        [
+                            '这里开了很多花， 如果你能够给我采来10种不同的花，我能够帮你打开这扇门。'
+                        ], [
+                            '这里开了很多花， 如果你能够给我采来10种不同的花，我能够帮你打开这扇门。'
+                        ], [
+                            '谢谢你的帮忙，门已经开了。'
+                        ]
+                    ]
+                }]
+            }, {
+                character: 'Melonpi',
+                tasks: [{
+                    name: 'rescue',
+                    state: lynx.taskState.CREATE,
+                    messages: [
+                        [
+                            '必须先取得钥匙我才能出来。'
+                        ], [
+                            '必须先取得钥匙我才能出来。'
+                        ], [
+                            '谢谢你的帮忙，现在回Merchant Cat那里吧。'
+                        ]
+                    ]
+                }]
             }];
 
         }

@@ -109,7 +109,9 @@ var lynx = {
         HEALTH: 4,
         TASK: 5,
         UFO: 6,
-        SHELF: 7
+        SHELF: 7,
+        TREE: 8,
+        WOOD: 9
     };
 
 })(lynx);
@@ -118,18 +120,18 @@ var lynx = {
 
     lynx.defaults = {
         paw: {
-            size: 3000,
-            wallHeight: 200,
+            size: 1000,
+            wallHeight: 100,
             wallDepth: 1,
             gravity: 100,
-            monsterSpeed: 5,
+            monsterSpeed: 20,
             monsterNum: 30,
             models: [
                 'merchant_cat', 'melon', 'bear0', 'bear1', 'bear2', 'blackWidow', 'bunny0', 'bear3', 'bunny1', 'chow', 'deer', 'crab', 'elk', 'fish0',
                 'fish1', 'fish2', 'fish3', 'eagle', 'fox1', 'fox0', 'flamingo', 'frog0', 'goldenRetreiver0', 'frog2', 'goat', 'goldenRetreiver1',
                 'horse1', 'horse0', 'hummingBird0', 'hummingBird1', 'moose', 'owl', 'mountainLion', 'parrot2', 'raccoon', 'panther0',
                 'parrot1', 'raven', 'seal0', 'stork', 'scorpion', 'seal1', 'toad0', 'wolf', 'vulture', 'toad1', 'gator', 'tarantula0',
-                'coin', 'cat_food_yellow', 'shelf'
+                'coin', 'cat_food_yellow', 'shelf', 'tree_a', 'rose', 'plants1', 'sword', 'wood', 'cat1'
             ],
             player: {},
             walls: [],
@@ -317,6 +319,12 @@ var lynx = {
 
         function createNPCs(size) {
             var npcs = [{
+                coordinate: {
+                    x: 3,
+                    z: 0,
+                    s: 2,
+                    t: 1
+                },
                 position: {
                     x: -size / 16,
                     z: -size / 2 + size / 8 / 3
@@ -324,6 +332,76 @@ var lynx = {
                 name: 'Merchant Cat',
                 model: 'merchant_cat',
                 id: 'MerchantCat'
+            }, {
+                coordinate: {
+                    x: 0,
+                    z: 2,
+                    s: 4,
+                    t: 4
+                },
+                position: {
+                    x: -size / 2 + size / 8 / 2,
+                    z: -size / 4 + size / 8 / 2
+                },
+                name: 'Bear Bob',
+                model: 'bear0',
+                id: 'BearBob'
+            }, {
+                coordinate: {
+                    x: 7,
+                    z: 0,
+                    s: 7,
+                    t: 1
+                },
+                position: {
+                    x: -size / 2 + size / 8 / 2,
+                    z: -size / 4 + size / 8 / 2
+                },
+                name: 'Raccoon Rose',
+                model: 'raccoon',
+                id: 'RaccoonRose'
+            }, {
+                coordinate: {
+                    x: 6,
+                    z: 1,
+                    s: 7,
+                    t: 7
+                },
+                position: {
+                    x: -size / 2 + size / 8 / 2,
+                    z: -size / 4 + size / 8 / 2
+                },
+                name: 'Deer David',
+                model: 'deer',
+                id: 'DeerDavid'
+            }, {
+                coordinate: {
+                    x: 4,
+                    z: 2,
+                    s: 4,
+                    t: 2
+                },
+                position: {
+                    x: -size / 2 + size / 8 / 2,
+                    z: -size / 4 + size / 8 / 2
+                },
+                name: 'Horse Harry',
+                model: 'horse0',
+                id: 'HorseHarry'
+            }, {
+                coordinate: {
+                    x: 3,
+                    z: 3,
+                    s: 8,
+                    t: 8
+                },
+                position: {
+                    x: -size / 2 + size / 8 / 2,
+                    z: -size / 4 + size / 8 / 2
+                },
+                name: 'Melonpi',
+                model: 'cat1',
+                id: 'Melonpi'
             }];
             return npcs;
         }
@@ -373,28 +451,58 @@ var lynx = {
         }
 
         function createMontsers(size, count) {
-            var monsters = [];
-
-            for (var i = 0; i < count; i++) {
-                var monster = {
-                    health: 10,
-                    model: '',
-                    name: '',
-                    position: {}
-                };
-                monster.health = Math.floor(Math.random() * 100);
-                monster.model = world.models[Math.floor(Math.random() * 400) % world.models.length];
-                monster.name = monster.model + i;
-                var x = (Math.floor(Math.random() * 10) % 4 + 1) * (Math.random() > 0.5 ? 1 : -1);
-                x = x == -1 ? 1 : x;
-                var z = (Math.floor(Math.random() * 10) % 4 + 1) * (Math.random() > 0.5 ? 1 : -1);
-                z = z == -4 ? 4 : z;
-                monster.position.x = x * size / 8 + size / 16 * (x > 0 ? -1 : 1);
-                monster.position.z = z * size / 8 + size / 16 * (z > 0 ? -1 : 1);
-                monsters.push(monster);
+            var monsters = [{
+                health: 10,
+                model: 'chow',
+                name: 'boss',
+                position: {},
+                coordinate: {
+                    x: 3,
+                    z: 3,
+                    s: 8,
+                    t: 4
+                }
             }
+            // , {
+            //     health: 20,
+            //     model: 'moose',
+            //     name: 'moose',
+            //     position: {},
+            //     coordinate: {
+            //         x: 3,
+            //         z: 4,
+            //         s: 8,
+            //         t: 4
+            //     }
+            // }
+            ];
             return monsters;
         }
+
+        // function createMontsers(size, count) {
+        //     var monsters = [];
+        //
+        //     for (var i = 0; i < count; i++) {
+        //         var monster = {
+        //             health: 10,
+        //             model: '',
+        //             name: '',
+        //             position: {},
+        //             coordinate: {}
+        //         };
+        //         monster.health = Math.floor(Math.random() * 100);
+        //         monster.model = world.models[Math.floor(Math.random() * 400) % world.models.length];
+        //         monster.name = monster.model + i;
+        //         var x = (Math.floor(Math.random() * 10) % 4 + 1) * (Math.random() > 0.5 ? 1 : -1);
+        //         x = x == -1 ? 1 : x;
+        //         var z = (Math.floor(Math.random() * 10) % 4 + 1) * (Math.random() > 0.5 ? 1 : -1);
+        //         z = z == -4 ? 4 : z;
+        //         monster.position.x = x * size / 8 + size / 16 * (x > 0 ? -1 : 1);
+        //         monster.position.z = z * size / 8 + size / 16 * (z > 0 ? -1 : 1);
+        //         monsters.push(monster);
+        //     }
+        //     return monsters;
+        // }
 
     };
 

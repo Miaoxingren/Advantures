@@ -11,7 +11,6 @@
         this.state = lynx.taskState.COMPLET;
     };
 
-
     lynx.PlotCtrl = function(world) {
         this.ploting = false;
         this.initPlots(world);
@@ -22,7 +21,6 @@
 
     plotCtrlProto.initPlots = function(world) {
         if (this.plotList) return;
-
 
         var chap0 = {
             name: 'welcome'
@@ -55,6 +53,84 @@
                     this.wall.position.y -= 1;
                     world.getCamera().lookAt(this.wall.position.clone().add(new THREE.Vector3(0, this.wall._physijs.height / 2, 0)));
                 }
+            }
+        }, {
+            name: 'food',
+            update: function() {
+                if (!world.player.checkTask('food')) {
+                    world.plotCtrl.clearPlot();
+                    return;
+                }
+                if (!this.wall) {
+                    var objs = world.scene.children;
+                    for (var i = 0, len = objs.length; i < len; i++) {
+                        if (objs[i].userData && objs[i].userData.tag === 'food') {
+                            this.wall = objs[i];
+                        }
+                    }
+                }
+                if (this.wall.position.y <= -this.wall._physijs.height / 2 - 10) {
+                    this.wall.__dirtyPosition = false;
+                    world.plotCtrl.clearPlot();
+                } else {
+                    this.wall.__dirtyPosition = true;
+                    this.wall.position.y -= 1;
+                    world.getCamera().lookAt(this.wall.position.clone().add(new THREE.Vector3(0, this.wall._physijs.height / 2, 0)));
+                }
+            }
+        }, {
+            name: 'wood',
+            update: function() {
+                if (!world.player.checkTask('wood')) {
+                    world.plotCtrl.clearPlot();
+                    return;
+                }
+                if (!this.wall) {
+                    var objs = world.scene.children;
+                    for (var i = 0, len = objs.length; i < len; i++) {
+                        if (objs[i].userData && objs[i].userData.tag === 'wood') {
+                            this.wall = objs[i];
+                        }
+                    }
+                }
+                if (this.wall.position.y <= -this.wall._physijs.height / 2 - 10) {
+                    this.wall.__dirtyPosition = false;
+                    world.plotCtrl.clearPlot();
+                } else {
+                    this.wall.__dirtyPosition = true;
+                    this.wall.position.y -= 1;
+                    world.getCamera().lookAt(this.wall.position.clone().add(new THREE.Vector3(0, this.wall._physijs.height / 2, 0)));
+                }
+            }
+        }, {
+            name: 'flower',
+            update: function() {
+                if (!world.player.checkTask('flower')) {
+                    world.plotCtrl.clearPlot();
+                    return;
+                }
+                if (!this.wall) {
+                    var objs = world.scene.children;
+                    for (var i = 0, len = objs.length; i < len; i++) {
+                        if (objs[i].userData && objs[i].userData.tag === 'flower') {
+                            this.wall = objs[i];
+                        }
+                    }
+                }
+                if (this.wall.position.y <= -this.wall._physijs.height / 2 - 10) {
+                    this.wall.__dirtyPosition = false;
+                    world.plotCtrl.clearPlot();
+                } else {
+                    this.wall.__dirtyPosition = true;
+                    this.wall.position.y -= 1;
+                    world.getCamera().lookAt(this.wall.position.clone().add(new THREE.Vector3(0, this.wall._physijs.height / 2, 0)));
+                }
+            }
+        }, {
+            name: 'rescue',
+            update: function() {
+                world.plotCtrl.clearPlot();
+                return;
             }
         }];
 
