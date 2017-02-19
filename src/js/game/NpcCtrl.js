@@ -40,6 +40,8 @@
                             '喵神melonpi和恶魔铲屎官就在这座迷宫中，请你击退各种各样的怪物并将喵神melonpi带回喵喵村。'
                         ], [
                             '喵勇士moechan, 喵神melonpi和恶魔铲屎官就在这座迷宫中，请你将喵神melonpi带回喵喵村。'
+                        ], [
+                            '喵勇士moechan, 感谢你将喵神melonpi带回~'
                         ]
                     ]
                 }]

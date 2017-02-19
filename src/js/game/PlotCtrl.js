@@ -37,22 +37,34 @@
         this.plotList = [{
             name: 'welcome',
             update: function() {
-                if (!this.wall) {
-                    var objs = world.scene.children;
-                    for (var i = 0, len = objs.length; i < len; i++) {
-                        if (objs[i].userData && objs[i].userData.tag === 'welcome') {
-                            this.wall = objs[i];
+                if (world.snowing) {
+                    world.plotCtrl.clearPlot();
+                    return;
+                }
+                var state = world.player.getTaskState('welcome');
+                if (state === lynx.taskState.ACCEPT) {
+                    if (!this.wall) {
+                        var objs = world.scene.children;
+                        for (var i = 0, len = objs.length; i < len; i++) {
+                            if (objs[i].userData && objs[i].userData.tag === 'welcome') {
+                                this.wall = objs[i];
+                            }
                         }
                     }
+                    if (this.wall.position.y <= -this.wall._physijs.height / 2 - 10) {
+                        this.wall.__dirtyPosition = false;
+                        world.plotCtrl.clearPlot();
+                    } else {
+                        this.wall.__dirtyPosition = true;
+                        this.wall.position.y -= 1;
+                        world.getCamera().lookAt(this.wall.position.clone().add(new THREE.Vector3(0, this.wall._physijs.height / 2, 0)));
+                    }
                 }
-                if (this.wall.position.y <= -this.wall._physijs.height / 2 - 10) {
-                    this.wall.__dirtyPosition = false;
-                    world.plotCtrl.clearPlot();
-                } else {
-                    this.wall.__dirtyPosition = true;
-                    this.wall.position.y -= 1;
-                    world.getCamera().lookAt(this.wall.position.clone().add(new THREE.Vector3(0, this.wall._physijs.height / 2, 0)));
+                if (state === lynx.taskState.COMPLET) {
+                    world.snowing = true;
+                    world.createSnow();
                 }
+
             }
         }, {
             name: 'food',
@@ -129,8 +141,18 @@
         }, {
             name: 'rescue',
             update: function() {
-                world.plotCtrl.clearPlot();
-                return;
+                if (!world.player.checkTask('rescue')) {
+                    world.plotCtrl.clearPlot();
+                    return;
+                }
+                if (world.builder.cageUpdated) {
+                    world.plotCtrl.clearPlot();
+                    return;
+                }
+                var pos = world.builder.updateCage(1);
+                if (pos) {
+                    world.getCamera().lookAt(pos);
+                }
             }
         }];
 

@@ -50,7 +50,7 @@
     };
 
     playerProto.addTask = function(task) {
-        if (task.state === lynx.taskState.COMPLET) return;
+        if (task.state === lynx.taskState.COMPLET || this.getTask(task.name)) return;
         this.tasks.push(task);
     };
 
@@ -61,6 +61,12 @@
                 return list[i];
             }
         }
+    };
+
+    playerProto.getTaskState = function(taskName) {
+        var task = this.getTask(taskName);
+        if (!task) return;
+        return task.state;
     };
 
     playerProto.checkTask = function(taskName) {

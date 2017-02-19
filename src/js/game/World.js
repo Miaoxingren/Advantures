@@ -202,7 +202,10 @@
 
             this.scene.add(physiObj);
 
-            this.monsters.push({graph: physiObj, data: monster});
+            this.monsters.push({
+                graph: physiObj,
+                data: monster
+            });
         }
 
         function createObj(modelType, size, tag) {
@@ -367,7 +370,8 @@
         var shelfs = this.config.goods;
         var modelLib = this.models;
 
-        for (var i = 0, shelf; (shelf = shelfs[i]); i++) {
+        for (var i = 0, shelf;
+            (shelf = shelfs[i]); i++) {
             var shelfObj = createObj('shelf', gridSize, lynx.tag.SHELF);
 
             // threeObj.position.y = -width / 2;
@@ -377,7 +381,7 @@
             var item0 = shelf.goods[0];
             var obj0 = createObj(item0.model, gridSize / 16, item0.tag);
             shelfObj.add(obj0);
-            obj0.position.y = 1 ;
+            obj0.position.y = 1;
 
             var item1 = shelf.goods[1];
             var obj1 = createObj(item1.model, gridSize / 16, item1.tag);
@@ -482,8 +486,8 @@
 
         var plr = new lynx.Player(player, this.config.player.health, this.config.player.money);
         this.player = plr;
-        this.hud.playerState(this.config.player.health, this.config.player.money);//setPlayer(this.player);
-        this.hud.toolsCtrl.getPlayer = function () {
+        this.hud.playerState(this.config.player.health, this.config.player.money); //setPlayer(this.player);
+        this.hud.toolsCtrl.getPlayer = function() {
             return plr;
         };
 
@@ -515,6 +519,15 @@
 
         var task;
 
+        if (npc.name === 'Merchant Cat') {
+            task = npc.getCurTask();
+            if (task && task.state === lynx.taskState.ACCEPT) {
+                // if (task.isComplete(this.player)) {
+                task.state = lynx.taskState.COMPLET;
+                // }
+            }
+        }
+
         if (npc.name === 'Bear Bob') {
             task = npc.getCurTask();
             if (task && task.state === lynx.taskState.ACCEPT) {
@@ -543,6 +556,15 @@
             }
         }
 
+
+        if (npc.name === 'Melonpi') {
+            task = npc.getCurTask();
+            if (task && task.state === lynx.taskState.ACCEPT) {
+                task.state = lynx.taskState.COMPLET;
+                npc.graph.position.copy(this.player.graph.position.clone()).add(new THREE.Vector3(10, 0, 10));
+            }
+        }
+
         function isFlower(good) {
             return good.name.indexOf('flower') !== -1;
         }
@@ -556,7 +578,7 @@
         this.hud.setConversation(conversation);
     };
 
-    worldProto.clickShelf = function (id) {
+    worldProto.clickShelf = function(id) {
         var goods = this.builder.getShelfGoods(id);
         if (goods) {
             this.player.addGoods(goods);
@@ -564,7 +586,7 @@
         this.hud.money(this.player.money);
     };
 
-    worldProto.clickTree = function (id) {
+    worldProto.clickTree = function(id) {
         var tree = this.builder.getTree(id);
         if (!tree) return;
         if (tree.name === 'flower') {
@@ -573,15 +595,26 @@
             } else {
                 tree.empty = true;
                 var i = Math.random() * 10 % 10;
-                this.player.addGood({name: 'flower' + i, count: 1, src: '/img/merchant_cat.jpg',
-                description: 'merchant_cat.'});
+                this.player.addGood({
+                    name: 'flower' + i,
+                    count: 1,
+                    src: '/img/merchant_cat.jpg',
+                    description: 'merchant_cat.'
+                });
             }
         }
     };
 
-    worldProto.clickMonster = function (id) {
+    worldProto.clickMonster = function(id) {
         var monster = this.monsterCtrl.getMonster(id);
         if (!monster) return;
+        if (monster.graph.health <= 0) {
+            var task = this.player.getTask('rescue');
+            if (task && task.state === lynx.taskState.ACCEPT) {
+                task.state = lynx.taskState.COMPLET;
+                this.plotCtrl.setPlot(task.name);
+            }
+        }
         if (monster.graph.name === 'boss') {
             monster.hurt(1);
         }
@@ -717,7 +750,7 @@
         }
     };
 
-    worldProto.talkToNPC = function () {
+    worldProto.talkToNPC = function() {
         if (!this.hud.isTalking()) return;
         var dialogOver = !this.hud.talk();
         var npc = this.selectedNPC;
@@ -732,6 +765,7 @@
             if (npc.name === 'Raccoon Rose' && task.state === lynx.taskState.ACCEPT) {
                 this.builder.changeWoods();
             }
+
         }
     };
 
@@ -757,6 +791,11 @@
         this.control.enabled = !(this.hud.isTalking() || this.plotCtrl.ploting);
 
         this.monsterCtrl.updateMonster(this.player.graph.position.clone());
+        this.updateMelonpi(this.player.graph.position.clone(), 10);
+
+        if (this.snowing) {
+            this.updateSnow(delta);
+        }
 
         this.control.update(delta);
         this.updateMixer(delta);
@@ -765,4 +804,216 @@
 
     };
 
+    worldProto.updateMelonpi = function(pos, speed) {
+        var npc = this.npcCtrl.getNPC('Melonpi');
+        var task = npc.getCurTask();
+
+        if (task.state !== lynx.taskState.COMPLET) return;
+
+        var angles = [0, 180, 90, 270];
+        var xAxes = new THREE.Vector3(1, 0, 0);
+        var yAxes = new THREE.Vector3(0, 1, 0);
+        var zAxes = new THREE.Vector3(0, 0, 1);
+
+        npc.graph.lookAtPoint = pos;
+        npc.graph.mass = 100;
+        npc.graph.position.y = 0; //-npc.graph._physijs.height / 2;
+        updateNPC(npc.graph);
+
+        function updateNPC(npc) {
+            var velocity = npc.getLinearVelocity();
+
+            var direction = npc.lookAtPoint.clone().sub(npc.position).normalize();
+
+            var cosXAxes = direction.clone().dot(xAxes) / (direction.length() * xAxes.length());
+            var cosZAxes = direction.clone().dot(zAxes) / (direction.length() * zAxes.length());
+
+            // if (npc.position.distanceTo(pos) < 5) {
+            //     speed = 0;
+            // }
+
+            velocity.x = cosXAxes * speed;
+            velocity.z = cosZAxes * speed;
+
+            npc.setLinearVelocity(velocity);
+
+            npc.lookAtPoint.set(npc.position.x + velocity.x, npc.position.y, npc.position.z + velocity.z);
+            npc.lookAt(npc.lookAtPoint);
+        }
+    };
+
+    worldProto.updateSnow = function(delta) {
+        // this.scene.children.forEach(function(child) {
+        //     if (child instanceof THREE.Points) {
+        //         var vertices = child.geometry.vertices;
+        //         vertices.forEach(function(v) {
+        //             v.y = v.y - (v.velocityY);
+        //             v.x = v.x - (v.velocityX);
+        //             v.z = v.z - (v.velocityZ);
+        //
+        //             if (v.y <= 0) v.y = 6;
+        //             if (v.x <= -2 || v.x >= 2) v.velocityX = v.velocityX * -1;
+        //             if (v.z <= -2 || v.z >= 2) v.velocityZ = v.velocityZ * -1;
+        //         });
+        //     }
+        // });
+        var scene = this.scene;
+        var time = Date.now() * 0.00005;
+        for (i = 0; i < scene.children.length; i++) {
+            var object = scene.children[i];
+            if (object instanceof THREE.Points) {
+                object.rotation.y = (object.rotation.y + 0.005) % (Math.PI * 2); //time * ( i < 4 ? i + 1 : - ( i + 1 ) );
+            }
+        }
+    };
+
+    worldProto.createSnow = function() {
+        var scene = this.scene;
+        var textureLoader = this.textureLoader;
+
+        createPointClouds(Math.floor(Math.random() * 50) % 50, false, 0.8, true, new THREE.Color());
+
+        function createPointCloud(name, texture, size, transparent, opacity, sizeAttenuation, color_) {
+            var geom = new THREE.Geometry();
+
+            var color = new THREE.Color(color_);
+            color.setHSL(color.getHSL().h,
+                color.getHSL().s,
+                (Math.random()) * color.getHSL().l);
+
+            var material = new THREE.PointsMaterial({
+                size: size,
+                transparent: transparent,
+                opacity: opacity,
+                map: texture,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false,
+                sizeAttenuation: sizeAttenuation,
+                color: color
+            });
+
+            var range = 40;
+            for (var i = 0; i < 50; i++) {
+                var particle = new THREE.Vector3(
+                    Math.random() * range - range / 2,
+                    Math.random() * range * 1.5,
+                    Math.random() * range - range / 2);
+                particle.velocityY = 0.1 + Math.random() / 5;
+                particle.velocityX = (Math.random() - 0.5) / 3;
+                particle.velocityZ = (Math.random() - 0.5) / 3;
+                geom.vertices.push(particle);
+            }
+
+            var system = new THREE.Points(geom, material);
+            system.name = name;
+            system.sortParticles = true;
+            return system;
+        }
+
+        function createPointClouds(size, transparent, opacity, sizeAttenuation, color) {
+
+            // var texture1 = textureLoader.load("/asset/texture/snowflake1.png");
+            // var texture2 = textureLoader.load("/asset/texture/snowflake2.png");
+            // var texture3 = textureLoader.load("/asset/texture/snowflake3.png");
+            // var texture4 = textureLoader.load("/asset/texture/snowflake4.png");
+            // var texture5 = textureLoader.load("/asset/texture/snowflake5.png");
+
+            // scene.add(createPointCloud("system1", texture1, size, transparent, opacity, sizeAttenuation, color));
+            // scene.add(createPointCloud("system2", texture2, size, transparent, opacity, sizeAttenuation, color));
+            // scene.add(createPointCloud("system3", texture3, size, transparent, opacity, sizeAttenuation, color));
+            // scene.add(createPointCloud("system4", texture4, size, transparent, opacity, sizeAttenuation, color));
+
+            // var texture1 = textureLoader.load("/asset/texture/star.png");
+            // var texture2 = textureLoader.load("/asset/texture/star.png");
+            // var texture3 = textureLoader.load("/asset/texture/star.png");
+            // var texture4 = textureLoader.load("/asset/texture/star.png");
+            // var texture5 = textureLoader.load("/asset/texture/star.png");
+
+            var materials = [];
+            var geometry = new THREE.Geometry();
+            //
+            // for (i = 0; i < 10000; i++) {
+            //     var vertex = new THREE.Vector3();
+            //     vertex.x = Math.random() * 2000 - 1000;
+            //     vertex.y = Math.random() * 2000 - 1000;
+            //     vertex.z = Math.random() * 2000 - 1000;
+            //     geometry.vertices.push(vertex);
+            // }
+            //
+            // var parameters = [
+            //     [
+            //         [1.0, 0.2, 0.5], texture2, 20
+            //     ],
+            //     [
+            //         [0.95, 0.1, 0.5], texture3, 15
+            //     ],
+            //     [
+            //         [0.90, 0.05, 0.5], texture1, 10
+            //     ],
+            //     [
+            //         [0.85, 0, 0.5], texture5, 8
+            //     ],
+            //     [
+            //         [0.80, 0, 0.5], texture4, 5
+            //     ]
+            // ];
+            //
+            // for (i = 0; i < parameters.length; i++) {
+            //     color = parameters[i][0];
+            //     sprite = parameters[i][1];
+            //     size = parameters[i][2];
+            //     materials[i] = new THREE.PointsMaterial({
+            //         size: size,
+            //         map: sprite,
+            //         blending: THREE.AdditiveBlending,
+            //         depthTest: false,
+            //         transparent: true
+            //     });
+            //     materials[i].color.setHSL(color[0], color[1], color[2]);
+            //     particles = new THREE.Points(geometry, materials[i]);
+            //     particles.rotation.x = Math.random() * 6;
+            //     particles.rotation.y = Math.random() * 6;
+            //     particles.rotation.z = Math.random() * 6;
+            //     scene.add(particles);
+            // }
+
+            for (i = 0; i < 20000; i++) {
+                var vertex = new THREE.Vector3();
+                vertex.x = Math.random() * 2000 - 1000;
+                vertex.y = Math.random() * 200 - 100;
+                vertex.z = Math.random() * 2000 - 1000;
+                geometry.vertices.push(vertex);
+            }
+            var parameters = [
+                [
+                    [1, 1, 0.5], 5
+                ],
+                [
+                    [0.95, 1, 0.5], 4
+                ],
+                [
+                    [0.90, 1, 0.5], 3
+                ],
+                [
+                    [0.85, 1, 0.5], 2
+                ],
+                [
+                    [0.80, 1, 0.5], 1
+                ]
+            ];
+            for (i = 0; i < parameters.length; i++) {
+                color = parameters[i][0];
+                size = parameters[i][1];
+                materials[i] = new THREE.PointsMaterial({
+                    size: size
+                });
+                materials[i].color.setHSL(color[0], color[1], color[2]);
+                particles = new THREE.Points(geometry, materials[i]);
+                particles.rotation.x = Math.random() * 6;
+                particles.rotation.y = Math.random() * 6;
+                particles.rotation.z = Math.random() * 6;
+                scene.add(particles);
+            }
+        }
+    };
 })(lynx);

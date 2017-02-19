@@ -2485,6 +2485,17 @@
             model: 'wood'
         }
         ];
+        trees = [{
+            coordinate: {
+                x: 4,
+                z: 0,
+                s: 7,
+                t: 8
+            },
+            grid: 'small',
+            name: 'wood',
+            model: 'wood'
+        }];
         return trees;
     };
 
@@ -2616,6 +2627,7 @@
     builderProto.initCage = function () {
         var cage = this.createCage();
         cage.position.set(0, 0, 0);
+        this.cage = cage;
         this.scene.add(cage);
     };
 
@@ -2665,6 +2677,7 @@
             cylinder = createCylinder();
             pos = getPos(i, 'front');
             bottomFloor.add(cylinder);
+            cylinder.name = 'front' + i;
             cylinder.position.y = height / 2;
             cylinder.position.x = pos.x;
             cylinder.position.z = pos.z;
@@ -2674,6 +2687,7 @@
             cylinder = createCylinder();
             pos = getPos(i, 'back');
             bottomFloor.add(cylinder);
+            cylinder.name = 'back' + i;
             cylinder.position.y = height / 2;
             cylinder.position.x = pos.x;
             cylinder.position.z = pos.z;
@@ -2683,6 +2697,7 @@
             cylinder = createCylinder();
             pos = getPos(i, 'left');
             bottomFloor.add(cylinder);
+            cylinder.name = 'left' + i;
             cylinder.position.y = height / 2;
             cylinder.position.x = pos.x;
             cylinder.position.z = pos.z;
@@ -2692,6 +2707,7 @@
             cylinder = createCylinder();
             pos = getPos(i, 'right');
             bottomFloor.add(cylinder);
+            cylinder.name = 'right' + i;
             cylinder.position.y = height / 2;
             cylinder.position.x = pos.x;
             cylinder.position.z = pos.z;
@@ -2756,4 +2772,33 @@
         }
     };
 
+    builderProto.updateCage = function (speed) {
+        if (!this.cage) return;
+
+        if (this.cageUpdated) return;
+
+        var cylinder;
+
+        for (i = 1; i <= 9; i += 2) {
+            cylinder = getCylinder(this.cage, 'front' + i);
+            if (cylinder) {
+                cylinder.position.y -= speed;
+                this.cageUpdated = false;
+            }
+            if (cylinder.position.y < -cylinder._physijs.height / 2 - 10) {
+                this.cageUpdated = true;
+            }
+        }
+
+        return cylinder.position.clone().add(new THREE.Vector3(0, cylinder._physijs.height / 2, 0));
+
+        function getCylinder(cage, name) {
+            var children = cage.children;
+            for (var i = 0; i < children.length; i++) {
+                if (children[i].name === name) {
+                    return children[i];
+                }
+            }
+        }
+    };
 })(lynx);
