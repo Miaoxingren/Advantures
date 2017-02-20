@@ -265,7 +265,7 @@
     hudProto.promt = function(type, msg) {
         if (!this.promtDom) return;
         this.promtDom.style.display = 'block';
-        this.promtDom.class = type;
+        this.promtDom.classList.add(type);
         this.promtDom.innerHTML = msg;
     };
 
