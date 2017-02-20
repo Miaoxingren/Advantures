@@ -7,10 +7,11 @@
 
     var dialogProto = lynx.DialogCtrl.prototype;
 
-    dialogProto.setConversation = function(conversation) {
+    dialogProto.setConversation = function(npcName, conversation) {
         this.talking = true;
-        this.conversation = conversation;
+        this.npcName = npcName;
         this.msgIndex = 0;
+        this.conversation = conversation;
     };
 
     dialogProto.talk = function() {
@@ -20,16 +21,26 @@
             this.clear();
             return;
         }
-        this.dialogDom.style.display = 'block';
+        this.dialogDom.classList.remove('hidden');
+        this.dialogDom.classList.add('visible');
         this.dialogDom.class = 'info';
-        this.dialogDom.innerHTML = this.conversation[this.msgIndex++];
+        this.dialogDom.innerHTML = createHTML(this.npcName, this.conversation[this.msgIndex++]);
+
+        function createHTML(name, msg) {
+            var html = '<span id="name">' + name + '</span>' +
+            '<img src="/img/cube6.png" alt="">' +
+            '<div id="msg">' + msg + '</div>';
+            return html;
+        }
     };
 
     dialogProto.clear = function() {
         this.talking = false;
+        this.npcName = null;
         this.conversation = null;
         this.msgIndex = -1;
-        this.dialogDom.style.display = 'none';
+        this.dialogDom.classList.add('hidden');
+        this.dialogDom.classList.remove('visible');
     };
 
     lynx.ToolsCtrl = function() {
@@ -156,7 +167,7 @@
     toolProto.toggleTasks = function() {
 
         if (this.taskShow) {
-            this.taskDom.style.display = 'none';
+            this.taskDom.classList.add('hidden');
             this.taskShow = false;
             return;
         }
@@ -169,7 +180,7 @@
             tasksHTML += taskHTML;
         }
 
-        this.taskDom.style.display = 'block';
+        this.taskDom.classList.add('visible');
         this.taskDom.innerHTML = tasksHTML;
         this.taskShow = true;
 
@@ -187,7 +198,7 @@
     toolProto.toggleGoods = function() {
 
         if (this.goodShow) {
-            this.goodDom.style.display = 'none';
+            this.goodDom.classList.add('hidden');
             this.goodShow = false;
             return;
         }
@@ -200,7 +211,7 @@
             goodsHTML += goodHTML;
         }
 
-        this.goodDom.style.display = 'block';
+        this.goodDom.classList.add('visible');
         this.goodDom.innerHTML = goodsHTML;
         this.goodShow = true;
 
@@ -242,8 +253,8 @@
         return this.dialogCtrl.talking;
     };
 
-    hudProto.setConversation = function(conversation) {
-        this.dialogCtrl.setConversation(conversation);
+    hudProto.setConversation = function(npcName, conversation) {
+        this.dialogCtrl.setConversation(npcName, conversation);
         this.talk();
     };
 
@@ -276,7 +287,7 @@
 
     hudProto.promt = function(type, msg) {
         if (!this.promtDom) return;
-        // this.promtDom.style.display = 'block';
+        // this.promtDom.classList.add('visible');
         this.promtDom.classList.remove('hidden');
         this.promtDom.classList.add('visible', type);
         // this.promtDom.innerHTML = msg;
@@ -284,7 +295,7 @@
 
     hudProto.hidePromt = function() {
         if (!this.promtDom) return;
-        // this.promtDom.style.display = 'none';
+        // this.promtDom.classList.add('hidden');
         this.promtDom.classList.remove('visible');
         this.promtDom.classList.add('hidden');
 
@@ -293,14 +304,14 @@
     hudProto.identity = function(name, top, left) {
         if (!this.identityDom) return;
         this.identityDom.innerHTML = '<img src="/img/merchant_cat.jpg" alt="merchant_cat"><span>' + name + '</span>';
-        this.identityDom.style.display = 'block';
+        this.identityDom.classList.add('visible');
         this.identityDom.style.top = top + 'px';
         this.identityDom.style.left = left + 'px';
     };
 
     hudProto.hideIdentity = function() {
         if (!this.identityDom) return;
-        this.identityDom.style.display = 'none';
+        this.identityDom.classList.add('hidden');
     };
 
     hudProto.health = function(health) {

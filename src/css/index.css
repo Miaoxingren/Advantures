@@ -403,6 +403,126 @@ html, body {
 
 /* --- pause --- */
 
+/* --- dialog --- */
+
+/* flipInX animation */
+
+@-webkit-keyframes flipInX {
+  from {
+    -webkit-transform: perspective(400px) rotateX(90deg);
+    transform: perspective(400px) rotateX(90deg);
+    -webkit-animation-timing-function: ease-in;
+    animation-timing-function: ease-in;
+    opacity: 0;
+  }
+
+  40% {
+    -webkit-transform: perspective(400px) rotateX(-20deg);
+    transform: perspective(400px) rotateX(-20deg);
+    -webkit-animation-timing-function: ease-in;
+    animation-timing-function: ease-in;
+  }
+
+  60% {
+    -webkit-transform: perspective(400px) rotateX(10deg);
+    transform: perspective(400px) rotateX(10deg);
+    opacity: 1;
+  }
+
+  80% {
+    -webkit-transform: perspective(400px) rotateX(-5deg);
+    transform: perspective(400px) rotateX(-5deg);
+  }
+
+  to {
+    -webkit-transform: perspective(400px);
+    transform: perspective(400px);
+  }
+}
+
+@keyframes flipInX {
+  from {
+    -webkit-transform: perspective(400px) rotateX(90deg);
+    transform: perspective(400px) rotateX(90deg);
+    -webkit-animation-timing-function: ease-in;
+    animation-timing-function: ease-in;
+    opacity: 0;
+  }
+
+  40% {
+    -webkit-transform: perspective(400px) rotateX(-20deg);
+    transform: perspective(400px) rotateX(-20deg);
+    -webkit-animation-timing-function: ease-in;
+    animation-timing-function: ease-in;
+  }
+
+  60% {
+    -webkit-transform: perspective(400px) rotateX(10deg);
+    transform: perspective(400px) rotateX(10deg);
+    opacity: 1;
+  }
+
+  80% {
+    -webkit-transform: perspective(400px) rotateX(-5deg);
+    transform: perspective(400px) rotateX(-5deg);
+  }
+
+  to {
+    -webkit-transform: perspective(400px);
+    transform: perspective(400px);
+  }
+}
+
+.flipInX {
+  -webkit-backface-visibility: visible !important;
+  backface-visibility: visible !important;
+  -webkit-animation-name: flipInX;
+  animation-name: flipInX;
+}
+
+#dialog {
+    width: 50%;
+
+    margin: auto;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+#dialog>span {
+    font-size: 25px;
+    display: inline-block;
+    padding: 0.5em;
+    background-color: #48899b;
+    border-radius: 0.2em;
+
+    position: absolute;
+    top: -1em;
+    left: 0.5em;
+}
+
+#dialog>img {
+    position: absolute;
+    top: -50%;
+    right: 0;
+}
+
+#dialog>div {
+    font-size: 20px;
+    line-height: 2em;
+
+    box-sizing: border-box;
+
+    width: 100%;
+    height: 10em;
+    padding: 2.5em;
+
+    background-color: #24505c;
+    border-radius: 0.5em;
+}
+
+
 /* --- game container --- */
 
 #game {
@@ -692,20 +812,6 @@ html, body {
     opacity: 1;
 }
 
-/* dialog */
-
-.msg {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 100%;
-    padding: 20px 0;
-    background-color: #009688;
-    text-align: center;
-    font-size: 25px;
-    color: #fff;
-    display: none;
-}
 
 
 /* identity */

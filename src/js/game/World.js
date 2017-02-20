@@ -578,7 +578,7 @@
         // get conversation
         this.selectedNPC = npc;
         var conversation = npc.getConversation();
-        this.hud.setConversation(conversation);
+        this.hud.setConversation(npc.name, conversation);
     };
 
     worldProto.clickShelf = function(id) {
