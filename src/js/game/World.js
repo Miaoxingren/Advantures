@@ -12,6 +12,9 @@
         this.initLoader();
         this.initModels();
 
+        var _mouseleave = lynx.bind(this, this.onMouseLeave);
+        document.addEventListener('mouseleave', _mouseleave);
+
     };
 
     var worldProto = lynx.World.prototype;
@@ -695,6 +698,11 @@
         }
     };
 
+    worldProto.onMouseLeave = function(event) {
+        this.state = lynx.worldState.PAUSE;
+        this.hud.promt('info', 'Pause');
+    };
+
     worldProto.onMouseUp = function(event) {};
 
     worldProto.onMouseMove = function(event) {
@@ -719,7 +727,13 @@
         }
     };
 
+
     worldProto.onKeyDown = function(event) {
+        if (this.state === lynx.worldState.INIT) {
+            this.state = lynx.worldState.PLAY;
+            this.hud.hideLoading();
+            return;
+        }
         switch (event.keyCode) {
             case 32:
                 this.state = this.state == lynx.worldState.PAUSE ? lynx.worldState.PLAY : lynx.worldState.PAUSE;
@@ -728,8 +742,6 @@
                 } else {
                     this.hud.hidePromt();
                 }
-                if (this.state === lynx.worldState.INIT)
-                    this.state = lynx.worldState.PLAY;
 
                 break;
 

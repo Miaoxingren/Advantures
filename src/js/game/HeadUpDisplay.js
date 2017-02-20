@@ -221,8 +221,8 @@
     lynx.HeadUpDisplay = function() {
         this.healthDom = document.getElementById('health');
         this.moneyDom = document.getElementById('money');
-        this.promtDom = document.getElementById('promt');
-        this.loadingDom = document.getElementById('loading');
+        this.promtDom = document.getElementById('pause');
+        this.loadingDom = document.getElementById('welcome');
         this.identityDom = document.getElementById('identity');
 
         this.dialogCtrl = new lynx.DialogCtrl();
@@ -254,24 +254,40 @@
 
     hudProto.loading = function() {
         if (!this.loadingDom) return;
-        this.loadingDom.style.display = 'block';
+        this.loadingDom.classList.remove('hidden');
+        this.loadingDom.classList.add('visible');
     };
 
     hudProto.loadComplete = function() {
         if (!this.loadingDom) return;
-        this.loadingDom.style.display = 'none';
+
+        var waitDom = document.getElementById('load-wait');
+        waitDom.classList.remove('visible');
+        waitDom.classList.add('hidden');
+        var endDom = document.getElementById('load-end');
+        endDom.classList.remove('hidden');
+    };
+
+    hudProto.hideLoading = function() {
+        if (!this.loadingDom) return;
+        this.loadingDom.classList.remove('visible');
+        this.loadingDom.classList.add('hidden');
     };
 
     hudProto.promt = function(type, msg) {
         if (!this.promtDom) return;
-        this.promtDom.style.display = 'block';
-        this.promtDom.classList.add(type);
-        this.promtDom.innerHTML = msg;
+        // this.promtDom.style.display = 'block';
+        this.promtDom.classList.remove('hidden');
+        this.promtDom.classList.add('visible', type);
+        // this.promtDom.innerHTML = msg;
     };
 
     hudProto.hidePromt = function() {
         if (!this.promtDom) return;
-        this.promtDom.style.display = 'none';
+        // this.promtDom.style.display = 'none';
+        this.promtDom.classList.remove('visible');
+        this.promtDom.classList.add('hidden');
+
     };
 
     hudProto.identity = function(name, top, left) {

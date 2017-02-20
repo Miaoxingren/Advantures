@@ -83,7 +83,6 @@ var lynx = {
         lynx.renderer = renderer;
         return lynx.renderer;
     };
-
 })(lynx);
 
 (function(lynx) {

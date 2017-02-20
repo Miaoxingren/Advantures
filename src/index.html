@@ -3,10 +3,10 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Advantures</title>
-    <link rel="shortcut icon" href="./favicon.ico">
-    <link rel="stylesheet" type="text/css" href="./css/style.css" />
-    <link rel="stylesheet" type="text/css" href="./css/index.css" />
+    <title>Cat Go</title>
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="/css/index.css" />
 </head>
 
 <body>
@@ -27,7 +27,7 @@
     </ul>
 
     <div id="taskList">
-        <!-- <div class="mission">
+        <div class="mission">
             <div class="title">
                 <span class="icon-radio_button_unchecked"></span>
                 <span>Welcome</span>
@@ -47,11 +47,11 @@
                 as4df564asdf6dads4f
                 asdf4546df
             </div>
-        </div> -->
+        </div>
     </div>
 
     <div id="goodList">
-        <!-- <div class="good">
+        <div class="good">
             <div class="title">
                 <img src="/img/merchant_cat.jpg" alt="merchant_cat">
                 <span class="count">5</span>
@@ -115,50 +115,62 @@
             </div>
             <div class="description">
                 654444444444a5df4s4df6s4fd6s 46as5f46s4df fads4dfasf asf46f54fa4f
-            </div>
-        </div> -->
-    </div>
-
-    <div id="dialog" class="msg"></div>
-    <div class="contain">
-        <div class="cube">
-            <div class="face">
-                <img src="/img/cube1.png" alt="cube1">
-            </div>
-            <div class="face">
-                <img src="/img/cube2.png" alt="cube2">
-            </div>
-            <div class="face">
-                <img src="/img/cube3.png" alt="cube3">
-            </div>
-            <div class="face">
-                <img src="/img/cube4.png" alt="cube4">
-            </div>
-            <div class="face">
-                <img src="/img/cube5.png" alt="cube5">
-            </div>
-            <div class="face">
-                <img src="/img/cube6.png" alt="cube6">
             </div>
         </div>
     </div>
-    <div id="promt" class="animated flipInY"></div>
 
-    <div id="identity">
-        <img src="/img/merchant_cat.jpg" alt="merchant_cat">
-        <span>Merchant cat</span>
+    <div id="dialog" class="msg"></div>
+
+    <div id="pause" class="animated flipInY hidden">
+        <span class="icon-pause"></span>
+        <div class="bubles">
+            <svg width="100%" height="100%" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink">
+                <circle cx="50" cy="100" r="40" fill="#0C303D"></circle>
+                <circle cx="150" cy="100" r="40" fill="#C4872F"></circle>
+                <circle cx="250" cy="100" r="40" fill="#F06060"></circle>
+                <circle cx="350" cy="100" r="40" fill="#CFCFCF"></circle>
+            </svg>
+        </div>
     </div>
 
-    <div id="loading">
-        <svg width="100%" height="100%" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink">
-            <circle cx="80" cy="200" r="20" fill="#4285F4"></circle>
-            <circle cx="160" cy="200" r="20" fill="#0F9D58"></circle>
-            <circle cx="240" cy="200" r="20" fill="#F4B400"></circle>
-            <circle cx="320" cy="200" r="20" fill="#DB4437"></circle>
-        </svg>
+    <div id="welcome" class="cover">
+        <div class="logo">
+            <img src="/img/logo1.png" alt="logo">
+            <!-- <img src="/img/logo0.png" alt="logo"> -->
+        </div>
+
+        <div class="contain">
+            <div class="cube">
+                <div class="face">
+                    <img src="/img/cube1.png" alt="cube1">
+                </div>
+                <div class="face">
+                    <img src="/img/cube2.png" alt="cube2">
+                </div>
+                <div class="face">
+                    <img src="/img/cube3.png" alt="cube3">
+                </div>
+                <div class="face">
+                    <img src="/img/cube4.png" alt="cube4">
+                </div>
+                <div class="face">
+                    <img src="/img/cube5.png" alt="cube5">
+                </div>
+                <div class="face">
+                    <img src="/img/cube6.png" alt="cube6">
+                </div>
+            </div>
+        </div>
+
+        <h1 id="load-wait" class="visible">Pleas wait for a sceond...</h1>
+        <h1 id="load-end" class="animated fade hidden">Press any key to begin.</h1>
     </div>
 
     <!-- <audio id="music" src="/asset/audio/bg.mp3" loop="true"></audio> -->
+    <!-- <div id="identity">
+        <img src="/img/merchant_cat.jpg" alt="merchant_cat">
+        <span>Merchant cat</span>
+    </div> -->
 
     <!-- lib -->
     <script src="./js/lib/three.js"></script>
