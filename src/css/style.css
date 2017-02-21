@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('/fonts/icomoon.eot?lh3sj4');
-  src:  url('/fonts/icomoon.eot?lh3sj4#iefix') format('embedded-opentype'),
-    url('/fonts/icomoon.ttf?lh3sj4') format('truetype'),
-    url('/fonts/icomoon.woff?lh3sj4') format('woff'),
-    url('/fonts/icomoon.svg?lh3sj4#icomoon') format('svg');
+  src:  url('/fonts/icomoon.eot?fw4ih3');
+  src:  url('/fonts/icomoon.eot?fw4ih3#iefix') format('embedded-opentype'),
+    url('/fonts/icomoon.ttf?fw4ih3') format('truetype'),
+    url('/fonts/icomoon.woff?fw4ih3') format('woff'),
+    url('/fonts/icomoon.svg?fw4ih3#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -36,8 +36,17 @@
 .icon-event_note:before {
   content: "\e616";
 }
+.icon-help:before {
+  content: "\e887";
+}
+.icon-help_outline:before {
+  content: "\e8fd";
+}
 .icon-radio_button_unchecked:before {
   content: "\e836";
+}
+.icon-mouse:before {
+  content: "\e906";
 }
 .icon-cube:before {
   content: "\e900";
@@ -47,6 +56,15 @@
 }
 .icon-moneybag:before {
   content: "\e902";
+}
+.icon-info:before {
+  content: "\e907";
+}
+.icon-keyboard:before {
+  content: "\e908";
+}
+.icon-mouse2:before {
+  content: "\e909";
 }
 .icon-heart:before {
   content: "\e904";
@@ -59,4 +77,7 @@
 }
 .icon-reply:before {
   content: "\e905";
+}
+.icon-cog:before {
+  content: "\e994";
 }

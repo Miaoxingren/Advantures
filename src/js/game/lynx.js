@@ -1,6 +1,6 @@
 var lynx = {
     VERSION: '0.1.0',
-    DEBUG: true,
+    DEBUG: false,
     global: (function() {
         return this;
     }).call(null)

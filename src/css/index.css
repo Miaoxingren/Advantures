@@ -173,7 +173,7 @@ html, body {
 
 /* fade animation */
 
-@-webkit-keyframes fadeIn {
+@-webkit-keyframes fadeInOut {
   from {
     opacity: 0;
   }
@@ -196,7 +196,7 @@ html, body {
   }
 }
 
-@keyframes fadeIn {
+@keyframes fadeInOut {
   from {
     opacity: 0;
   }
@@ -223,8 +223,8 @@ html, body {
     -webkit-animation-timing-function: ease-in-out;
     animation-timing-function: ease-in-out;;
     animation-iteration-count: infinite;
-    -webkit-animation-name: fadeIn;
-    animation-name: fadeIn;
+    -webkit-animation-name: fadeInOut;
+    animation-name: fadeInOut;
 }
 
 #welcome {
@@ -611,6 +611,10 @@ html, body {
     content: "\e901";
 }
 
+#help:hover .icon-help::before {
+    content: "\e8fd";
+}
+
 /* task list */
 
 #taskList {
@@ -622,7 +626,6 @@ html, body {
     right: 0;
     top: 50%;
     transform: translateY(-50%);
-    display: none;
     background-color: #2ba5bb;
     overflow-x: hidden;
     overflow-y: auto;
@@ -707,7 +710,6 @@ html, body {
     right: 0;
     top: 0;
     bottom: 0;
-    display: none;
     background-color: #2ba5bb;
     overflow-x: hidden;
     overflow-y: scroll;
@@ -812,6 +814,109 @@ html, body {
     opacity: 1;
 }
 
+/* help list */
+
+#helpList {
+    font-size: 20px;
+
+    box-sizing: border-box;
+    width: 20em;
+    height: 65%;
+    padding: 1em;
+    border-radius: 1em;
+
+    margin: auto;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+
+    background-color: #e6eaed;
+    color: #66473d;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+#helpList::-webkit-scrollbar {
+    width: 0;
+}
+
+.help-item {
+    position: relative;
+    margin-bottom: 0.5em;
+}
+
+.help-item>input {
+    opacity: 0;
+
+    margin: 0;
+    padding: 0;
+
+    position: absolute;
+    width: 100%;
+    height: 48px;
+    cursor: pointer;
+}
+
+.help-item>input[type="radio"]:checked ~ .content {
+    display: block;
+    -webkit-backface-visibility: visible !important;
+    backface-visibility: visible !important;
+    -webkit-animation-name: flipInY;
+    animation-name: flipInY;
+}
+
+.help-item .title {
+    font-size: 1.5em;
+    border-radius: 0.2em;
+}
+
+.help-item>input[type="radio"]:checked ~ .title {
+    background-color: #cbc2b6;
+}
+
+.help-item .icon {
+    display: inline-block;
+    border: 0.1em solid #9d8678;
+    padding: 0.2em;
+    border-radius: 0.2em;
+}
+
+.help-item .content {
+    display: none;
+
+    box-sizing: border-box;
+    width: 100%;
+
+    margin: 0.5em 0;
+    padding: 0.5em;
+    border-radius: 0.25em;
+    line-height: 1.25;
+    background-color: #d8d8d8;
+    position: relative;
+}
+
+.help-item .content::before {
+    content: '';
+    width: 0.25em;
+    height: 0.5em;
+    background-color: #cbc2b6;
+    position: absolute;
+    left: 25%;
+    top: -0.5em;
+}
+
+.help-item .content::after {
+    content: '';
+    width: 0.25em;
+    height: 0.5em;
+    background-color: #cbc2b6;
+    position: absolute;
+    right: 25%;
+    top: -0.5em;
+}
+
 
 
 /* identity */
@@ -822,7 +927,6 @@ html, body {
     border-radius: 40px;
     background-color: #009688;
     font-size: 30px;
-    display: none;
 }
 
 #identity>img {
@@ -830,8 +934,4 @@ html, body {
     height: 60px;
     border-radius: 50%;
     vertical-align: middle;
-}
-
-#music {
-    display: none;
 }

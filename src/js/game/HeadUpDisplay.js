@@ -47,8 +47,10 @@
         this.toolsDom = document.getElementById('tools');
         this.taskDom = document.getElementById('taskList');
         this.goodDom = document.getElementById('goodList');
+        this.helpDom = document.getElementById('helpList');
         this.taskShow = false;
         this.goodShow = false;
+        this.helpShow = false;
 
         var toolsclick = lynx.bind(this, this.toolsHandler);
         this.toolsDom.addEventListener('click', toolsclick);
@@ -162,12 +164,16 @@
         if (event.target.id === 'good' || event.target.parentNode.id === 'good') {
             this.toggleGoods();
         }
+        if (event.target.id === 'help' || event.target.parentNode.id === 'help') {
+            this.toggleHelp();
+        }
     };
 
     toolProto.toggleTasks = function() {
 
         if (this.taskShow) {
             this.taskDom.classList.add('hidden');
+            this.taskDom.classList.remove('visible');
             this.taskShow = false;
             return;
         }
@@ -181,6 +187,7 @@
         }
 
         this.taskDom.classList.add('visible');
+        this.taskDom.classList.remove('hidden');
         this.taskDom.innerHTML = tasksHTML;
         this.taskShow = true;
 
@@ -199,6 +206,7 @@
 
         if (this.goodShow) {
             this.goodDom.classList.add('hidden');
+            this.goodDom.classList.remove('visible');
             this.goodShow = false;
             return;
         }
@@ -212,6 +220,7 @@
         }
 
         this.goodDom.classList.add('visible');
+        this.goodDom.classList.remove('hidden');
         this.goodDom.innerHTML = goodsHTML;
         this.goodShow = true;
 
@@ -227,6 +236,39 @@
             '<div class="description">' + good.description + '</div>' +
             '</div>';
         return goodHTML;
+    };
+
+    toolProto.toggleHelp = function() {
+
+        if (this.helpShow) {
+            this.helpDom.classList.add('hidden');
+            this.helpDom.classList.remove('visible');
+            this.helpShow = false;
+            return;
+        }
+
+        // var configs = this.getPlayer().configs;
+        //
+        // var configsHTML = '';
+        // for (var i = 0, iLen = configs.length; i < iLen; i++) {
+        //     var configHTML = createTask(configs[i]);
+        //     configsHTML += configHTML;
+        // }
+        //
+        this.helpDom.classList.add('visible');
+        this.helpDom.classList.remove('hidden');
+        // this.configDom.innerHTML = configsHTML;
+        this.helpShow = true;
+        //
+        // function createTask(config) {
+        //     var stateClass = config.state === lynx.configState.COMPLET ? 'icon-check_circle' : 'icon-radio_button_unchecked';
+        //     var description = config.messages[lynx.configState.CREATE].join('\n');
+        //     var configHTML = '<div class="mission">' + '<div class="title">' +
+        //         '<span class="' + stateClass + '"></span>' +
+        //         '<span>Welcome</span>' + '</div>' +
+        //         '<div class="description">' + description + '</div>' + '</div>';
+        //     return configHTML;
+        // }
     };
 
     lynx.HeadUpDisplay = function() {
