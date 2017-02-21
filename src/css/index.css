@@ -574,7 +574,118 @@ html, body {
     color: #a1887f;
 }
 
-/* --- task & bag --- */
+/* --- tools --- */
+
+/* slideInLeft animation */
+
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-1500px);
+        -webkit-transfrom: translateX(-1500px);
+    }
+
+    40% {
+        transform: translateX(-10px);
+        -webkit-transform: translateX(-10px);
+    }
+
+    80% {
+        transform: translateX(-2px);
+        -webkit-transform: translateX(-2px);
+    }
+
+    to {
+        transform: translateX(0);
+        -webkit-transform: translateX(0);
+    }
+}
+
+@-webkit-keyframes slideInLeft {
+    from {
+        transform: translateX(-1500px);
+        -webkit-transfrom: translateX(-1500px);
+    }
+
+    40% {
+        transform: translateX(-10px);
+        -webkit-transform: translateX(-10px);
+    }
+
+    80% {
+        transform: translateX(5px);
+        -webkit-transform: translateX(5px);
+    }
+
+    80% {
+        transform: translateX(-2px);
+        -webkit-transform: translateX(-2px);
+    }
+
+    to {
+        transform: none;
+        -webkit-transform: none;
+    }
+}
+
+.slideInLeft {
+    -webkit-animation-timing-function: cubic-bezier(0.6, 0.30, 0.45, 1.000);
+    animation-timing-function: cubic-bezier(0.6, 0.30, 0.45, 1.000);
+    -webkit-animation-name: slideInLeft;
+    animation-name: slideInLeft;
+}
+
+/* scaleWH animation */
+
+@-webkit-keyframes scaleWH {
+    from {
+        transform:  scale(0);
+        -webkit-transfrom: scale(0);
+    }
+
+    40% {
+        transform: scale(0.5);
+        -webkit-transform: scale(0.5);
+    }
+
+    80% {
+        transform: scale(0.8);
+        -webkit-transform: scale(0.8);
+    }
+
+    to {
+        transform: none;;
+        -webkit-transform: none;
+    }
+}
+
+@keyframes scaleWH {
+    from {
+        transform:  scale(0);
+        -webkit-transfrom: scale(0);
+    }
+
+    40% {
+        transform: scale(0.3);
+        -webkit-transform: scale(0.3);
+    }
+
+    80% {
+        transform: scale(0.6);
+        -webkit-transform: scale(0.6);
+    }
+
+    to {
+        transform: none;;
+        -webkit-transform: none;
+    }
+}
+
+.scaleWH {
+    -webkit-animation-timing-function: ease-in;
+    animation-timing-function: ease-in;;
+    -webkit-animation-name: scaleWH;
+    animation-name: scaleWH;
+}
 
 #tools {
     font-size: 40px;
@@ -587,9 +698,9 @@ html, body {
 }
 
 #tools>li {
-    width: 50px;
-    height: 50px;
-    margin: 10px;
+    width: 1.25em;
+    height: 1.25em;
+    margin: 0.25em;
     border-radius: 50%;
     background-color: #bbb;
     text-align: center;
@@ -600,7 +711,7 @@ html, body {
 }
 
 #tools>li>span {
-    line-height: 50px;
+    line-height: 1.25em;
 }
 
 #task:hover .icon-date_range:before {
@@ -615,85 +726,86 @@ html, body {
     content: "\e8fd";
 }
 
-/* task list */
-
-#taskList {
-    width: 50%;
-    height: 50%;
+#taskList, #goodList, #helpList {
     margin: auto;
     position: absolute;
     left: 0;
     right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: #2ba5bb;
-    overflow-x: hidden;
+    top: 0;
+    bottom: 0;
+}
+
+/* task list */
+
+#taskList {
+    font-size: 20px;
+
+    width: 50%;
+    height: 50%;
+    max-width: 25em;
+    border-radius: 1em;
+
+    background-color: #e7efcd;
+
     overflow-y: auto;
 }
 
 #taskList::-webkit-scrollbar {
-    width: 0.5em;
-}
-
-#taskList::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    background-color: #848484;
-}
-
-.mission {
-    color: #ddd;
-    background-color: transparent;
-}
-
-.mission:hover {
-    color: #2ba5bb;
-    background-color: #15525d;
+    width: 0;
 }
 
 .mission .title {
-    padding: 15px;
-    font-size: 25px;
+    font-size: 30px;
+    padding: 0.5em;
     font-weight: bold;
+    color: #595e49;
 }
 
 .mission .title>span {
-    padding-right: 5px;
-    vertical-align: middle;
+    padding-right: 0.25em;
 }
 
 .mission .icon-radio_button_unchecked {
-    color: #275f5f;
+    color: #595e49;
 }
 
 .mission .icon-check_circle {
-    color: #91DC5A;
+    color: #275f5f;
 }
 
 .mission .description {
+    font-size: 20px;
+    line-height: 1.25;
+
+    background-color: #c2d1bb;
+    color: #483c1f;
+
+    opacity: 0;
+
     padding: 0;
     height: 0;
+
     overflow: hidden;
     visibility: hidden;
-    opacity: 0;
-    background-color: #15525d;
-    transition: all .5s;
-    font-size: 20px;
+
     position: relative;
+
+    transition: all 0.5s ease-in;
 }
 
 .mission .description::before {
     position: absolute;
-    left: 15px;
+    left: 1em;
     top: 0;
     content: "";
-    border-width: 10px;
+    border-width: 0.5em;
     border-style: solid;
-    border-color: #607d8b transparent transparent transparent;
+    border-color: #275f5f transparent transparent transparent;
 }
 
 .mission:hover .description {
     visibility: visible;
-    padding: 15px;
+    padding: 0.85em;
     height: 100%;
     opacity: 1;
 }
@@ -701,94 +813,78 @@ html, body {
 /* good list */
 
 #goodList {
-    box-sizing: content-box;
-    width: 510px;
+    font-size: 20px;
+
+    width: 20em;
     height: 50%;
-    margin: auto;
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    background-color: #2ba5bb;
-    overflow-x: hidden;
-    overflow-y: scroll;
+    padding: 1em;
+    border-radius: 1em;
+
+    overflow-y: auto;
+
+    background-color: #faf4e8;
 }
 
 #goodList::-webkit-scrollbar {
-    width: 10px;
-}
-
-#goodList::-webkit-scrollbar-track {
-    -webkit-box-shadow: inset 0 0 6px #1A1A1A;
-    border-radius: 10px;
-}
-
-#goodList::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    background-color: #1A1A1A;
+    width: 0;
 }
 
 .good {
-    display: inline-block;
-    width: 100px;
-    height: 100px;
     box-sizing: border-box;
-    border: 5px solid #2ba5bb;
-    background-color: #2ba5bb;
+    display: inline-block;
+
+    width: 5em;
+    height: 5em;
+
+    background-color: #f9545b;
+    border-radius: 0.5em;
+
     position: relative;
+    margin-bottom: 1em;
+
     cursor: pointer;
     text-align: center;
-    margin-bottom: 0;
-}
-
-.good:hover {
-    margin-bottom: 48px;
-    border-color: #15525d;
-    background-color: #15525d;
-    overflow: visible;
-    position: static;
 }
 
 .good .title {
-    width: 90px;
-    height: 90px;
     position: relative;
 }
 
 .good:hover .title::before {
     position: absolute;
-    left: 0;
-    bottom: -20px;
+    left: 1.5em;
+    bottom: -2em;
     z-index: 1;
     content: "";
-    border-width: 10px;
+    border-width: 1em;
     border-style: solid;
-    border-color: #607d8b transparent transparent transparent;
+    border-color: #c2dac9 transparent transparent transparent;
 }
 
-.good .title>img {
-    width: 100%;
-    height: 100%;
+.good .icon {
+    font-size: 5em;
 }
 
-.good .title>.count {
+.good .count {
+    color: #420200;
     position: absolute;
     top: 0;
-    right: 0;
+    right: 0.125em;
 }
 
-.good .title>.name {
+.good .name {
     position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
-    padding: 10px;
-    background-color: #2ba5bb;
+    padding: 0.5em;
+    border-radius: 0.5em;
+    background-color: #ced6de;
+    color: #420200;
     opacity: 0;
 }
 
-.good:hover .title>.name {
+.good:hover .name {
     opacity: 0.8;
 }
 
@@ -796,22 +892,39 @@ html, body {
     position: absolute;
     left: 0;
     right: 0;
-    padding: 15px;
-    margin-top: 5px;
-    height: 0;
+
+    padding: 0.5em;
+    margin-left: 1em;
+    margin-right: 1em;
+    margin-top: 0.5em;
+
+    border-radius: 0.25em;
+    background-color: #87be9b;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space:nowrap;
     overflow: hidden;
-    visibility: hidden;
+
+    height: 0;
     opacity: 0;
-    background-color: #15525d;
-    transition: all .5s;
-    text-align: center;
+    visibility: hidden;
+    transition: all .2s ease-out;
 }
 
-.good:hover .description {
 
+.good:hover .description {
     visibility: visible;
-    height: auto;
+    height: 1em;
     opacity: 1;
+}
+
+
+.good:hover {
+    background-color: #eb514c;
+
+    margin-bottom: 3em;
+    overflow: visible;
+    position: static;
 }
 
 /* help list */
@@ -859,21 +972,9 @@ html, body {
     cursor: pointer;
 }
 
-.help-item>input[type="radio"]:checked ~ .content {
-    display: block;
-    -webkit-backface-visibility: visible !important;
-    backface-visibility: visible !important;
-    -webkit-animation-name: flipInY;
-    animation-name: flipInY;
-}
-
 .help-item .title {
     font-size: 1.5em;
     border-radius: 0.2em;
-}
-
-.help-item>input[type="radio"]:checked ~ .title {
-    background-color: #cbc2b6;
 }
 
 .help-item .icon {
@@ -917,7 +1018,17 @@ html, body {
     top: -0.5em;
 }
 
+.help-item>input[type="radio"]:checked ~ .title {
+    background-color: #cbc2b6;
+}
 
+.help-item>input[type="radio"]:checked ~ .content {
+    display: block;
+    -webkit-backface-visibility: visible !important;
+    backface-visibility: visible !important;
+    -webkit-animation-name: flipInY;
+    animation-name: flipInY;
+}
 
 /* identity */
 

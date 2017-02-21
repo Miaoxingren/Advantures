@@ -229,7 +229,7 @@
     toolProto.createGood = function (good, goodNum) {
         var goodHTML = '<div class="good" goodnum="' + goodNum + '">' +
             '<div class="title">' +
-            '<img src="' + good.src + '">' +
+            '<span class="icon icon-help"></span>' +
             '<span class="count">' + good.count + '</span>' +
             '<span class="name">' + good.name + '</span>' +
             '</div>' +
