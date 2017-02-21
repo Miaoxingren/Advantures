@@ -242,6 +242,21 @@ html, body {
     padding-bottom: 1em;
 }
 
+#hint {
+    font-size: 30px;
+    padding: 0.5em;
+    border: 0.125em solid #263238;
+}
+
+#hint.fade {
+    cursor: pointer;
+    background-color: #009688;
+}
+
+#hint:hover {
+    border-color: #009688;
+}
+
 /* --- welcome page --- */
 
 /* --- pause --- */
@@ -389,6 +404,7 @@ html, body {
 
     border-radius: 1em;
     padding-top: 2em;
+    background-color: #70BAA6;
 
     box-sizing: border-box;
 }
@@ -634,57 +650,67 @@ html, body {
     animation-name: slideInLeft;
 }
 
-/* scaleWH animation */
+/* shake animation */
 
-@-webkit-keyframes scaleWH {
+@-webkit-keyframes shake {
     from {
-        transform:  scale(0);
-        -webkit-transfrom: scale(0);
+        transform: translate3d(-5px, -2px, 0) rotate(-5deg);
+        -webkit-transfrom: translate3d(-5px, -2px, 0) rotate(-5deg);
     }
 
     40% {
-        transform: scale(0.5);
-        -webkit-transform: scale(0.5);
+        transform: translate3d(-8px, -6px, 0) rotate(-30deg);
+        -webkit-transfrom: translate3d(-8px, -6px, 0) rotate(-30deg);
+    }
+
+    60% {
+        transform: translate3d(8px, 6px, 0) rotate(5deg);
+        -webkit-transfrom: translate3d(8px, 6px, 0) rotate(5deg);
     }
 
     80% {
-        transform: scale(0.8);
-        -webkit-transform: scale(0.8);
+        transform: translate3d(5px, 2px, 0) rotate(30deg);
+        -webkit-transfrom: translate3d(5px, 2px, 0) rotate(30deg);
     }
 
     to {
-        transform: none;;
-        -webkit-transform: none;
+        transform: none;
+        -webkit-transfrom: none;
     }
 }
 
-@keyframes scaleWH {
+@keyframes shake {
     from {
-        transform:  scale(0);
-        -webkit-transfrom: scale(0);
+        transform: translate3d(-5px, -2px, 0) rotate(-5deg);
+        -webkit-transfrom: translate3d(-5px, -2px, 0) rotate(-5deg);
     }
 
     40% {
-        transform: scale(0.3);
-        -webkit-transform: scale(0.3);
+        transform: translate3d(-8px, -6px, 0) rotate(-30deg);
+        -webkit-transfrom: translate3d(-8px, -6px, 0) rotate(-30deg);
+    }
+
+    60% {
+        transform: translate3d(8px, 6px, 0) rotate(5deg);
+        -webkit-transfrom: translate3d(8px, 6px, 0) rotate(5deg);
     }
 
     80% {
-        transform: scale(0.6);
-        -webkit-transform: scale(0.6);
+        transform: translate3d(5px, 2px, 0) rotate(30deg);
+        -webkit-transfrom: translate3d(5px, 2px, 0) rotate(30deg);
     }
 
     to {
-        transform: none;;
-        -webkit-transform: none;
+        transform: none;
+        -webkit-transfrom: none;
     }
 }
 
-.scaleWH {
-    -webkit-animation-timing-function: ease-in;
-    animation-timing-function: ease-in;;
-    -webkit-animation-name: scaleWH;
-    animation-name: scaleWH;
+.shake {
+    -webkit-animation-timing-function: cubic-bezier(0.2, 0.30, 0.55, 1.000);
+    animation-timing-function: cubic-bezier(0.2, 0.30, 0.55, 1.000);
+    -webkit-animation-name: shake;
+    animation-name: shake;
 }
 
 #tools {
@@ -726,13 +752,29 @@ html, body {
     content: "\e8fd";
 }
 
-#taskList, #goodList, #helpList {
+#taskList, #goodList, #helpList, #empty {
     margin: auto;
     position: absolute;
     left: 0;
     right: 0;
     top: 0;
     bottom: 0;
+}
+
+#empty {
+    text-align: center;
+    background-color: #9db3b4;
+    color: #344b52;
+    font-size: 20px;
+    width: 8em;
+    height: 8em;
+    padding: 1em;
+    border-radius: 1em;
+    line-height: 1.5;
+
+    animation-iteration-count: infinite;
+    animation-duration: .6s;
+    animation-direction: alternate;
 }
 
 /* task list */

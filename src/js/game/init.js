@@ -1,4 +1,9 @@
 function init() {
+    // document.getElementById('load-end').addEventListener('click', function () {
+    //     document.getElementById('music').src = '/asset/music/button.mp3';
+    //     document.getElementById('music').play();
+    // });
+
     lynx.initPhysi();
 
     var stats = lynx.initStats("stats");

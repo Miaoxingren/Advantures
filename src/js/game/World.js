@@ -594,7 +594,7 @@
         if (!tree) return;
         if (tree.name === 'flower') {
             if (tree.empty) {
-                this.hud.promt('info', 'Nothing.');
+                // this.hud.promt('info', 'Nothing.');
             } else {
                 tree.empty = true;
                 var i = Math.random() * 10 % 10;
@@ -699,8 +699,11 @@
     };
 
     worldProto.onMouseLeave = function(event) {
+        if (this.state === lynx.worldState.PAUSE) {
+            return;
+        }
         this.state = lynx.worldState.PAUSE;
-        this.hud.promt('info', 'Pause');
+        this.hud.pause();
     };
 
     worldProto.onMouseUp = function(event) {};
@@ -738,9 +741,9 @@
             case 32:
                 this.state = this.state == lynx.worldState.PAUSE ? lynx.worldState.PLAY : lynx.worldState.PAUSE;
                 if (this.state === lynx.worldState.PAUSE) {
-                    this.hud.promt('info', 'Pause');
+                    this.hud.pause();
                 } else {
-                    this.hud.hidePromt();
+                    this.hud.resume();
                 }
 
                 break;

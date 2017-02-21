@@ -113,6 +113,17 @@ var lynx = {
         WOOD: 9
     };
 
+    lynx.domPriority = {
+        NOTHING: -1,
+        TASKLIST: 0.2,
+        GOODLIST: 0.4,
+        HELPLIST: 0.6,
+        EMPTY: 1,
+        DIALOG: 2,
+        PAUSE: 3,
+        WELCOME: 4
+    };
+
 })(lynx);
 
 (function(lynx) {

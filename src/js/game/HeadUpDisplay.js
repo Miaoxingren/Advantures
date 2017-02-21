@@ -48,9 +48,9 @@
         this.taskDom = document.getElementById('taskList');
         this.goodDom = document.getElementById('goodList');
         this.helpDom = document.getElementById('helpList');
-        this.taskShow = false;
-        this.goodShow = false;
-        this.helpShow = false;
+        this.emptyDom = document.getElementById('empty');
+
+        this.domShown = lynx.domPriority.NOTHING;
 
         var toolsclick = lynx.bind(this, this.toolsHandler);
         this.toolsDom.addEventListener('click', toolsclick);
@@ -158,27 +158,83 @@
         event.preventDefault();
         event.stopPropagation();
 
+        if (this.domShown === lynx.domPriority.EMPTY) {
+            this.toggleVisibility(lynx.domPriority.EMPTY, false);
+            this.domShown = lynx.domPriority.NOTHING;
+            // this.taskDom.classList.add('hidden');
+            // this.taskDom.classList.remove('visible');
+            return;
+        }
+
         if (event.target.id === 'task' || event.target.parentNode.id === 'task') {
+            this.playMusic('button');
+            // this.domShown = lynx.domPriority.TASKLIST;
             this.toggleTasks();
         }
         if (event.target.id === 'good' || event.target.parentNode.id === 'good') {
+            this.playMusic('button');
+            // this.domShown = lynx.domPriority.GOODLIST;
             this.toggleGoods();
         }
         if (event.target.id === 'help' || event.target.parentNode.id === 'help') {
+            this.playMusic('button');
+            // this.domShown = lynx.domPriority.HELPLIST;
             this.toggleHelp();
         }
     };
 
-    toolProto.toggleTasks = function() {
+    toolProto.toggleVisibility = function (domPriority, show) {
+        var dom;
 
-        if (this.taskShow) {
-            this.taskDom.classList.add('hidden');
-            this.taskDom.classList.remove('visible');
-            this.taskShow = false;
+        switch (domPriority) {
+            case lynx.domPriority.TASKLIST:
+                dom = this.taskDom;
+                break;
+            case lynx.domPriority.GOODLIST:
+                dom = this.goodDom;
+                break;
+            case lynx.domPriority.HELPLIST:
+                dom = this.helpDom;
+                break;
+            case lynx.domPriority.EMPTY:
+                dom = this.emptyDom;
+                break;
+            default:
+                return;
+        }
+
+        if (show) {
+            dom.classList.add('visible');
+            dom.classList.remove('hidden');
+        } else {
+            dom.classList.add('hidden');
+            dom.classList.remove('visible');
+        }
+    };
+
+    toolProto.toggleTasks = function() {
+        if (this.domShown > lynx.domPriority.TASKLIST + 1) {
             return;
         }
 
+        if (this.domShown === lynx.domPriority.TASKLIST) {
+            this.toggleVisibility(lynx.domPriority.TASKLIST, false);
+            this.domShown = lynx.domPriority.NOTHING;
+            // this.taskDom.classList.add('hidden');
+            // this.taskDom.classList.remove('visible');
+            return;
+        }
+
+        this.toggleVisibility(this.domShown, false);
+        this.domShown = lynx.domPriority.TASKLIST;
+        this.toggleVisibility(lynx.domPriority.TASKLIST, true);
+
         var tasks = this.getPlayer().tasks;
+
+        if (tasks.length < 1) {
+            this.toggleEmpty();
+            return;
+        }
 
         var tasksHTML = '';
         for (var i = 0, iLen = tasks.length; i < iLen; i++) {
@@ -189,7 +245,6 @@
         this.taskDom.classList.add('visible');
         this.taskDom.classList.remove('hidden');
         this.taskDom.innerHTML = tasksHTML;
-        this.taskShow = true;
 
         function createTask(task) {
             var stateClass = task.state === lynx.taskState.COMPLET ? 'icon-check_circle' : 'icon-radio_button_unchecked';
@@ -203,15 +258,28 @@
     };
 
     toolProto.toggleGoods = function() {
-
-        if (this.goodShow) {
-            this.goodDom.classList.add('hidden');
-            this.goodDom.classList.remove('visible');
-            this.goodShow = false;
+        if (this.domShown > lynx.domPriority.GOODLIST + 1) {
             return;
         }
 
+        if (this.domShown === lynx.domPriority.GOODLIST) {
+            this.toggleVisibility(lynx.domPriority.GOODLIST, false);
+            this.domShown = lynx.domPriority.NOTHING;
+            // this.goodDom.classList.add('hidden');
+            // this.goodDom.classList.remove('visible');
+            return;
+        }
+
+        this.toggleVisibility(this.domShown, false);
+        this.domShown = lynx.domPriority.GOODLIST;
+        this.toggleVisibility(lynx.domPriority.GOODLIST, true);
+
         var goods = this.getPlayer().goods;
+
+        if (goods.length < 1) {
+            this.toggleEmpty();
+            return;
+        }
 
         var goodsHTML = '';
         for (var i = 0, iLen = goods.length; i < iLen; i++) {
@@ -219,10 +287,9 @@
             goodsHTML += goodHTML;
         }
 
-        this.goodDom.classList.add('visible');
-        this.goodDom.classList.remove('hidden');
+        // this.goodDom.classList.add('visible');
+        // this.goodDom.classList.remove('hidden');
         this.goodDom.innerHTML = goodsHTML;
-        this.goodShow = true;
 
     };
 
@@ -239,13 +306,21 @@
     };
 
     toolProto.toggleHelp = function() {
-
-        if (this.helpShow) {
-            this.helpDom.classList.add('hidden');
-            this.helpDom.classList.remove('visible');
-            this.helpShow = false;
+        if (this.domShown > lynx.domPriority.HELPLIST + 1) {
             return;
         }
+
+        if (this.domShown === lynx.domPriority.HELPLIST) {
+            this.toggleVisibility(lynx.domPriority.HELPLIST, false);
+            this.domShown = lynx.domPriority.NOTHING;
+            // this.helpDom.classList.add('hidden');
+            // this.helpDom.classList.remove('visible');
+            return;
+        }
+
+        this.toggleVisibility(this.domShown, false);
+        this.domShown = lynx.domPriority.HELPLIST;
+        this.toggleVisibility(lynx.domPriority.HELPLIST, true);
 
         // var configs = this.getPlayer().configs;
         //
@@ -255,10 +330,9 @@
         //     configsHTML += configHTML;
         // }
         //
-        this.helpDom.classList.add('visible');
-        this.helpDom.classList.remove('hidden');
+        // this.helpDom.classList.add('visible');
+        // this.helpDom.classList.remove('hidden');
         // this.configDom.innerHTML = configsHTML;
-        this.helpShow = true;
         //
         // function createTask(config) {
         //     var stateClass = config.state === lynx.configState.COMPLET ? 'icon-check_circle' : 'icon-radio_button_unchecked';
@@ -271,10 +345,31 @@
         // }
     };
 
+    toolProto.toggleEmpty = function() {
+        if (this.domShown > lynx.domPriority.EMPTY + 1) {
+            return;
+        }
+
+        if (this.domShown === lynx.domPriority.EMPTY) {
+            this.toggleVisibility(lynx.domPriority.EMPTY, false);
+            this.domShown = lynx.domPriority.NOTHING;
+            // this.emptyDom.classList.add('hidden');
+            // this.emptyDom.classList.remove('visible');
+            return;
+        }
+
+        this.toggleVisibility(this.domShown, false);
+        this.domShown = lynx.domPriority.EMPTY;
+        this.toggleVisibility(lynx.domPriority.EMPTY, true);
+
+        // this.emptyDom.classList.add('visible');
+        // this.emptyDom.classList.remove('hidden');
+    };
+
     lynx.HeadUpDisplay = function() {
         this.healthDom = document.getElementById('health');
         this.moneyDom = document.getElementById('money');
-        this.promtDom = document.getElementById('pause');
+        this.pauseDom = document.getElementById('pause');
         this.loadingDom = document.getElementById('welcome');
         this.identityDom = document.getElementById('identity');
 
@@ -283,9 +378,10 @@
         this.toolsCtrl = new lynx.ToolsCtrl();
         var getPlayer = lynx.bind(this, this.getPlayer);
         this.toolsCtrl.getPlayer = getPlayer;
+        var playMusic = lynx.bind(this, this.playMusic);
+        this.toolsCtrl.playMusic = playMusic;
 
-        // this.musicDom = document.getElementById('music');
-        // this.musicDom.loop = true;
+        this.musicDom = document.getElementById('music');
 
     };
 
@@ -314,11 +410,24 @@
     hudProto.loadComplete = function() {
         if (!this.loadingDom) return;
 
-        var waitDom = document.getElementById('load-wait');
-        waitDom.classList.remove('visible');
-        waitDom.classList.add('hidden');
-        var endDom = document.getElementById('load-end');
-        endDom.classList.remove('hidden');
+        // var waitDom = document.getElementById('load-wait');
+        // waitDom.classList.remove('visible');
+        // waitDom.classList.add('hidden');
+        // var endDom = document.getElementById('load-end');
+        // endDom.classList.remove('hidden');
+
+        var hintDom = document.getElementById('hint');
+        hintDom.innerHTML = 'Click here to begin.';
+        hintDom.classList.add('fade');
+
+        var hintClick = lynx.bind(this, this.enterGame);
+        hintDom.addEventListener('click', hintClick, false);
+    };
+
+    hudProto.enterGame = function() {
+        lynx.state = lynx.worldState.PLAY;
+        this.playMusic('button');
+        this.hideLoading();
     };
 
     hudProto.hideLoading = function() {
@@ -327,19 +436,19 @@
         this.loadingDom.classList.add('hidden');
     };
 
-    hudProto.promt = function(type, msg) {
-        if (!this.promtDom) return;
-        // this.promtDom.classList.add('visible');
-        this.promtDom.classList.remove('hidden');
-        this.promtDom.classList.add('visible', type);
-        // this.promtDom.innerHTML = msg;
+    hudProto.pause = function(type, msg) {
+        if (!this.pauseDom) return;
+        this.playMusic('levelcleared');
+        this.pauseDom.classList.remove('hidden');
+        this.pauseDom.classList.add('visible', type);
+        // this.pauseDom.innerHTML = msg;
     };
 
-    hudProto.hidePromt = function() {
-        if (!this.promtDom) return;
-        // this.promtDom.classList.add('hidden');
-        this.promtDom.classList.remove('visible');
-        this.promtDom.classList.add('hidden');
+    hudProto.resume = function() {
+        if (!this.pauseDom) return;
+        this.playMusic('levelstart');
+        this.pauseDom.classList.remove('visible');
+        this.pauseDom.classList.add('hidden');
 
     };
 
@@ -360,7 +469,7 @@
         if (!this.healthDom) return;
         // control by world
         if (!health) {
-            this.promt('danger', 'Game Over');
+            this.pause('danger', 'Game Over');
         }
         this.healthDom.innerHTML = health;
     };
@@ -384,8 +493,9 @@
         this.money(money);
     };
 
-    hudProto.playMusic = function() {
+    hudProto.playMusic = function(music) {
         if (!this.musicDom) return;
+        this.musicDom.src = '/asset/music/' + music + '.mp3';
         this.musicDom.play();
     };
 
