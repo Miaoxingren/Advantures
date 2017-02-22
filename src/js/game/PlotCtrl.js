@@ -1,14 +1,15 @@
 (function(lynx) {
+    var taskState = lynx.enum.task;
     lynx.Plot = function(name, camera) {
         this.name = name;
         this.camera = camera;
-        this.state = lynx.taskState.CREATE;
+        this.state = taskState.CREATE;
     };
 
     var plotProto = lynx.Plot.prototype;
 
     plotProto.end = function() {
-        this.state = lynx.taskState.COMPLET;
+        this.state = taskState.COMPLET;
     };
 
     lynx.PlotCtrl = function(world) {
@@ -42,7 +43,7 @@
                     return;
                 }
                 var state = world.player.getTaskState('welcome');
-                if (state === lynx.taskState.ACCEPT) {
+                if (state === taskState.ACCEPT) {
                     if (!this.wall) {
                         var objs = world.scene.children;
                         for (var i = 0, len = objs.length; i < len; i++) {
@@ -60,7 +61,7 @@
                         world.getCamera().lookAt(this.wall.position.clone().add(new THREE.Vector3(0, this.wall._physijs.height / 2, 0)));
                     }
                 }
-                if (state === lynx.taskState.COMPLET) {
+                if (state === taskState.COMPLET) {
                     world.snowing = true;
                     world.createSnow();
                 }

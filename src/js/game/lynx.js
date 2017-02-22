@@ -6,6 +6,7 @@ var lynx = {
     }).call(null)
 };
 
+// common method
 (function(lynx) {
 
     lynx.isArray = function(target) {
@@ -20,8 +21,8 @@ var lynx = {
 
     lynx.merge = function(dst, src) {
         var args = Array.prototype.slice.call(arguments, 1);
-        for (var i = 0, obj;
-            (obj = args[i]); i++) {
+        for (var i = 0, iLen = args.length; i < iLen; i++) {
+            var obj = args[i];
             for (var key in obj) {
                 if (obj.hasOwnProperty(key)) {
                     dst[key] = obj[key];
@@ -31,15 +32,15 @@ var lynx = {
         return dst;
     };
 
-    lynx.getMesh = function(obj) {
+    lynx.getChildren = function(obj, qualified) {
         var rets = [];
-        if (obj instanceof THREE.Mesh) {
+        if (qualified(obj)) {
             rets.push(obj);
         }
         if (obj.children) {
-            for (var i = 0; i < obj.children.length; i++) {
-                var childs = getMesh(obj.children[i]);
-                for (var j = 0; j < childs.length; j++) {
+            for (var i = 0, iLen = obj.children.length; i < iLen; i++) {
+                var childs = getChildren(obj.children[i], qualified);
+                for (var j = 0, jLen = childs.length; j < jLen; j++) {
                     rets.push(childs[j]);
                 }
             }
@@ -58,49 +59,73 @@ var lynx = {
         console.log('Load Failed!');
     };
 
-    lynx.initPhysi = function() {
-        Physijs.scripts.worker = '/js/lib/physijs_worker.js';
-        Physijs.scripts.ammo = '/js/lib/ammo.js';
+    lynx.toggle = function(dom, show) {
+        if (!dom) {
+            console.error('Dom not found.'); {
+                return;
+            }
+        }
+
+        if (show === undefined) {
+            return dom.classList.contains('visible') && !dom.classList.contains('hidden');
+        }
+
+        if (show) {
+            dom.classList.add('visible');
+            dom.classList.remove('hidden');
+        } else {
+            dom.classList.add('hidden');
+            dom.classList.remove('visible');
+        }
     };
 
-    lynx.initStats = function(id) {
-        var stats = new Stats();
-        document.getElementById(id).appendChild(stats.domElement);
-        lynx.stats = stats;
-        return lynx.stats;
+    lynx.getConfig = function(name, config) {
+        var world = lynx.wdConf[name];
+        if (!world) {
+            console.error('World ' + name + ' not found.');
+        }
+
+        if (config) {
+            world = lynx.merge(world, config);
+        }
+
+        return world;
     };
 
-    lynx.initRenderer = function(id) {
-        var container = document.getElementById(id);
-        var renderer = new THREE.WebGLRenderer({
-            antialias: true
-        });
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMapSoft = true;
-        container.appendChild(renderer.domElement);
-        lynx.renderer = renderer;
-        return lynx.renderer;
-    };
 })(lynx);
 
+// list all type
 (function(lynx) {
 
-    lynx.worldState = {
+    var lynxEnum = lynx.enum = {};
+
+    lynxEnum.world = {
         INIT: 0,
         PLAY: 1,
         PAUSE: 2,
         GAMEOVER: 3
     };
 
-    lynx.taskState = {
+    lynxEnum.task = {
         CREATE: 0,
         ACCEPT: 1,
         COMPLET: 2
     };
 
-    lynx.tag = {
+    lynxEnum.plot = {
+        WELCOME: 0,
+        FOOD: 1,
+        WOOD: 2,
+        FLOWER: 4
+    };
+
+    lynxEnum.wall = {
+        TBC: 0,
+        STAND: 1,
+        MOVE: 2
+    };
+
+    lynxEnum.tag = {
         PLAYER: 0,
         NPC: 1,
         MONSTER: 2,
@@ -109,11 +134,12 @@ var lynx = {
         TASK: 5,
         UFO: 6,
         SHELF: 7,
-        TREE: 8,
+        PLANT: 8,
         WOOD: 9
     };
 
-    lynx.domPriority = {
+    // dom priority
+    lynxEnum.dom = {
         NOTHING: -1,
         TASKLIST: 0.2,
         GOODLIST: 0.4,
@@ -126,394 +152,227 @@ var lynx = {
 
 })(lynx);
 
+// default config of world
 (function(lynx) {
 
-    lynx.defaults = {
-        paw: {
-            size: 500,
-            wallHeight: 50,
-            wallDepth: 1,
-            gravity: 100,
-            monsterSpeed: 20,
-            monsterNum: 30,
-            models: [
-                'merchant_cat', 'melon', 'bear0', 'bear1', 'bear2', 'blackWidow', 'bunny0', 'bear3', 'bunny1', 'chow', 'deer', 'crab', 'elk', 'fish0',
-                'fish1', 'fish2', 'fish3', 'eagle', 'fox1', 'fox0', 'flamingo', 'frog0', 'goldenRetreiver0', 'frog2', 'goat', 'goldenRetreiver1',
-                'horse1', 'horse0', 'hummingBird0', 'hummingBird1', 'moose', 'owl', 'mountainLion', 'parrot2', 'raccoon', 'panther0',
-                'parrot1', 'raven', 'seal0', 'stork', 'scorpion', 'seal1', 'toad0', 'wolf', 'vulture', 'toad1', 'gator', 'tarantula0',
-                'coin', 'cat_food_yellow', 'shelf', 'tree_a', 'rose', 'plants1', 'sword', 'wood', 'cat1'
-            ],
-            player: {},
-            walls: [],
-            npcs: [],
-            monsters: []
-        }
+    var conf = lynx.wdConf = {};
+
+    var paw = {
+        size: 500,
+        wallHeight: 50,
+        wallDepth: 1,
+        gravity: 100,
+        monsterSpeed: 20,
+        monsterNum: 30,
+        player: {
+            name: 'panther0',
+            model: 'panther0',
+            health: 5,
+            money: 50,
+            coordinate: {
+                x: 3,
+                z: 0,
+                s: 3,
+                t: 3
+            }
+        },
+        walls: [],
+        npcs: [],
+        monsters: []
     };
+
+    conf.paw = paw;
 
 })(lynx);
 
-(function(lynx) {
+// set up before create world
+(function (lynx) {
 
-    lynx.getConfig = function(name, config) {
-        var world = lynx.defaults[name];
-        world = lynx.merge(world, config);
-        // world.walls = createWalls(world.size);
-        world.goods = createGoods(world.size);
-        world.npcs = createNPCs(world.size);
-        world.player = createPlayer(world.size);
-        world.monsters = createMontsers(world.size, world.monsterNum);
-        return world;
-
-        function createWalls(size) {
-            var walls = [{
-                position: {
-                    x: -size / 8 * 3,
-                    z: -size / 8 * 3 + size / 8 / 2
-                },
-                width: size / 8,
-                vertical: true
-            }, {
-                position: {
-                    x: -size / 8 * 3,
-                    z: -size / 8 + size / 8 * 3 / 2
-                },
-                width: size / 8 * 3,
-                vertical: true
-            }, {
-                position: {
-                    x: -size / 4,
-                    z: -size / 4 + size / 8 * 3 / 2
-                },
-                width: size / 8 * 3,
-                vertical: true
-            }, {
-                position: {
-                    x: -size / 8,
-                    z: -size / 2 + size / 8 / 2
-                },
-                tag: 'welcome',
-                width: size / 8,
-                vertical: true
-            }, {
-                position: {
-                    x: -size / 8,
-                    z: 0
-                },
-                width: size / 4,
-                vertical: true
-            }, {
-                position: {
-                    x: 0,
-                    z: -size / 2 + size / 8 / 2
-                },
-                width: size / 8,
-                vertical: true
-            }, {
-                position: {
-                    x: 0,
-                    z: -size / 4 + size / 8 / 2
-                },
-                width: size / 8,
-                vertical: true
-            }, {
-                position: {
-                    x: 0,
-                    z: size / 4 + size / 8 / 2
-                },
-                width: size / 8,
-                vertical: true
-            }, {
-                position: {
-                    x: size / 8,
-                    z: -size / 8 + size / 8 / 2 / 2
-                },
-                width: size / 8 / 2,
-                vertical: true
-            }, {
-                position: {
-                    x: size / 8,
-                    z: size / 8 - size / 8 / 2 / 2
-                },
-                width: size / 8 / 2,
-                vertical: true
-            }, {
-                position: {
-                    x: size / 4,
-                    z: -size / 8 + size / 8 * 3 / 2
-                },
-                width: size / 8 * 3,
-                vertical: true
-            }, {
-                position: {
-                    x: size / 8 * 3,
-                    z: -size / 4
-                },
-                width: size / 4,
-                vertical: true
-            }, {
-                position: {
-                    x: size / 8 * 3,
-                    z: size / 8 * 3 / 2
-                },
-                width: size / 8 * 3,
-                vertical: true
-            }, {
-                position: {
-                    x: -size / 8 * 3 / 2,
-                    z: -size / 8 * 3
-                },
-                width: size / 8 * 3
-            }, {
-                position: {
-                    x: size / 4,
-                    z: -size / 8 * 3
-                },
-                width: size / 4
-            }, {
-                position: {
-                    x: -size / 4 + size / 8 * 5 / 2,
-                    z: -size / 4
-                },
-                width: size / 8 * 5
-            }, {
-                position: {
-                    x: 0,
-                    z: -size / 8
-                },
-                width: size / 4
-            }, {
-                position: {
-                    x: -size / 2 + size / 8 / 2,
-                    z: 0
-                },
-                width: size / 8
-            }, {
-                position: {
-                    x: size / 2 - size / 8 / 2,
-                    z: 0
-                },
-                width: size / 8
-            }, {
-                position: {
-                    x: -size / 8 + size / 8 * 3 / 2,
-                    z: size / 8
-                },
-                width: size / 8 * 3
-            }, {
-                position: {
-                    x: -size / 4,
-                    z: size / 4
-                },
-                width: size / 4
-            }, {
-                position: {
-                    x: size / 8,
-                    z: size / 4
-                },
-                width: size / 4
-            }, {
-                position: {
-                    x: -size / 8,
-                    z: size / 8 * 3
-                },
-                width: size / 2
-            }, {
-                position: {
-                    x: size / 4 + size / 8 / 2,
-                    z: size / 8 * 3
-                },
-                width: size / 8
-            }];
-            return walls;
+    lynx.modelsLoaded = function() {
+        if (!lynx.getModel) {
+            console.error('Missing models.');
+            return;
         }
 
-        function createNPCs(size) {
-            var npcs = [{
-                coordinate: {
-                    x: 3,
-                    z: 0,
-                    s: 2,
-                    t: 1
-                },
-                position: {
-                    x: -size / 16,
-                    z: -size / 2 + size / 8 / 3
-                },
-                name: 'Merchant Cat',
-                model: 'merchant_cat',
-                id: 'MerchantCat'
-            }, {
-                coordinate: {
-                    x: 0,
-                    z: 2,
-                    s: 4,
-                    t: 4
-                },
-                position: {
-                    x: -size / 2 + size / 8 / 2,
-                    z: -size / 4 + size / 8 / 2
-                },
-                name: 'Bear Bob',
-                model: 'bear0',
-                id: 'BearBob'
-            }, {
-                coordinate: {
-                    x: 7,
-                    z: 0,
-                    s: 7,
-                    t: 1
-                },
-                position: {
-                    x: -size / 2 + size / 8 / 2,
-                    z: -size / 4 + size / 8 / 2
-                },
-                name: 'Raccoon Rose',
-                model: 'raccoon',
-                id: 'RaccoonRose'
-            }, {
-                coordinate: {
-                    x: 6,
-                    z: 1,
-                    s: 7,
-                    t: 7
-                },
-                position: {
-                    x: -size / 2 + size / 8 / 2,
-                    z: -size / 4 + size / 8 / 2
-                },
-                name: 'Deer David',
-                model: 'deer',
-                id: 'DeerDavid'
-            }, {
-                coordinate: {
-                    x: 4,
-                    z: 2,
-                    s: 4,
-                    t: 2
-                },
-                position: {
-                    x: -size / 2 + size / 8 / 2,
-                    z: -size / 4 + size / 8 / 2
-                },
-                name: 'Horse Harry',
-                model: 'horse0',
-                id: 'HorseHarry'
-            }, {
-                coordinate: {
-                    x: 3,
-                    z: 3,
-                    s: 8,
-                    t: 8
-                },
-                position: {
-                    x: -size / 2 + size / 8 / 2,
-                    z: -size / 4 + size / 8 / 2
-                },
-                name: 'Melonpi',
-                model: 'cat1',
-                id: 'Melonpi'
-            }];
-            return npcs;
+        var renderer = lynx.getRenderer();
+        var world = new lynx.World("paw", renderer.domElement);
+
+        lynx.getCurrentWorld = function () {
+            return world;
+        };
+    };
+
+    lynx.enterGame = function () {
+        if (!lynx.getCurrentWorld()) {
+            console.error('World not ready.');
+            return;
         }
 
-        function createGoods(size) {
-            var originX = -size / 2;
-            var originZ = -size / 2;
-            var roomSize = size / 8; // 0 - 3
-            var gridSize = roomSize / 8; // 1- 8
-            var offset = gridSize / 2;
-            var goods = [{
-                coordinate: {
-                    x: 3,
-                    z: 0,
-                    s: 8,
-                    t: 1
-                },
-                position: {
-                    x: originX + 3 * roomSize + 8 * gridSize - offset,
-                    z: originZ + 0 * roomSize + 1 * gridSize - offset
-                },
-                goods: [{
-                    name: 'coin',
-                    model: 'coin',
-                    tag: lynx.tag.MONEY
-                }, {
-                    name: 'cat food',
-                    model: 'cat_food_yellow',
-                    tag: lynx.tag.HEALTH
-                }]
-            }];
-            return goods;
+        var _resize = function (event) {
+            var renderer = lynx.getRenderer();
+            var container = renderer.domElement;
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        };
+
+        var _mouseLeave = function(event) {
+            if (lynx.state === lynx.enum.world.PAUSE) {
+                return;
+            }
+            lynx.getHUD().pause();
+        };
+
+        document.addEventListener('mouseleave', _mouseLeave);
+        document.addEventListener('resize', _resize);
+
+        var stats = lynx.getStats();
+        var renderer = lynx.getRenderer();
+
+        var world = lynx.getCurrentWorld();
+
+        var clock = new THREE.Clock();
+
+        animate();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (lynx.state === lynx.enum.world.PLAY) {
+                render();
+            }
         }
 
-        function createPlayer(size) {
-            var player = {
-                name: 'panther0',
-                model: 'panther0',
-                health: 5,
-                money: 50,
-                position: {
-                    x: -size / 16,
-                    z: -size / 2 + size / 8 / 3 * 2
-                }
-            };
-            return player;
+        function render() {
+            var delta = clock.getDelta();
+
+            world.update(delta);
+
+            stats.update();
+
+            renderer.render(world.scene, world.getCamera());
+        }
+    };
+
+    lynx.setUpBeforeGame = function () {
+
+        lynx.state = lynx.enum.world.INIT;
+
+        initHUD();
+        initPhysi();
+        initStats('stats');
+        initRenderer('game');
+        initModels();
+    };
+
+    function initHUD() {
+        if (lynx.getHUD) {
+            return;
         }
 
-        function createMontsers(size, count) {
-            var monsters = [{
-                health: 10,
-                model: 'chow',
-                name: 'boss',
-                position: {},
-                coordinate: {
-                    x: 3,
-                    z: 3,
-                    s: 8,
-                    t: 4
+        var hud = new lynx.HeadUpDisplay();
+        lynx.getHUD = function () {
+            return hud;
+        };
+    }
+
+    function initPhysi() {
+        if (!Physijs) {
+            console.error('Physijs is not ready.');
+            return;
+        }
+
+        Physijs.scripts.worker = '/js/lib/physijs_worker.js';
+        Physijs.scripts.ammo = '/js/lib/ammo.js';
+    }
+
+    function initStats(id) {
+        if (lynx.getStats) {
+            return;
+        }
+
+        var container = document.getElementById(id);
+        if (!container) {
+            console.error('Stats dom not found.');
+            return;
+        }
+
+        var stats = new Stats();
+        container.appendChild(stats.domElement);
+
+        lynx.getStats = function () {
+            return stats;
+        };
+    }
+
+    function initRenderer(id) {
+        if (lynx.getRenderer) {
+            return;
+        }
+
+        var container = document.getElementById(id);
+        if (!container) {
+            console.error('Renderer dom not found.');
+            return;
+        }
+
+        var renderer = new THREE.WebGLRenderer({
+            antialias: true
+        });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        // close shadowMap
+        renderer.shadowMap.enabled = false;
+        renderer.shadowMapSoft = false;
+        container.appendChild(renderer.domElement);
+
+        lynx.getRenderer = function () {
+            return renderer;
+        };
+    }
+
+    var models = [
+        'merchant_cat', 'melon', 'bear0', 'bear1', 'bear2', 'blackWidow', 'bunny0', 'bear3', 'bunny1', 'chow', 'deer', 'crab', 'elk', 'fish0',
+        'fish1', 'fish2', 'fish3', 'eagle', 'fox1', 'fox0', 'flamingo', 'frog0', 'goldenRetreiver0', 'frog2', 'goat', 'goldenRetreiver1',
+        'horse1', 'horse0', 'hummingBird0', 'hummingBird1', 'moose', 'owl', 'mountainLion', 'parrot2', 'raccoon', 'panther0',
+        'parrot1', 'raven', 'seal0', 'stork', 'scorpion', 'seal1', 'toad0', 'wolf', 'vulture', 'toad1', 'gator', 'tarantula0',
+        'coin', 'cat_food_yellow', 'shelf', 'tree_a', 'rose', 'plants1', 'sword', 'wood', 'cat1'
+    ];
+
+    function initModels() {
+        if (lynx.getModels) {
+            return;
+        }
+
+        var modelLib = [];
+        var jsonLoader = new THREE.JSONLoader();
+        jsonLoader.setTexturePath('/asset/texture/');
+
+        for (var i = 0, iLen = models.length; i < iLen; i++) {
+            loadModel(models[i]);
+        }
+
+        function loadModel(model) {
+            var modelPath = '/asset/model/' + model + '.json';
+            if (lynx.DEBUG) {
+                jsonLoader.load(modelPath, addModel, lynx.loadProgress, lynx.loadError);
+            } else {
+                jsonLoader.load(modelPath, addModel);
+            }
+
+            function addModel(geometry, materials) {
+                modelLib.push({
+                    name: model,
+                    geometry: geometry,
+                    materials: materials
+                });
+                modelLib[model] = modelLib[modelLib.length - 1];
+                if (models.length === modelLib.length) {
+                    lynx.modelsLoaded();
                 }
             }
-            // , {
-            //     health: 20,
-            //     model: 'moose',
-            //     name: 'moose',
-            //     position: {},
-            //     coordinate: {
-            //         x: 3,
-            //         z: 4,
-            //         s: 8,
-            //         t: 4
-            //     }
-            // }
-            ];
-            return monsters;
         }
 
-        // function createMontsers(size, count) {
-        //     var monsters = [];
-        //
-        //     for (var i = 0; i < count; i++) {
-        //         var monster = {
-        //             health: 10,
-        //             model: '',
-        //             name: '',
-        //             position: {},
-        //             coordinate: {}
-        //         };
-        //         monster.health = Math.floor(Math.random() * 100);
-        //         monster.model = world.models[Math.floor(Math.random() * 400) % world.models.length];
-        //         monster.name = monster.model + i;
-        //         var x = (Math.floor(Math.random() * 10) % 4 + 1) * (Math.random() > 0.5 ? 1 : -1);
-        //         x = x == -1 ? 1 : x;
-        //         var z = (Math.floor(Math.random() * 10) % 4 + 1) * (Math.random() > 0.5 ? 1 : -1);
-        //         z = z == -4 ? 4 : z;
-        //         monster.position.x = x * size / 8 + size / 16 * (x > 0 ? -1 : 1);
-        //         monster.position.z = z * size / 8 + size / 16 * (z > 0 ? -1 : 1);
-        //         monsters.push(monster);
-        //     }
-        //     return monsters;
-        // }
-
-    };
+        lynx.getModel = function (name) {
+            return modelLib[name];
+        };
+    }
 
 })(lynx);

@@ -10,6 +10,22 @@
 
     var playerProto = lynx.Player.prototype;
 
+    playerProto.getTasksFunc = function () {
+        var self = this;
+        var _getTasks = function () {
+            return self.tasks;
+        };
+        return _getTasks;
+    };
+
+    playerProto.getGoodsFunc = function () {
+        var self = this;
+        var _getGoods = function () {
+            return self.goods;
+        };
+        return _getGoods;
+    };
+
     playerProto.getGood = function(name) {
         var goods = this.goods;
 

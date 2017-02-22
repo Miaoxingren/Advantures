@@ -1,4 +1,5 @@
 (function(lynx) {
+    var taskState = lynx.enum.task;
 
     lynx.NPC = function(graph) {
         this.graph = graph;
@@ -11,7 +12,7 @@
 
     npcProto.addTask = function (task) {
         if (!lynx.isArray(task)) {
-            task.state = lynx.taskState.CREATE;
+            task.state = taskState.CREATE;
             this.tasks.push(task);
             return;
         }
@@ -22,7 +23,7 @@
     };
 
     npcProto.checkTask = function (task) {
-        if (task.state === lynx.taskState.COMPLET) {
+        if (task.state === taskState.COMPLET) {
             this.endTask(task);
         }
     };
@@ -32,7 +33,7 @@
         for(var i = 0, iLen = list.length; i < iLen; i++) {
             if (list[i].name === task.name) {
                 task.end();
-                // task.state = lynx.taskState.COMPLET;
+                // task.state = taskState.COMPLET;
                 list.splice(i, 1);
             }
         }
@@ -49,8 +50,8 @@
 
     npcProto.updateTask = function () {
         var task = this.tasks[this.taskIndex];
-        if (task.state === lynx.taskState.CREATE) {
-            task.state = lynx.taskState.ACCEPT;
+        if (task.state === taskState.CREATE) {
+            task.state = taskState.ACCEPT;
         }
     };
 

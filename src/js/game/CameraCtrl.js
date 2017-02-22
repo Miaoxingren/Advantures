@@ -14,9 +14,9 @@
         camera.position.x = 850;
         camera.position.y = 50;
         camera.position.z = 900;
-        // camera.lookAt(this.scene.position);
+        camera.lookAt(0, 0, 0);
 
-        camera.tag = lynx.tag.PLAYER;
+        camera.tag = lynx.enum.tag.PLAYER;
         this.cameras.push(camera);
         this.camera = camera;
     };
