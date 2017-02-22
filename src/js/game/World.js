@@ -15,9 +15,17 @@
         var _mouseleave = lynx.bind(this, this.onMouseLeave);
         document.addEventListener('mouseleave', _mouseleave);
 
+        var _resize = lynx.bind(this, this.onResize);
+        document.addEventListener('resize', _resize);
+
     };
 
     var worldProto = lynx.World.prototype;
+
+    worldProto.onResize = function (event) {
+        var container = document.getElementById(id);
+        lynx.renderer.setSize(container.clientWidth, container.clientHeight);
+    };
 
     worldProto.initHUD = function() {
         if (this.hud) return;

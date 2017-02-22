@@ -130,8 +130,8 @@ var lynx = {
 
     lynx.defaults = {
         paw: {
-            size: 1000,
-            wallHeight: 100,
+            size: 500,
+            wallHeight: 50,
             wallDepth: 1,
             gravity: 100,
             monsterSpeed: 20,
