@@ -171,7 +171,7 @@
         var graph = createObj(playerConf.model, gridSize / 2, lynx.enum.tag.PLAYER);
         graph.position.x = originX + playerConf.coordinate.x * roomSize + playerConf.coordinate.s * gridSize;
         graph.position.z = originZ + playerConf.coordinate.z * roomSize + playerConf.coordinate.t * gridSize;
-        graph.position.y = 100;
+        graph.position.y = 50;
         this.scene.add(graph);
 
         var player = new lynx.Player(graph, playerConf.health, playerConf.money);
@@ -208,6 +208,9 @@
             physiObj.castShadow = true;
             physiObj.tag = tag;
             physiObj.add(threeObj);
+            physiObj.userData.width = width;
+            physiObj.userData.height = height;
+            physiObj.userData.depth = depth;
             threeObj.position.y = -width / 2;
 
             var unit = [width, height, depth];
@@ -241,7 +244,7 @@
         var gridSize = roomSize / 8;
 
         var control = new lynx.PlayerCtrl(this.getCamera(), this.player.graph, this.domElement);
-        control.movementSpeed = gridSize / 4;
+        control.movementSpeed = gridSize / 3;
         control.jumpSpeed = 20;
         control.lookSpeed = 0.1;
         control.worldMouseDown = lynx.bind(this, this.onMouseDown);
@@ -257,6 +260,7 @@
 // event handler of world
 (function(lynx) {
     var worldProto = lynx.World.prototype;
+    var tagEnum = lynx.enum.tag;
 
     worldProto.onMouseDown = function(event) {
 
@@ -281,7 +285,7 @@
         var intersections = raycaster.intersectObjects(this.scene.children);
         if (intersections && intersections[0] && intersections[0].object.tag) {
             this.domElement.style.cursor = 'pointer';
-            if (intersections[0].object.tag === lynx.tag.MONSTER) {
+            if (intersections[0].object.tag === tagEnum.MONSTER) {
                 // lynx.getHUD().identity(intersections[0].object.health, event.pageY, event.pageX);
             }
         } else {
@@ -320,18 +324,18 @@
         if (intersections && intersections[0]) {
             if (!intersections[0].object.tag) return;
 
-            if (intersections[0].object.tag === lynx.tag.NPC) {
+            if (intersections[0].object.tag === tagEnum.NPC) {
                 this.clickNPC(intersections[0].object.name);
             }
-            if (intersections[0].object.tag === lynx.tag.SHELF) {
+            if (intersections[0].object.tag === tagEnum.SHELF) {
                 this.clickShelf(intersections[0].object.id);
             }
 
-            if (intersections[0].object.tag === lynx.tag.TREE) {
+            if (intersections[0].object.tag === tagEnum.TREE) {
                 this.clickTree(intersections[0].object.id);
             }
 
-            if (intersections[0].object.tag === lynx.tag.MONSTER) {
+            if (intersections[0].object.tag === tagEnum.MONSTER) {
                 this.clickMonster(intersections[0].object.id);
             }
         }
@@ -529,6 +533,7 @@
             this.plotCtrl.update();
         }
         this.control.enabled = !(lynx.getHUD().isTalking() || this.plotCtrl.ploting);
+        // this.getCamera().lookAt(0, 0, 0);
 
         // this.monsterCtrl.updateMonster(this.player.graph.position.clone());
         // this.updateMelonpi(this.player.graph.position.clone(), 10);

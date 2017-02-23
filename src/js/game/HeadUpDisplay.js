@@ -132,21 +132,10 @@
 
             if (good.count > 0) {
                 good.count--;
-                elem.outerHTML = createGood(good, goodNum);
+                elem.outerHTML = this.createGood(good, goodNum);
                 return true;
             }
 
-            function createGood(good, goodNum) {
-                var goodHTML = '<div class="good" goodnum="' + goodNum + '">' +
-                    '<div class="title">' +
-                    '<span class="icon icon-help"></span>' +
-                    '<span class="count">' + good.count + '</span>' +
-                    '<span class="name">' + good.name + '</span>' +
-                    '</div>' +
-                    '<div class="description">' + good.description + '</div>' +
-                    '</div>';
-                return goodHTML;
-            }
         }
 
         function getGoodElem(elem) {
@@ -159,6 +148,18 @@
             }
         }
 
+    };
+
+     toolProto.createGood = function(good, goodNum) {
+        var goodHTML = '<div class="good" goodnum="' + goodNum + '">' +
+            '<div class="title">' +
+            '<span class="icon icon-help"></span>' +
+            '<span class="count">' + good.count + '</span>' +
+            '<span class="name">' + good.name + '</span>' +
+            '</div>' +
+            '<div class="description">' + good.description + '</div>' +
+            '</div>';
+        return goodHTML;
     };
 
     toolProto.toggleTasks = function() {

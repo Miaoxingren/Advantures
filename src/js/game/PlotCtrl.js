@@ -47,7 +47,7 @@
                     if (!this.wall) {
                         var objs = world.scene.children;
                         for (var i = 0, len = objs.length; i < len; i++) {
-                            if (objs[i].userData && objs[i].userData.tag === 'welcome') {
+                            if (objs[i].userData && objs[i].userData.plot === 'welcome') {
                                 this.wall = objs[i];
                             }
                         }
@@ -77,7 +77,7 @@
                 if (!this.wall) {
                     var objs = world.scene.children;
                     for (var i = 0, len = objs.length; i < len; i++) {
-                        if (objs[i].userData && objs[i].userData.tag === 'food') {
+                        if (objs[i].userData && objs[i].userData.plot === 'food') {
                             this.wall = objs[i];
                         }
                     }
@@ -101,7 +101,7 @@
                 if (!this.wall) {
                     var objs = world.scene.children;
                     for (var i = 0, len = objs.length; i < len; i++) {
-                        if (objs[i].userData && objs[i].userData.tag === 'wood') {
+                        if (objs[i].userData && objs[i].userData.plot === 'wood') {
                             this.wall = objs[i];
                         }
                     }
@@ -125,7 +125,7 @@
                 if (!this.wall) {
                     var objs = world.scene.children;
                     for (var i = 0, len = objs.length; i < len; i++) {
-                        if (objs[i].userData && objs[i].userData.tag === 'flower') {
+                        if (objs[i].userData && objs[i].userData.plot === 'flower') {
                             this.wall = objs[i];
                         }
                     }

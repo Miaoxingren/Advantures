@@ -1,4 +1,6 @@
 (function(lynx) {
+    var tagEnum = lynx.enum.tag;
+    var taskState = lynx.enum.task;
 
     lynx.Player = function(graph, health, money) {
         this.graph = graph;
@@ -66,7 +68,7 @@
     };
 
     playerProto.addTask = function(task) {
-        if (task.state === lynx.taskState.COMPLET || this.getTask(task.name)) return;
+        if (task.state === taskState.COMPLET || this.getTask(task.name)) return;
         this.tasks.push(task);
     };
 
@@ -87,7 +89,7 @@
 
     playerProto.checkTask = function(taskName) {
         var task = this.getTask(taskName);
-        return task && task.state === lynx.taskState.COMPLET;
+        return task && task.state === taskState.COMPLET;
     };
 
     playerProto.endTask = function(task) {
@@ -105,7 +107,7 @@
         var goods = this.goods;
 
         for (var i = 0; i < goods.length; i++) {
-            if (good.tag === lynx.tag.MONEY) {
+            if (good.tag === tagEnum.MONEY) {
                 this.money += good.count;
                 return;
             }

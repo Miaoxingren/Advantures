@@ -920,11 +920,6 @@
             normalMap: normalTexture
         }), 0.8, 0.4);
 
-        for (var i = 0, iLen = walls.length; i < iLen; i++) {
-            var wall = createWall(walls[i]);
-            this.addToScene(wall);
-        }
-
         var height = this.config.wallHeight;
         var depth = this.config.wallDepth;
         var size = this.config.size;
@@ -932,6 +927,11 @@
         var originZ = -size / 2;
         var roomSize = size / 8;
         var unit = roomSize / 2;
+
+        for (var i = 0, iLen = walls.length; i < iLen; i++) {
+            var wall = createWall(walls[i]);
+            this.addToScene(wall);
+        }
 
         function createWall(wall) {
             var geometry = new THREE.BoxGeometry(roomSize, height, depth);
