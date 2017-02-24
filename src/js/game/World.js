@@ -410,9 +410,9 @@
     };
 
     worldProto.clickShelf = function(id) {
-        var goods = this.builder.getShelfGoods(id);
-        if (goods) {
-            this.player.addGoods(goods);
+        var good = this.builder.getShelfGood(id);
+        if (good) {
+            this.player.addGood(good);
         }
         lynx.getHUD().showMoney(this.player.money);
     };

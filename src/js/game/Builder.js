@@ -798,19 +798,17 @@
 
     var shelfProto = lynx.SHELF.prototype;
 
-    shelfProto.removeGoods = function() {
+    shelfProto.removeGood = function() {
         if (!this.goods || !this.goods.length) return;
 
         var children = this.graph.children;
 
-        for (var i = 0; i < children.length; i++) {
-            if (children[i].tag) {
-                this.graph.remove(children[i]);
-                i -= 2;
-            }
+        if (this.goods.length) {
+            lynx.getHUD().playMusic(lynx.enum.music.COLLECT);
+            this.graph.remove(children[children.length - 1]);
+            return this.goods.pop();
         }
 
-        return this.goods;
     };
 
 })(lynx);
@@ -1273,11 +1271,11 @@
         }
     };
 
-    builderProto.getShelfGoods = function(id) {
+    builderProto.getShelfGood = function(id) {
         var shelf = this.getShelf(id);
 
         if (shelf) {
-            return shelf.removeGoods();
+            return shelf.removeGood();
         }
     };
 

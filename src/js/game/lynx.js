@@ -191,7 +191,8 @@ var lynx = {
         GAMEREADY: 'shop',
         PAUSE: 'levelcleared',
         RESUME: 'levelstart',
-        CLICKTREE: 'block'
+        CLICKTREE: 'block',
+        COLLECT: 'gold'
     };
 
 })(lynx);

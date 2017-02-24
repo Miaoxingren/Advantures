@@ -27,7 +27,7 @@
             return;
         }
 
-        if (!plotId) {
+        if (plotId === undefined) {
             this.resetCamera();
             return;
         }
