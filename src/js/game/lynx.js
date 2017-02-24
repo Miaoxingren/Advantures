@@ -19,6 +19,12 @@ var lynx = {
         };
     };
 
+    lynx.bindGet = function(scope, fn) {
+        return function() {
+            return fn.apply(scope, arguments);
+        };
+    };
+
     lynx.merge = function(dst, src) {
         var args = Array.prototype.slice.call(arguments, 1);
         for (var i = 0, iLen = args.length; i < iLen; i++) {
@@ -115,8 +121,11 @@ var lynx = {
     lynxEnum.plot = {
         WELCOME: 0,
         FOOD: 1,
-        WOOD: 2,
-        FLOWER: 4
+        TREE: 2,
+        WOOD: 3,
+        MARKET: 4,
+        RESCUE: 5,
+        FLOWER: 6
     };
 
     lynxEnum.wall = {
@@ -134,8 +143,11 @@ var lynx = {
         TASK: 5,
         UFO: 6,
         SHELF: 7,
-        PLANT: 8,
-        WOOD: 9
+        APPLE: 8,
+        WOOD: 9,
+        TREE: 10,
+        FLOWER: 11,
+        HOUSE: 12
     };
 
     // dom priority
@@ -150,6 +162,38 @@ var lynx = {
         WELCOME: 4
     };
 
+    lynx.enum.npc = {
+        // Charles: 1,
+        // Mark: 2,
+        // Bill: 3,
+        // Vincent: 4,
+        // William: 5,
+        // Joseph: 6,
+        // James: 7,
+        // Henry: 8,
+        // Gary: 9,
+        // Martin: 10
+        MELONPI: 0,
+        CHARLES: 1,
+        MARK: 2,
+        BILL: 3,
+        VINCENT: 4,
+        WILLIAM: 5,
+        JOSEPH: 6,
+        JAMES: 7,
+        HENRY: 8,
+        GARY: 9,
+        MARTIN: 10
+    };
+
+    lynx.enum.music = {
+        CLICKDOM: 'button',
+        GAMEREADY: 'shop',
+        PAUSE: 'levelcleared',
+        RESUME: 'levelstart',
+        CLICKTREE: 'block'
+    };
+
 })(lynx);
 
 // default config of world
@@ -158,11 +202,16 @@ var lynx = {
     var conf = lynx.wdConf = {};
 
     var paw = {
-        size: 500,
+        size: 320,
         wallHeight: 50,
-        wallDepth: 1,
-        gravity: 100,
-        monsterSpeed: 20,
+        wallDepth: 0.1,
+        fallingSpeed: 1,
+        room: 8,
+        grid: 4,
+        gravity: 10,
+        leavesPerClick: 10,
+        leavesPerTree: 50,
+        monsterSpeed: 5,
         monsterNum: 30,
         player: {
             name: 'panther0',
@@ -333,7 +382,7 @@ var lynx = {
         'fish1', 'fish2', 'fish3', 'eagle', 'fox1', 'fox0', 'flamingo', 'frog0', 'goldenRetreiver0', 'frog2', 'goat', 'goldenRetreiver1',
         'horse1', 'horse0', 'hummingBird0', 'hummingBird1', 'moose', 'owl', 'mountainLion', 'parrot2', 'raccoon', 'panther0',
         'parrot1', 'raven', 'seal0', 'stork', 'scorpion', 'seal1', 'toad0', 'wolf', 'vulture', 'toad1', 'gator', 'tarantula0',
-        'coin', 'cat_food_yellow', 'shelf', 'tree_a', 'rose', 'plants1', 'sword', 'wood', 'cat1'
+        'coin', 'cat_food_yellow', 'shelf', 'tree_a', 'rose', 'plants1', 'sword', 'wood', 'cat1', 'farmhouse', 'market', 'apple'
     ];
 
     function initModels() {

@@ -1,187 +1,220 @@
+// add plots to paw
 (function(lynx) {
-    var taskState = lynx.enum.task;
-    lynx.Plot = function(name, camera) {
-        this.name = name;
-        this.camera = camera;
-        this.state = taskState.CREATE;
+    var paw = lynx.wdConf.paw;
+    var plotEnum = lynx.enum.plot;
+
+    if (!paw) {
+        console.error('Paw not found.');
+        return;
+    }
+
+    var plots = [{
+        id: plotEnum.WELCOME,
+        finished: false,
+        camera: {
+            x: 3,
+            z: 0,
+            s: 3.5,
+            t: 2.5,
+        }
+    }, {
+        id: plotEnum.FOOD,
+        finished: false,
+        camera: {
+            x: 0,
+            z: 2,
+            s: 0.5,
+            t: 2.5
+        }
+    }, {
+        id: plotEnum.TREE,
+        finished: false,
+        camera: {
+            x: 1,
+            z: 1,
+            s: 0.5,
+            t: 2.5
+        }
+    }, {
+        id: plotEnum.MARKET,
+        finished: false,
+        camera: {
+            x: 7,
+            z: 0,
+            s: 2.5,
+            t: 1.5
+        }
+    }, {
+        id: plotEnum.FLOWER,
+        finished: false,
+        camera: {
+            x: 0,
+            z: 0,
+            s: 1,
+            t: 1
+        }
+    }];
+
+    paw.getPlots = function() {
+        return plots;
     };
 
-    var plotProto = lynx.Plot.prototype;
+})(lynx);
 
-    plotProto.end = function() {
-        this.state = taskState.COMPLET;
-    };
+(function(lynx) {
 
-    lynx.PlotCtrl = function(world) {
-        this.ploting = false;
-        this.initPlots(world);
-
+    lynx.PlotCtrl = function(config) {
+        this.config = config;
+        this.clear();
     };
 
     var plotCtrlProto = lynx.PlotCtrl.prototype;
 
-    plotCtrlProto.initPlots = function(world) {
-        if (this.plotList) return;
+    plotCtrlProto.setUp = function () {
+        this.initPlots();
+    };
 
-        var chap0 = {
-            name: 'welcome'
-        };
+    plotCtrlProto.initPlots = function() {
+        if (this.plots) {
+            console.error('Plots have been created.');
+            return;
+        }
 
-        chap0.camera = (function(size, wallHeight) {
-            var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.x = -size / 16;
-            camera.position.y = -size / 2 + size / 8;
-            camera.position.z = wallHeight / 2;
-            return camera;
-        })(10);
+        var plots = this.config.getPlots();
+        if (!plots) {
+            console.error('Missing plots');
+            return;
+        }
 
-        this.plotList = [{
-            name: 'welcome',
-            update: function() {
-                if (world.snowing) {
-                    world.plotCtrl.clearPlot();
-                    return;
-                }
-                var state = world.player.getTaskState('welcome');
-                if (state === taskState.ACCEPT) {
-                    if (!this.wall) {
-                        var objs = world.scene.children;
-                        for (var i = 0, len = objs.length; i < len; i++) {
-                            if (objs[i].userData && objs[i].userData.plot === 'welcome') {
-                                this.wall = objs[i];
-                            }
-                        }
-                    }
-                    if (this.wall.position.y <= -this.wall._physijs.height / 2 - 10) {
-                        this.wall.__dirtyPosition = false;
-                        world.plotCtrl.clearPlot();
-                    } else {
-                        this.wall.__dirtyPosition = true;
-                        this.wall.position.y -= 1;
-                        world.getCamera().lookAt(this.wall.position.clone().add(new THREE.Vector3(0, this.wall._physijs.height / 2, 0)));
-                    }
-                }
-                if (state === taskState.COMPLET) {
-                    world.snowing = true;
-                    world.createSnow();
-                }
+        this.plots = [];
 
-            }
-        }, {
-            name: 'food',
-            update: function() {
-                if (!world.player.checkTask('food')) {
-                    world.plotCtrl.clearPlot();
-                    return;
-                }
-                if (!this.wall) {
-                    var objs = world.scene.children;
-                    for (var i = 0, len = objs.length; i < len; i++) {
-                        if (objs[i].userData && objs[i].userData.plot === 'food') {
-                            this.wall = objs[i];
-                        }
-                    }
-                }
-                if (this.wall.position.y <= -this.wall._physijs.height / 2 - 10) {
-                    this.wall.__dirtyPosition = false;
-                    world.plotCtrl.clearPlot();
-                } else {
-                    this.wall.__dirtyPosition = true;
-                    this.wall.position.y -= 1;
-                    world.getCamera().lookAt(this.wall.position.clone().add(new THREE.Vector3(0, this.wall._physijs.height / 2, 0)));
-                }
-            }
-        }, {
-            name: 'wood',
-            update: function() {
-                if (!world.player.checkTask('wood')) {
-                    world.plotCtrl.clearPlot();
-                    return;
-                }
-                if (!this.wall) {
-                    var objs = world.scene.children;
-                    for (var i = 0, len = objs.length; i < len; i++) {
-                        if (objs[i].userData && objs[i].userData.plot === 'wood') {
-                            this.wall = objs[i];
-                        }
-                    }
-                }
-                if (this.wall.position.y <= -this.wall._physijs.height / 2 - 10) {
-                    this.wall.__dirtyPosition = false;
-                    world.plotCtrl.clearPlot();
-                } else {
-                    this.wall.__dirtyPosition = true;
-                    this.wall.position.y -= 1;
-                    world.getCamera().lookAt(this.wall.position.clone().add(new THREE.Vector3(0, this.wall._physijs.height / 2, 0)));
-                }
-            }
-        }, {
-            name: 'flower',
-            update: function() {
-                if (!world.player.checkTask('flower')) {
-                    world.plotCtrl.clearPlot();
-                    return;
-                }
-                if (!this.wall) {
-                    var objs = world.scene.children;
-                    for (var i = 0, len = objs.length; i < len; i++) {
-                        if (objs[i].userData && objs[i].userData.plot === 'flower') {
-                            this.wall = objs[i];
-                        }
-                    }
-                }
-                if (this.wall.position.y <= -this.wall._physijs.height / 2 - 10) {
-                    this.wall.__dirtyPosition = false;
-                    world.plotCtrl.clearPlot();
-                } else {
-                    this.wall.__dirtyPosition = true;
-                    this.wall.position.y -= 1;
-                    world.getCamera().lookAt(this.wall.position.clone().add(new THREE.Vector3(0, this.wall._physijs.height / 2, 0)));
-                }
-            }
-        }, {
-            name: 'rescue',
-            update: function() {
-                if (!world.player.checkTask('rescue')) {
-                    world.plotCtrl.clearPlot();
-                    return;
-                }
-                if (world.builder.cageUpdated) {
-                    world.plotCtrl.clearPlot();
-                    return;
-                }
-                var pos = world.builder.updateCage(1);
-                if (pos) {
-                    world.getCamera().lookAt(pos);
-                }
-            }
-        }];
+        var size = this.config.size;
+        var originX = -size / 2;
+        var originZ = -size / 2;
+        var roomSize = size / this.config.room;
+        var gridSize = roomSize / this.config.grid;
+        var offset = gridSize / 2;
+
+        for (var i = 0, iLen = plots.length; i < iLen; i++) {
+            var plot = plots[i];
+            plot.finished = false;
+
+            var x = originX + plot.camera.x * roomSize + plot.camera.s * gridSize - offset;
+            var y = plot.height || this.config.wallHeight / 2;
+            var z = originZ + plot.camera.z * roomSize + plot.camera.t * gridSize - offset;
+
+            this.addCamera(x, y, z, plot.id);
+
+            this.plots.push(plot);
+        }
 
     };
 
-    plotCtrlProto.setPlot = function(plotName) {
-        this.plot = plotName;
+    plotCtrlProto.setPlot = function(plotId) {
+        var plot = this.getPlot(plotId);
+
+        if (!plot || plot.finished) {
+            this.clear();
+            return;
+        }
+
+        this.plotId = plotId;
         this.ploting = true;
+        this.setWall(plotId);
+        this.switchCamByPlot(plotId);
     };
 
-    plotCtrlProto.clearPlot = function() {
-        this.plot = null;
+    plotCtrlProto.clear = function() {
+        this.plotId = null;
         this.ploting = false;
+        this.fallingWall = null;
     };
 
-    plotCtrlProto.getPlot = function(plotName) {
-        for (var i = 0, len = this.plotList.length; i < len; i++) {
-            if (this.plotList[i].name === plotName) {
-                return this.plotList[i];
+    plotCtrlProto.getPlot = function(plotId) {
+        if (!this.plots) {
+            console.error('Missing plots.');
+            return;
+        }
+
+        var plots = this.plots;
+        for (var i = 0, iLen = plots.length; i < iLen; i++) {
+            if (plots[i].id === plotId) {
+                return plots[i];
             }
         }
     };
 
-    plotCtrlProto.update = function(plotName, world) {
-        var plot = this.getPlot(this.plot);
-        if (plot && plot.update) {
-            plot.update();
+    plotCtrlProto.update = function() {
+        if (!this.ploting) {
+            return;
         }
+        // ['welcome']
+
+        //'rescue'
+        // if (world.builder.cageUpdated) {
+        //     world.plotCtrl.clear();
+        //     return;
+        // }
+        // var pos = world.builder.updateCage(1);
+        // if (pos) {
+        //     world.getCamera().lookAt(pos);
+        // }
+
+
+        this.clearWall();
+    };
+
+    plotCtrlProto.setWall = function (plot) {
+        var wall = this.getWallByPlot(plot);
+        if (!wall) {
+            console.error('Missing wall ' + plot);
+            return;
+        }
+        this.fallingWall = wall;
+    };
+
+    plotCtrlProto.clearWall = function () {
+        if (!this.fallingWall) {
+            return;
+        }
+
+        var wall = this.fallingWall;
+        if (wall.position.y <= -wall._physijs.height / 2 - 10) {
+            wall.__dirtyPosition = false;
+            this.removeFromScene(wall);
+            this.endPlot();
+        } else {
+            wall.__dirtyPosition = true;
+            wall.position.y -= this.config.fallingSpeed;
+            this.cameraLookAt(wall.position.clone().add(new THREE.Vector3(0, wall._physijs.height / 2, 0)));
+        }
+    };
+
+    plotCtrlProto.endPlot = function () {
+        var plot = this.getPlot(this.plotId);
+        plot.finished = true;
+        this.clear();
+        this.switchCamByPlot();
+    };
+
+    plotCtrlProto.getWallByPlot = function () {
+        console.error('plotCtrlProto - Function getWallByPlot not implemented.');
+    };
+
+    plotCtrlProto.removeFromScene = function () {
+        console.error('plotCtrlProto - Function removeFromScene not implemented.');
+    };
+
+    plotCtrlProto.cameraLookAt = function () {
+        console.error('plotCtrlProto - Function cameraLookAt not implemented.');
+    };
+
+    plotCtrlProto.addCamera = function () {
+        console.error('plotCtrlProto - Function addCamera not implemented.');
+    };
+
+    plotCtrlProto.switchCamByPlot = function () {
+        console.error('plotCtrlProto - Function switchCamByPlot not implemented.');
     };
 
 })(lynx);

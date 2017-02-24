@@ -150,7 +150,13 @@
             console.error('Plot control has been created.');
             return;
         }
-        this.plotCtrl = new lynx.PlotCtrl(this);
+        this.plotCtrl = new lynx.PlotCtrl(this.config);
+        this.plotCtrl.getWallByPlot = lynx.bindGet(this, this.getWallByPlot);
+        this.plotCtrl.removeFromScene = lynx.bind(this, this.removeFromScene);
+        this.plotCtrl.addCamera = lynx.bind(this, this.addCamera);
+        this.plotCtrl.cameraLookAt = lynx.bind(this, this.cameraLookAt);
+        this.plotCtrl.switchCamByPlot = lynx.bind(this, this.switchCamByPlot);
+        this.plotCtrl.setUp();
     };
 
     worldProto.initPlayer = function() {
@@ -241,11 +247,11 @@
 
         var size = this.config.size;
         var roomSize = size / 8;
-        var gridSize = roomSize / 8;
+        var gridSize = roomSize / 4;
 
         var control = new lynx.PlayerCtrl(this.getCamera(), this.player.graph, this.domElement);
-        control.movementSpeed = gridSize / 3;
-        control.jumpSpeed = 20;
+        control.movementSpeed = gridSize;
+        control.jumpSpeed = this.config.wallHeight / 4;
         control.lookSpeed = 0.1;
         control.worldMouseDown = lynx.bind(this, this.onMouseDown);
         control.worldMouseUp = lynx.bind(this, this.onMouseUp);
@@ -260,23 +266,54 @@
 // event handler of world
 (function(lynx) {
     var worldProto = lynx.World.prototype;
+
     var tagEnum = lynx.enum.tag;
+    var taskState = lynx.enum.task;
+    var npcEnum = lynx.enum.npc;
+    var musicEnum = lynx.enum.music;
 
     worldProto.onMouseDown = function(event) {
+        if (lynx.state === lynx.enum.world.PAUSE) {
+            return;
+        }
+
 
         switch (event.button) {
 
             case 0:
-                this.clickHandler(event);
+                this.leftClick(event);
                 break;
 
         }
 
     };
 
-    worldProto.onMouseUp = function(event) {};
+    worldProto.onMouseUp = function(event) {
+        if (lynx.state === lynx.enum.world.PAUSE) {
+            return;
+        }
+
+        switch (event.button) {
+
+            case 0:
+                if (this.dragApple) {
+                    this.moveAppleByMouse(event.clientX, event.clientY, true);
+                }
+                this.dragApple = false;
+                break;
+
+        }
+
+    };
 
     worldProto.onMouseMove = function(event) {
+        if (lynx.state === lynx.enum.world.PAUSE) {
+            return;
+        }
+
+        this.mouseX = event.clientX;
+        this.mouseY = event.clientY;
+
         var mouseCoords = this.getCamFromMos(event.clientX, event.clientY);
 
         var raycaster = new THREE.Raycaster();
@@ -298,25 +335,31 @@
 
         switch (event.keyCode) {
             case 32:
-                if (lynx.state === lynx.enum.world.PLAY) {
-                    lynx.getHUD().pause();
-                } else {
-                    lynx.getHUD().resume();
-                }
+                this.toggleWorld();
                 break;
 
             case 13:
                 this.talkToNPC();
                 break;
+
         }
     };
 
-    worldProto.onKeyUp = function(event) {};
+    worldProto.onKeyUp = function(event) {
+        if (lynx.state === lynx.enum.world.PAUSE) {
+            return;
+        }
+    };
 
-    worldProto.clickHandler = function(event) {
+    worldProto.leftClick = function(event) {
+        var size = this.config.size;
+        var roomSize = size / this.config.room;
+
         var mouseCoords = this.getCamFromMos(event.clientX, event.clientY);
 
         var raycaster = new THREE.Raycaster();
+        raycaster.near = 0;
+        raycaster.far = roomSize;
         raycaster.setFromCamera(mouseCoords, this.getCamera());
 
         var intersections = raycaster.intersectObjects(this.scene.children);
@@ -325,8 +368,9 @@
             if (!intersections[0].object.tag) return;
 
             if (intersections[0].object.tag === tagEnum.NPC) {
-                this.clickNPC(intersections[0].object.name);
+                this.clickNPC(intersections[0].object.npcId);
             }
+
             if (intersections[0].object.tag === tagEnum.SHELF) {
                 this.clickShelf(intersections[0].object.id);
             }
@@ -335,83 +379,34 @@
                 this.clickTree(intersections[0].object.id);
             }
 
+            if (intersections[0].object.tag === tagEnum.APPLE) {
+                this.clickApple(intersections[0].object.id);
+            }
+
             if (intersections[0].object.tag === tagEnum.MONSTER) {
                 this.clickMonster(intersections[0].object.id);
             }
         }
     };
 
-    worldProto.clickNPC = function(name) {
-
-        var taskState = lynx.enum.task;
+    worldProto.clickNPC = function(id) {
 
         if (lynx.getHUD().isTalking()) return;
 
-        var npc = this.npcCtrl.getNPC(name);
+        var npc = this.npcCtrl.getNPC(id);
         if (!npc) {
-            console.error('Missing npc - ' + name);
+            console.error('Missing npc - ' + id);
             return;
         }
 
-        var task;
-
-        if (npc.name === 'Merchant Cat') {
-            task = npc.getCurTask();
-            if (task && task.state === taskState.ACCEPT) {
-                // if (task.isComplete(this.player)) {
-                task.state = taskState.COMPLET;
-                // }
-            }
+        var task = npc.getCurTask();
+        if (task && task.state === taskState.ACCEPT) {
+            this.checkTask(npc);
         }
 
-        if (npc.name === 'Bear Bob') {
-            task = npc.getCurTask();
-            if (task && task.state === taskState.ACCEPT) {
-                if (task.isComplete(this.player)) {
-                    task.state = taskState.COMPLET;
-                }
-            }
-        }
-
-        if (npc.name === 'Raccoon Rose' || npc.name === 'Deer David') {
-            task = npc.getCurTask();
-            if (task && task.state === taskState.ACCEPT) {
-                if (this.builder.checkWoods(this.npcCtrl.getNPC('Deer David').graph.position)) {
-                    task.state = taskState.COMPLET;
-                }
-            }
-        }
-
-        if (npc.name === 'Horse Harry') {
-            task = npc.getCurTask();
-            if (task && task.state === taskState.ACCEPT) {
-                var goods = this.player.getGoodsIf(isFlower);
-                if (goods.length >= 10) {
-                    task.state = taskState.COMPLET;
-                }
-            }
-        }
-
-
-        if (npc.name === 'Melonpi') {
-            task = npc.getCurTask();
-            if (task && task.state === taskState.ACCEPT) {
-                task.state = taskState.COMPLET;
-                npc.graph.position.copy(this.player.graph.position.clone()).add(new THREE.Vector3(10, 0, 10));
-            }
-        }
-
-        function isFlower(good) {
-            return good.name.indexOf('flower') !== -1;
-        }
-
-        this.control.enabled = false;
-
-        // set
-        // get conversation
-        this.selectedNPC = npc;
         var conversation = npc.getConversation();
         lynx.getHUD().setConversation(npc.name, conversation);
+        this.talkerId = npc.id;
     };
 
     worldProto.clickShelf = function(id) {
@@ -419,10 +414,73 @@
         if (goods) {
             this.player.addGoods(goods);
         }
-        lynx.getHUD().money(this.player.money);
+        lynx.getHUD().showMoney(this.player.money);
     };
 
-    worldProto.clickTree = function(id) {
+    worldProto.clickApple = function(id) {
+        this.dragApple = true;
+        this.appleId = id;
+    };
+
+    worldProto.moveAppleByMouse = function (x, y, loose) {
+        var apple = this.scene.getObjectById(this.appleId);
+        if (!apple) {
+            return;
+        }
+
+        if (loose) {
+            apple.__dirtyPosition = false;
+            this.dragApple = false;
+            this.appleId = null;
+            return;
+        }
+
+        var xAxes = new THREE.Vector3(1, 0, 0);
+        var yAxes = new THREE.Vector3(0, 1, 0);
+        var zAxes = new THREE.Vector3(0, 0, 1);
+
+        var mouseCoords = this.getCamFromMos(x, y);
+        var raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouseCoords, this.getCamera());
+
+        var origin = raycaster.ray.origin.clone();
+
+        var direction = raycaster.ray.direction.clone();//this.player.graph.watchPoint.clone().sub(this.player.graph.position).normalize();
+
+        var cosXAxes = direction.clone().dot(xAxes) / (direction.length() * xAxes.length());
+        var cosZAxes = direction.clone().dot(zAxes) / (direction.length() * zAxes.length());
+
+        apple.__dirtyPosition = true;
+        apple.position.x = cosXAxes * 20 + origin.x;
+        apple.position.z = cosZAxes * 20 + origin.z;
+        apple.position.y = origin.clone().add(direction).y;
+
+    };
+
+    worldProto.clickTree = function (id) {
+        var tree = this.scene.getObjectById(id);
+        if (!tree) {
+            return;
+        }
+
+        var leaves = tree.userData.leaves;
+        if (leaves > 0) {
+            tree.userData.leaves -= Math.min(leaves, this.config.leavesPerClick);
+            this.player.addGood({
+                name: 'leaves',
+                count: Math.min(leaves, this.config.leavesPerClick),
+                src: '/img/merchant_cat.jpg',
+                description: 'leaves.'
+            });
+            lynx.getHUD().playMusic(musicEnum.CLICKTREE);
+        }
+
+        if (tree.userData.leaves < 1) {
+            this.scene.remove(tree);
+        }
+    };
+
+    worldProto.clickFlower = function(id) {
         var tree = this.builder.getTree(id);
         if (!tree) return;
         if (tree.name === 'flower') {
@@ -458,19 +516,171 @@
 
     worldProto.talkToNPC = function() {
         if (!lynx.getHUD().isTalking()) return;
-        var dialogOver = !lynx.getHUD().talk();
-        var npc = this.selectedNPC;
-        if (!lynx.getHUD().isTalking() && npc) {
-            npc.updateTask();
-            var task = npc.getCurTask();
-            this.player.addTask(task);
-            this.plotCtrl.setPlot(task.name);
 
-            if (npc.name === 'Raccoon Rose' && task.state === lynx.taskState.ACCEPT) {
-                this.builder.changeWoods();
+        lynx.getHUD().talk();
+        var npc = this.npcCtrl.getNPC(this.talkerId);
+
+        if (!lynx.getHUD().isTalking() && npc) {
+
+            var task = npc.getCurTask();
+
+            if (task.state === taskState.CREATE) {
+                npc.updateTask();
+                this.player.acceptTask(task);
             }
 
+            this.checkPlot(npc);
+            this.talkerId = null;
         }
+    };
+
+    worldProto.checkTask = function (npc) {
+        var task = npc.getCurTask();
+
+        if (!task || task.state !== taskState.ACCEPT) {
+            return;
+        }
+
+        if (npc.id === npcEnum.CHARLES) {
+
+            var size = this.config.size;
+            var roomSize = size / this.config.room;
+            var gridSize = roomSize / this.config.grid;
+            var melonpi = this.npcCtrl.getNPC(npcEnum.MELONPI);
+            var distance = melonpi.graph.position.distanceTo(npc.graph.position);
+
+            task.state = distance < roomSize ? taskState.COMPLET : task.state;
+            return;
+        }
+
+        if (npc.id === npcEnum.MARK) {
+            task.state = this.player.removeGood('cat food', 5) ? taskState.COMPLET : task.state;
+            return;
+        }
+
+        if (npc.id === npcEnum.BILL) {
+            var count = 150 + Math.floor(Math.random() * 100) % 40;
+            task.state = this.player.removeGood('leaves', count) ? taskState.COMPLET : task.state;
+            return;
+        }
+
+        if (npc.id === npcEnum.VINCENT) {
+            var box = this.builder.getBox(task.plot);
+            var apples = this.builder.apples;
+            task.state = this.isAround(box.id, apples) ? taskState.COMPLET : task.state;
+            return;
+        }
+
+        if (npc.id === 'Raccoon Rose' || npc.id === 'Deer David') {
+
+                if (this.builder.checkWoods(this.npcCtrl.getNPC('Deer David').graph.position)) {
+                    task.state = taskState.COMPLET;
+                }
+        }
+
+        if (npc.id === 'Horse Harry') {
+
+                var goods = this.player.getGoodsIf(isFlower);
+                if (goods.length >= 10) {
+                    task.state = taskState.COMPLET;
+                }
+        }
+
+
+        if (npc.id === 'Melonpi') {
+
+                task.state = taskState.COMPLET;
+                npc.graph.position.copy(this.player.graph.position.clone()).add(new THREE.Vector3(10, 0, 10));
+        }
+
+        function isFlower(good) {
+            return good.name.indexOf('flower') !== -1;
+        }
+
+        if (npc.name === 'Raccoon Rose' && task.state === lynx.taskState.ACCEPT) {
+            this.builder.changeWoods();
+        }
+
+    };
+
+    worldProto.checkPlot = function (npc) {
+        var task = npc.getCurTask();
+
+        if (!task || task.state === taskState.CREATE) {
+            return;
+        }
+
+        if (npc.id === npcEnum.CHARLES) {
+            if (task.state === taskState.ACCEPT) {
+                this.plotCtrl.setPlot(task.plot);
+                return;
+            }
+
+            if (task.state === taskState.COMPLET) {
+                // world.snowing = true;
+                // world.createSnow();
+            }
+        }
+
+        if (npc.id === npcEnum.MARK) {
+            if (task.state === taskState.COMPLET) {
+                this.plotCtrl.setPlot(task.plot);
+                return;
+            }
+        }
+
+        if (npc.id === npcEnum.BILL) {
+            if (task.state === taskState.COMPLET) {
+                this.plotCtrl.setPlot(task.plot);
+                return;
+            }
+        }
+
+        if (npc.id === npcEnum.VINCENT) {
+            if (task.state === taskState.COMPLET) {
+                this.plotCtrl.setPlot(task.plot);
+                this.player.addGood({
+                    name: 'apples',
+                    count: 10,
+                    src: '/img/merchant_cat.jpg',
+                    description: 'Apples from Deer Vincent.'
+                });
+                return;
+            }
+        }
+
+        if (npc.id === 'Raccoon Rose' || npc.id === 'Deer David') {
+
+                if (this.builder.checkWoods(this.npcCtrl.getNPC('Deer David').graph.position)) {
+                    task.state = taskState.COMPLET;
+                }
+        }
+
+        if (npc.id === 'Horse Harry') {
+
+                var goods = this.player.getGoodsIf(isFlower);
+                if (goods.length >= 10) {
+                    task.state = taskState.COMPLET;
+                }
+        }
+
+
+        if (npc.id === 'Melonpi') {
+
+                task.state = taskState.COMPLET;
+                npc.graph.position.copy(this.player.graph.position.clone()).add(new THREE.Vector3(10, 0, 10));
+        }
+
+        function isFlower(good) {
+            return good.name.indexOf('flower') !== -1;
+        }
+
+        if (npc.name === 'Raccoon Rose' && task.state === lynx.taskState.ACCEPT) {
+            this.builder.changeWoods();
+        }
+
+
+
     };
 
 })(lynx);
@@ -522,6 +732,84 @@
             this.mixers[i].update(delta);
         }
     };
+
+    worldProto.toggleWorld = function () {
+        if (lynx.state === lynx.enum.world.PLAY) {
+            this.pause();
+        } else {
+            this.resume();
+        }
+    };
+
+    worldProto.pause = function () {
+        this.control.enabled = false;
+        lynx.getHUD().pause();
+    };
+
+    worldProto.resume = function () {
+        this.control.enabled = true;
+        lynx.getHUD().resume();
+    };
+
+    worldProto.getWallByPlot = function (plot) {
+        var children = this.scene.children;
+        for (var i = 0, iLen = children.length; i < iLen; i++) {
+            if (children[i].userData && children[i].userData.plot === plot) {
+                return children[i];
+            }
+        }
+    };
+
+    worldProto.removeFromScene = function (obj) {
+        if (!this.scene) {
+            console.error('Missing scene.');
+            return;
+        }
+        this.scene.remove(obj);
+    };
+
+    worldProto.cameraLookAt = function (position) {
+        var camera = this.getCamera();
+        camera.lookAt(position);
+    };
+
+    worldProto.addCamera = function (x, y, z, plot) {
+        var domSize = this.getDomSize();
+        var camera = new THREE.PerspectiveCamera(45, domSize.width / domSize.height, 0.1, 1000);
+        camera.position.x = x;
+        camera.position.y = y;
+        camera.position.z = z;
+        camera.userData.plot = plot;
+        this.camCtrl.addCamera(camera);
+    };
+
+    worldProto.switchCamByPlot = function (plot) {
+        this.camCtrl.switchPlotCamera(plot);
+    };
+
+    worldProto.isAround = function (centerId, otherIds, distance) {
+        var center = this.scene.getObjectById(centerId);
+        if (!center) {
+            return;
+        }
+
+        if (!distance) {
+            distance = center._physijs.width;
+        }
+
+        for (var i = 0, iLen = otherIds.length; i < iLen; i++) {
+            var obj = this.scene.getObjectById(otherIds[i]);
+            if (!obj) {
+                continue;
+            }
+            if (obj.position.distanceTo(center.position) > distance) {
+                return false;
+            }
+        }
+
+        return true;
+    };
+
 })(lynx);
 
 // update world
@@ -529,6 +817,9 @@
     var worldProto = lynx.World.prototype;
 
     worldProto.update = function(delta) {
+        if (this.dragApple) {
+            this.moveAppleByMouse(this.mouseX, this.mouseY);
+        }
         if (this.plotCtrl.ploting) {
             this.plotCtrl.update();
         }

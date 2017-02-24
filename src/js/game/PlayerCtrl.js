@@ -391,9 +391,9 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
         var cosXAxesCamera = viewOpposite.clone().dot(this.xAxes) / (viewOpposite.length() * this.xAxes.length());
         var cosZAxesCamera = viewOpposite.clone().dot(this.zAxes) / (viewOpposite.length() * this.zAxes.length());
 
-        cameraPos.y = playerPos.y;// + this.player.userData.height / 2;
-        cameraPos.x = playerPos.x + cosXAxesCamera * this.player.userData.width / 2;
-        cameraPos.z = playerPos.z + cosZAxesCamera * this.player.userData.width / 2;
+        cameraPos.y = playerPos.y + 10;// + this.player.userData.height / 2;
+        cameraPos.x = playerPos.x + cosXAxesCamera * 1;//this.player.userData.width / 2;
+        cameraPos.z = playerPos.z + cosZAxesCamera * 1;//this.player.userData.width / 2;
 
     };
 

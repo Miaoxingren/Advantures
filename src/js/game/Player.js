@@ -57,14 +57,18 @@
 
         for (var i = 0; i < goods.length; i++) {
             if (goods[i].name === name && goods[i].count >= count) {
-                if (goods[i].count === count) {
+                goods.count -= count;
+                if (goods[i].count === 0) {
                     goods.slice(i, 1);
-                } else {
-                    goods.count -= count;
                 }
                 return true;
             }
         }
+    };
+
+    playerProto.acceptTask = function(task) {
+        task.state = taskState.ACCEPT;
+        this.addTask(task);
     };
 
     playerProto.addTask = function(task) {

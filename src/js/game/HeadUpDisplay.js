@@ -34,6 +34,7 @@
             '<div id="msg">' + msg + '</div>';
             return html;
         }
+
     };
 
     dialogProto.clear = function() {
@@ -49,6 +50,7 @@
 // ToolsCtrl
 (function (lynx) {
     var domEnum = lynx.enum.dom;
+    var musicEnum = lynx.enum.music;
 
     lynx.ToolsCtrl = function() {
         this.toolsDom = document.getElementById('tools');
@@ -94,24 +96,24 @@
         event.stopPropagation();
 
         if (this.getDom() === domEnum.EMPTY) {
-            this.playMusic('button');
+            this.playMusic(musicEnum.CLICKDOM);
             this.toggleVisibility(domEnum.EMPTY, false);
             this.setDom(domEnum.NOTHING);
             return;
         }
 
         if (event.target.id === 'task' || event.target.parentNode.id === 'task') {
-            this.playMusic('button');
+            this.playMusic(musicEnum.CLICKDOM);
             this.toggleTasks();
         }
 
         if (event.target.id === 'good' || event.target.parentNode.id === 'good') {
-            this.playMusic('button');
+            this.playMusic(musicEnum.CLICKDOM);
             this.toggleGoods();
         }
 
         if (event.target.id === 'help' || event.target.parentNode.id === 'help') {
-            this.playMusic('button');
+            this.playMusic(musicEnum.CLICKDOM);
             this.toggleHelp();
         }
     };
@@ -284,6 +286,7 @@
 // HeadUpDisplay
 (function (lynx) {
     var domEnum = lynx.enum.dom;
+    var musicEnum = lynx.enum.music;
 
     lynx.HeadUpDisplay = function() {
         this.setUp();
@@ -316,7 +319,7 @@
             console.error('Welcome dom not found.');
             return;
         }
-        this.playMusic('shop');
+        this.playMusic(musicEnum.GAMEREADY);
 
         var hintDom = document.getElementById('hint');
         hintDom.innerHTML = 'Click here to begin.';
@@ -327,7 +330,7 @@
     };
 
     hudProto.enterGame = function() {
-        this.playMusic('button');
+        this.playMusic(musicEnum.CLICKDOM);
         this.domShown = domEnum.NOTHING;
         lynx.toggle(this.welcomeDom, false);
         lynx.state = lynx.enum.world.PLAY;
@@ -340,13 +343,17 @@
             return;
         }
 
+        if (lynx.toggle(this.pauseDom)) {
+            return;
+        }
+
         if (this.domShown > domEnum.PAUSE + 1 || this.domShown === domEnum.PAUSE) {
             return;
         }
 
         this.toolsCtrl.toggleVisibility(this.domShown, false);
         lynx.state = lynx.enum.world.PAUSE;
-        this.playMusic('levelcleared');
+        this.playMusic(musicEnum.PAUSE);
         this.domShown = domEnum.PAUSE;
         lynx.toggle(this.pauseDom, true);
     };
@@ -358,7 +365,7 @@
         }
 
         lynx.state = lynx.enum.world.PLAY;
-        this.playMusic('levelstart');
+        this.playMusic(musicEnum.RESUME);
         this.domShown = domEnum.NOTHING;
         lynx.toggle(this.pauseDom, false);
     };
@@ -411,7 +418,7 @@
 
     hudProto.talk = function() {
         this.dialogCtrl.talk();
-        return this.dialogCtrl.talking;
+        return this.isTalking();
     };
 
     hudProto.getDomFunc = function () {

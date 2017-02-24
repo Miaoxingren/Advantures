@@ -1,5 +1,5 @@
-(function (lynx) {
-    lynx.CameraCtrl = function () {
+(function(lynx) {
+    lynx.CameraCtrl = function() {
         this.initCamera();
     };
 
@@ -21,12 +21,20 @@
         this.camera = camera;
     };
 
-    camCtrlProto.switchCamera = function(tag) {
-        if (!this.cameras) return;
+    camCtrlProto.switchPlotCamera = function(plotId) {
+        if (!this.cameras) {
+            console.error('Missing cameras.');
+            return;
+        }
+
+        if (!plotId) {
+            this.resetCamera();
+            return;
+        }
 
         var list = this.cameras;
         for (var i = 0, iLen = list.length; i < iLen; i++) {
-            if (list[i].tag === tag) {
+            if (list[i].userData && list[i].userData.plot === plotId) {
                 this.camera = list[i];
                 break;
             }
@@ -34,8 +42,27 @@
 
     };
 
-    camCtrlProto.getCamera = function(tag) {
-        if (!this.cameras) return;
+    camCtrlProto.resetCamera = function() {
+        if (!this.cameras) {
+            console.error('Missing cameras.');
+            return;
+        }
+
+        var list = this.cameras;
+        for (var i = 0, iLen = list.length; i < iLen; i++) {
+            if (list[i].tag === lynx.enum.tag.PLAYER) {
+                this.camera = list[i];
+                break;
+            }
+        }
+
+    };
+
+    camCtrlProto.getCameraByTag = function(tag) {
+        if (!this.cameras) {
+            console.error('Missing cameras.');
+            return;
+        }
 
         var list = this.cameras;
         for (var i = 0, iLen = list.length; i < iLen; i++) {
@@ -46,12 +73,15 @@
 
     };
 
-    camCtrlProto.addCamera = function (camera) {
-        if (!this.cameras) return;
-        if (camera.tag) {
-            this.cameras.push(camera);
-        } else {
+    camCtrlProto.addCamera = function(camera) {
+        if (!this.cameras) {
+            console.error('Missing cameras.');
+            return;
+        }
+        if (lynx.isArray(camera)) {
             this.cameras = this.cameras.concat(camera);
+        } else {
+            this.cameras.push(camera);
         }
 
     };

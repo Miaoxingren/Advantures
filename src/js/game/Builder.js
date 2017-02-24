@@ -29,7 +29,7 @@
             plot: plotEnum.WELCOME,
             vertical: true,
             coordinate: {
-                x: 2,
+                x: 0,
                 z: 0,
                 s: 2,
                 t: 1
@@ -46,20 +46,20 @@
             }
         }, {
             type: wallEnum.MOVE,
-            plot: plotEnum.WOOD,
-            vertical: false,
+            plot: plotEnum.TREE,
+            vertical: true,
             coordinate: {
-                x: 7,
-                z: 0,
-                s: 1,
-                t: 2
+                x: 3,
+                z: 1,
+                s: 2,
+                t: 1
             }
         }, {
             type: wallEnum.MOVE,
-            plot: plotEnum.FLOWER,
+            plot: plotEnum.MARKET,
             vertical: false,
             coordinate: {
-                x: 5,
+                x: 7,
                 z: 2,
                 s: 1,
                 t: 2
@@ -96,24 +96,6 @@
             vertical: false,
             coordinate: {
                 x: 3,
-                z: 0,
-                s: 1,
-                t: 2
-            }
-        }, {
-            type: wallEnum.STAND,
-            vertical: false,
-            coordinate: {
-                x: 5,
-                z: 0,
-                s: 1,
-                t: 2
-            }
-        }, {
-            type: wallEnum.STAND,
-            vertical: false,
-            coordinate: {
-                x: 6,
                 z: 0,
                 s: 1,
                 t: 2
@@ -129,15 +111,6 @@
             }
         }, {
             type: wallEnum.STAND,
-            vertical: true,
-            coordinate: {
-                x: 6,
-                z: 1,
-                s: 2,
-                t: 1
-            }
-        }, {
-            type: wallEnum.STAND,
             vertical: false,
             coordinate: {
                 x: 2,
@@ -158,17 +131,8 @@
             type: wallEnum.STAND,
             vertical: false,
             coordinate: {
-                x: 4,
-                z: 1,
-                s: 1,
-                t: 2
-            }
-        }, {
-            type: wallEnum.STAND,
-            vertical: false,
-            coordinate: {
                 x: 5,
-                z: 1,
+                z: 2,
                 s: 1,
                 t: 2
             }
@@ -177,7 +141,7 @@
             vertical: false,
             coordinate: {
                 x: 6,
-                z: 1,
+                z: 2,
                 s: 1,
                 t: 2
             }
@@ -195,15 +159,6 @@
             vertical: true,
             coordinate: {
                 x: 3,
-                z: 2,
-                s: 2,
-                t: 1
-            }
-        }, {
-            type: wallEnum.STAND,
-            vertical: true,
-            coordinate: {
-                x: 6,
                 z: 2,
                 s: 2,
                 t: 1
@@ -267,15 +222,6 @@
             vertical: true,
             coordinate: {
                 x: 4,
-                z: 3,
-                s: 2,
-                t: 1
-            }
-        }, {
-            type: wallEnum.STAND,
-            vertical: true,
-            coordinate: {
-                x: 5,
                 z: 3,
                 s: 2,
                 t: 1
@@ -544,9 +490,10 @@
             coordinate: {
                 x: 3,
                 z: 0,
-                s: 8,
+                s: 3,
                 t: 1
             },
+            rotationY: -90,
             goods: [{
                 name: 'coin',
                 model: 'coin',
@@ -562,28 +509,48 @@
             coordinate: {
                 x: 3,
                 z: 0,
-                s: 7,
-                t: 1
-            },
-            goods: [{
-                name: 'coin',
-                model: 'coin',
-                count: 1,
-                tag: tag.MONEY
-            }, {
-                name: 'cat food',
-                model: 'cat_food_yellow',
-                count: 1,
-                tag: tag.HEALTH
-            }]
-        }, {
-            coordinate: {
-                x: 0,
-                z: 3,
-                s: 1,
+                s: 3,
                 t: 4
             },
-            angle: 90,
+            rotationY: -90,
+            goods: [{
+                name: 'coin',
+                model: 'coin',
+                count: 1,
+                tag: tag.MONEY
+            }, {
+                name: 'cat food',
+                model: 'cat_food_yellow',
+                count: 1,
+                tag: tag.HEALTH
+            }]
+        }, {
+            coordinate: {
+                x: 0,
+                z: 0,
+                s: 1,
+                t: 1
+            },
+            rotationY: 90,
+            goods: [{
+                name: 'coin',
+                model: 'coin',
+                count: 1,
+                tag: tag.MONEY
+            }, {
+                name: 'cat food',
+                model: 'cat_food_yellow',
+                count: 1,
+                tag: tag.HEALTH
+            }]
+        }, {
+            coordinate: {
+                x: 0,
+                z: 1,
+                s: 4,
+                t: 4
+            },
+            rotationY: -90,
             goods: [{
                 name: 'coin',
                 model: 'coin',
@@ -599,10 +566,10 @@
             coordinate: {
                 x: 0,
                 z: 3,
-                s: 1,
-                t: 5
+                s: 4,
+                t: 4
             },
-            angle: 90,
+            rotationY: 180,
             goods: [{
                 name: 'coin',
                 model: 'coin',
@@ -616,12 +583,12 @@
             }]
         }, {
             coordinate: {
-                x: 0,
-                z: 3,
-                s: 1,
-                t: 6
+                x: 1,
+                z: 2,
+                s: 4,
+                t: 4
             },
-            angle: 90,
+            rotationY: -90,
             goods: [{
                 name: 'coin',
                 model: 'coin',
@@ -645,6 +612,7 @@
 // add plants to paw
 (function(lynx) {
     var paw = lynx.wdConf.paw;
+    var tagEnum = lynx.enum.tag;
 
     if (!paw) {
         console.error('Paw not found.');
@@ -655,106 +623,166 @@
         coordinate: {
             x: 2,
             z: 0,
-            s: 2,
-            t: 2
+            s: 1.5,
+            t: 3.5
         },
-        grid: 'small',
-        name: 'tree_a',
-        model: 'tree_a'
+        gridFactor: 2,
+        model: 'tree_a',
+        tag: tagEnum.TREE
     }, {
         coordinate: {
             x: 2,
             z: 0,
-            s: 7,
-            t: 7
+            s: 4,
+            t: 1
         },
-        grid: 'small',
-        name: 'flower',
-        model: 'plants1'
+        model: 'plants1',
+        tag: tagEnum.FLOWER
     }, {
         coordinate: {
-            x: 2,
+            x: 1,
             z: 0,
-            s: 6,
-            t: 4
+            s: 1,
+            t: 1
         },
-        grid: 'small',
-        name: 'flower',
-        model: 'plants1'
+        model: 'plants1',
+        tag: tagEnum.FLOWER
     }, {
         coordinate: {
             x: 1,
             z: 0,
             s: 2,
-            t: 2
-        },
-        grid: 'small',
-        name: 'tree_a',
-        model: 'tree_a'
-    }, {
-        coordinate: {
-            x: 1,
-            z: 0,
-            s: 7,
-            t: 1
-        },
-        grid: 'small',
-        name: 'flower',
-        model: 'plants1'
-    }, {
-        coordinate: {
-            x: 1,
-            z: 0,
-            s: 6,
             t: 4
         },
-        grid: 'small',
-        name: 'flower',
-        model: 'plants1'
+        model: 'plants1',
+        tag: tagEnum.FLOWER
+    }, {
+        coordinate: {
+            x: 0,
+            z: 1,
+            s: 1.5,
+            t: 1.5
+        },
+        gridFactor: 2,
+        model: 'tree_a',
+        tag: tagEnum.TREE
+    }, {
+        coordinate: {
+            x: 0,
+            z: 3,
+            s: 1,
+            t: 1
+        },
+        model: 'plants1',
+        tag: tagEnum.FLOWER
+    }, {
+        coordinate: {
+            x: 1,
+            z: 3,
+            s: 2.5,
+            t: 2.5
+        },
+        gridFactor: 2,
+        model: 'tree_a',
+        tag: tagEnum.TREE
+    }, {
+        coordinate: {
+            x: 1,
+            z: 2,
+            s: 2,
+            t: 1
+        },
+        model: 'plants1',
+        tag: tagEnum.FLOWER
+    }, {
+        coordinate: {
+            x: 1,
+            z: 1,
+            s: 2,
+            t: 1
+        },
+        model: 'plants1',
+        tag: tagEnum.FLOWER
     }, {
         coordinate: {
             x: 2,
             z: 1,
-            s: 7,
-            t: 1
+            s: 2.5,
+            t: 1.5
         },
-        grid: 'small',
-        name: 'flower',
-        model: 'plants1'
+        gridFactor: 2,
+        model: 'tree_a',
+        tag: tagEnum.TREE
     }, {
         coordinate: {
             x: 2,
             z: 1,
-            s: 5,
-            t: 2
-        },
-        grid: 'small',
-        name: 'tree_a',
-        model: 'tree_a'
-    }, {
-        coordinate: {
-            x: 7,
-            z: 1,
-            s: 3,
+            s: 4,
             t: 4
         },
-        grid: 'large',
-        name: 'tree_a',
-        model: 'tree_a'
-    }, {
-        coordinate: {
-            x: 6,
-            z: 0,
-            s: 3,
-            t: 6
-        },
-        grid: 'small',
-        name: 'wood',
-        model: 'wood'
+        model: 'plants1',
+        tag: tagEnum.FLOWER
     }];
 
     paw.getPlants = function() {
         return plants;
+    };
+
+})(lynx);
+
+// add houses to paw
+(function(lynx) {
+    var paw = lynx.wdConf.paw;
+    var tagEnum = lynx.enum.tag;
+
+    if (!paw) {
+        console.error('Paw not found.');
+        return;
+    }
+
+    var houses = [{
+        coordinate: {
+            x: 5,
+            z: 0,
+            s: 4.5,
+            t: 4.5
+        },
+        gridFactor: 8,
+        rotationY: 180,
+        model: 'market',
+        tag: tagEnum.HOUSE
+    }];
+
+    paw.getHouses = function() {
+        return houses;
+    };
+
+})(lynx);
+
+// add boxes to paw
+(function(lynx) {
+    var paw = lynx.wdConf.paw;
+    var tagEnum = lynx.enum.tag;
+    var plotEnum = lynx.enum.plot;
+
+    if (!paw) {
+        console.error('Paw not found.');
+        return;
+    }
+
+    var boxes = [{
+        coordinate: {
+            x: 5,
+            z: 2,
+            s: 4.5,
+            t: 2.5
+        },
+        gridFactor: 2,
+        plot: plotEnum.MARKET
+    }];
+
+    paw.getBoxes = function() {
+        return boxes;
     };
 
 })(lynx);
@@ -803,17 +831,20 @@
         this.initWalls();
         this.initShelves();
         this.initPlants();
+        this.initHouses();
+        this.initApples();
+        this.initBoxes();
         this.initCage();
     };
 
-    builderProto.addToScene = function () {
+    builderProto.addToScene = function() {
         console.error('builderProto - Function addToScene not implemented.');
     };
 
 })(lynx);
 
 // build wall
-(function (lynx) {
+(function(lynx) {
     var builderProto = lynx.Builder.prototype;
 
     builderProto.initGround = function() {
@@ -943,7 +974,7 @@
 
             wallMesh.rotation.y = wall.vertical ? Math.PI / 2 : 0;
 
-            if (wall.plot) {
+            if (wall.plot !== undefined) {
                 wallMesh.userData.plot = wall.plot;
             }
             return wallMesh;
@@ -958,24 +989,28 @@
     var builderProto = lynx.Builder.prototype;
 
     builderProto.initCage = function() {
-        var cage = this.createCage();
-        cage.position.set(0, 0, 0);
-        this.cage = cage;
-        this.addToScene(cage);
-    };
-
-    builderProto.createCage = function() {
-
-        var textureLoader = this.textureLoader;
-
+        var floorDepth = 1;
         var size = this.config.size;
         var height = this.config.wallHeight / 4;
         var originX = -size / 2;
         var originZ = -size / 2;
-        var roomSize = size / 8; // 0 - 3
-        var gridSize = roomSize / 8; // 1- 8
+        var roomSize = size / this.config.room;
+        var gridSize = roomSize / this.config.grid;
 
-        var cageSize = gridSize * 4;
+        var cageSize = gridSize * 2;
+
+        var cage = this.createCage(cageSize, height, floorDepth);
+        cage.position.set(0, 0, 0);
+        cage.position.y += floorDepth;
+        // cage.position.z -= cageSize / 2;
+        this.cage = cage;
+        this.addToScene(cage);
+    };
+
+    builderProto.createCage = function(cageSize, height, floorDepth) {
+
+        var textureLoader = this.textureLoader;
+
         var cnt = 9;
         var unit = cageSize / cnt;
         var radius = unit / 2;
@@ -1065,7 +1100,7 @@
                 map: texture,
             }), 0.8, 0.4);
 
-            var geometry = new THREE.BoxGeometry(cageSize, 5, cageSize);
+            var geometry = new THREE.BoxGeometry(cageSize, floorDepth, cageSize);
             var floor = new Physijs.BoxMesh(geometry, material, 0);
             return floor;
         }
@@ -1122,7 +1157,7 @@
 })(lynx);
 
 // build shelves
-(function (lynx) {
+(function(lynx) {
     var builderProto = lynx.Builder.prototype;
 
     builderProto.initShelves = function() {
@@ -1139,38 +1174,47 @@
         var size = this.config.size;
         var originX = -size / 2;
         var originZ = -size / 2;
-        var roomSize = size / 8; // 0 - 3
-        var gridSize = roomSize / 8; // 1- 8
+        var roomSize = size / this.config.room;
+        var gridSize = roomSize / this.config.grid;
         var offset = gridSize / 2;
 
-        for (var i = 0, iLen = shelves.length; i < iLen; i++) {
-            var shelf = shelves[i];
-            var shelfObj = createObj('shelf', gridSize, lynx.enum.tag.SHELF);
+        var shelfScaled = 1;
+        var boardSize = 0.9;
 
-            if (shelf.angle) {
-                shelfObj.rotation.y = shelf.angle / 180 * Math.PI;
+        for (var i = 0, iLen = shelves.length; i < iLen; i++) {
+            var shelfData = shelves[i];
+            var shelfGraph = createObj('shelf', gridSize, lynx.enum.tag.SHELF);
+
+            if (shelfData.rotationY) {
+                shelfGraph.rotation.y = shelfData.rotationY / 180 * Math.PI;
             }
 
-            shelfObj.position.x = originX + shelf.coordinate.x * roomSize + shelf.coordinate.s * gridSize - offset;
-            shelfObj.position.z = originZ + shelf.coordinate.z * roomSize + shelf.coordinate.t * gridSize - offset;
+            shelfGraph.position.x = originX + shelfData.coordinate.x * roomSize + shelfData.coordinate.s * gridSize - offset;
+            shelfGraph.position.z = originZ + shelfData.coordinate.z * roomSize + shelfData.coordinate.t * gridSize - offset;
 
-            var item0 = shelf.goods[0];
-            var obj0 = createObj(item0.model, gridSize / 16, item0.tag);
-            shelfObj.add(obj0);
-            obj0.position.y = 1;
+            var widthScaled = shelfGraph._physijs.width;
+            var heightScaled = shelfGraph._physijs.height;
+            var depthScaled = shelfGraph._physijs.depth;
 
-            var item1 = shelf.goods[1];
-            var obj1 = createObj(item1.model, gridSize / 16, item1.tag);
-            shelfObj.add(obj1);
-            obj1.position.y = 6;
+            var shortest = Math.min(widthScaled - shelfScaled * 4 * boardSize, heightScaled - shelfScaled * 6 * boardSize, depthScaled);
 
-            this.addToScene(shelfObj);
+            var itemTop = shelfData.goods[0];
+            var graphTop = createObj(itemTop.model, shortest * 0.8, itemTop.tag, true);
+            shelfGraph.add(graphTop);
+            graphTop.position.y = shelfScaled * boardSize + graphTop._physijs.height / 2;
 
-            var shelf_ = new lynx.SHELF(shelfObj.id, shelfObj, shelf.goods);
-            this.shelves.push(shelf_);
+            var itemBottom = shelfData.goods[1];
+            var graphBottom = createObj(itemBottom.model, shortest * 0.8, itemBottom.tag, true);
+            shelfGraph.add(graphBottom);
+            graphBottom.position.y = -heightScaled / 2 + shelfScaled * boardSize + graphBottom._physijs.height / 2;
+
+            this.addToScene(shelfGraph);
+
+            var shelf = new lynx.SHELF(shelfGraph.id, shelfGraph, shelfData.goods);
+            this.shelves.push(shelf);
         }
 
-        function createObj(modelType, size, tag) {
+        function createObj(modelType, size, tag, heightLimited) {
             var model = lynx.getModel(modelType);
             if (!model) {
                 console.error('Missing model - ' + modelType);
@@ -1180,7 +1224,7 @@
             var geometry = model.geometry;
             var materials = model.materials;
 
-            for (var m = 0; m < materials.length; m++) {
+            for (var m = 0, mLen = materials.length; m < mLen; m++) {
                 var material = materials[m];
                 material.vertexColors = THREE.FaceColors;
                 material.side = THREE.DoubleSide;
@@ -1188,27 +1232,32 @@
 
             geometry.computeBoundingBox();
             var bound = geometry.boundingBox;
-            var width = bound.max.x - bound.min.x;
-            var height = bound.max.y - bound.min.y;
-            var depth = bound.max.z - bound.min.z;
+            var boundWidth = bound.max.x - bound.min.x;
+            var boundHeight = bound.max.y - bound.min.y;
+            var boundDepth = bound.max.z - bound.min.z;
+
+            var longest = heightLimited ? Math.max(boundWidth, boundHeight, boundDepth) : Math.max(boundWidth, boundDepth);
+            var scale = size / longest;
+            shelfScaled = modelType === 'shelf' ? scale : shelfScaled;
+
+            var graphWidth = boundWidth * scale;
+            var graphHeight = boundHeight * scale;
+            var graphDepth = boundDepth * scale;
 
             var threeObj = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
+            threeObj.scale.set(scale, scale, scale);
 
-            var physGeomtry = new THREE.BoxGeometry(width, height, depth);
+            var physGeomtry = new THREE.BoxGeometry(graphWidth, graphHeight, graphDepth);
             var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
             physMaterial.visible = false;
 
             var physiObj = new Physijs.BoxMesh(physGeomtry, physMaterial, 0);
-            physiObj.castShadow = true;
-
+            physiObj.castShadow = false;
             physiObj.tag = tag;
             physiObj.add(threeObj);
 
-            var unit = [width, height, depth];
-            unit.sort();
-
-            var scale = size / unit[2];
-            physiObj.scale.set(scale, scale, scale);
+            threeObj.position.y = -graphHeight / 2;
+            physiObj.position.y = graphHeight / 2;
 
             return physiObj;
         }
@@ -1235,8 +1284,9 @@
 })(lynx);
 
 // build plants
-(function (lynx) {
+(function(lynx) {
     var builderProto = lynx.Builder.prototype;
+    var tagEnum = lynx.enum.tag;
 
     builderProto.initPlants = function() {
         if (this.plants) return;
@@ -1253,28 +1303,28 @@
         var size = this.config.size;
         var originX = -size / 2;
         var originZ = -size / 2;
-        var roomSize = size / 8; // 0 - 3
-        // 1- 8
-        // var gridSize = roomSize / 4;
-        // var offset = gridSize / 2;
+        var roomSize = size / this.config.room;
+        var gridSize = roomSize / this.config.grid;
+        var offset = gridSize / 2;
+
         for (var i = 0, iLen = plants.length; i < iLen; i++) {
 
-            var plant = plants[i];
-            var gridSize = roomSize / (plant.grid === 'small' ? 8 : 4); // 1- 8
-            var offset = gridSize / 2;
-            var tag = plant.model === 'wood' ? lynx.enum.tag.WOOD : lynx.enum.tag.TREE;
+            var data = plants[i];
+            var graph = createObj(data.model, gridSize * (data.gridFactor || 1), data.tag);
 
-            var plantObj = createObj(plant.model, gridSize * 0.9, tag);
+            if (data.tag === tagEnum.TREE) {
+                graph.userData.leaves = this.config.leavesPerTree;
+            }
 
-            plantObj.position.x = originX + plant.coordinate.x * roomSize + plant.coordinate.s * gridSize - offset;
-            plantObj.position.z = originZ + plant.coordinate.z * roomSize + plant.coordinate.t * gridSize - offset;
+            graph.position.x = originX + data.coordinate.x * roomSize + data.coordinate.s * gridSize - offset;
+            graph.position.z = originZ + data.coordinate.z * roomSize + data.coordinate.t * gridSize - offset;
 
-            this.addToScene(plantObj);
-            if (plant.model === 'wood') {
-                this.woods.push(plantObj);
+            this.addToScene(graph);
+            if (data.model === 'wood') {
+                this.woods.push(graph);
             } else {
-                plant.id = plantObj.id;
-                this.plants.push(plant);
+                data.id = graph.id;
+                this.plants.push(data);
             }
         }
 
@@ -1296,32 +1346,40 @@
 
             geometry.computeBoundingBox();
             var bound = geometry.boundingBox;
-            var width = bound.max.x - bound.min.x;
-            var height = bound.max.y - bound.min.y;
-            var depth = bound.max.z - bound.min.z;
+            var boundWidth = bound.max.x - bound.min.x;
+            var boundHeight = bound.max.y - bound.min.y;
+            var boundDepth = bound.max.z - bound.min.z;
+
+            var longest = Math.max(boundWidth, boundDepth);
+            var scale = size / longest;
+
+            var graphWidth = boundWidth * scale;
+            var graphHeight = boundHeight * scale;
+            var graphDepth = boundDepth * scale;
 
             var threeObj = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
+            threeObj.scale.set(scale, scale, scale);
 
-            var physGeomtry = new THREE.BoxGeometry(width, height, depth);
+            if (tag === tagEnum.HOUSE) {
+                return threeObj;
+            }
+
+            var physGeomtry = new THREE.BoxGeometry(graphWidth, graphHeight, graphDepth);
             var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
             physMaterial.visible = false;
 
-            var mass = plant.model === 'wood' ? 999 : 0;
-
             var physiObj = new Physijs.BoxMesh(physGeomtry, physMaterial, 0);
-            physiObj.castShadow = true;
+            physiObj.castShadow = false;
 
             physiObj.tag = tag;
             physiObj.add(threeObj);
 
-            var unit = [width, depth];
-            unit.sort();
-
-            var scale = size / unit[1];
-            physiObj.scale.set(scale, scale, scale);
+            threeObj.position.y = -graphHeight / 2;
+            physiObj.position.y = graphHeight / 2;
 
             return physiObj;
         }
+
     };
 
     builderProto.getPlant = function(id) {
@@ -1381,9 +1439,286 @@
     };
 })(lynx);
 
+// build houses
+(function(lynx) {
+    var builderProto = lynx.Builder.prototype;
+    var tagEnum = lynx.enum.tag;
+
+    builderProto.initHouses = function() {
+        if (this.houses) return;
+
+        var houses = this.config.getHouses();
+        if (!houses) {
+            console.error('Missing houses');
+            return;
+        }
+
+        this.houses = [];
+
+        var size = this.config.size;
+        var originX = -size / 2;
+        var originZ = -size / 2;
+        var roomSize = size / this.config.room;
+        var gridSize = roomSize / this.config.grid;
+        var offset = gridSize / 2;
+
+        for (var i = 0, iLen = houses.length; i < iLen; i++) {
+
+            var data = houses[i];
+            var graph = createObj(data.model, gridSize * (data.gridFactor || 1), data.tag);
+
+            if (data.rotationY) {
+                graph.rotation.y = data.rotationY / 180 * Math.PI;
+            }
+
+            graph.position.x = originX + data.coordinate.x * roomSize + data.coordinate.s * gridSize - offset;
+            graph.position.z = originZ + data.coordinate.z * roomSize + data.coordinate.t * gridSize - offset;
+
+            this.addToScene(graph);
+
+            data.id = graph.id;
+            this.houses.push(data);
+        }
+
+        function createObj(modelType, size, tag) {
+            var model = lynx.getModel(modelType);
+            if (!model) {
+                console.error('Missing model - ' + modelType);
+                return;
+            }
+
+            var geometry = model.geometry;
+            var materials = model.materials;
+
+            for (var m = 0; m < materials.length; m++) {
+                var material = materials[m];
+                material.vertexColors = THREE.FaceColors;
+                material.side = THREE.DoubleSide;
+            }
+
+            geometry.computeBoundingBox();
+            var bound = geometry.boundingBox;
+            var boundWidth = bound.max.x - bound.min.x;
+            var boundHeight = bound.max.y - bound.min.y;
+            var boundDepth = bound.max.z - bound.min.z;
+
+            var longest = Math.max(boundWidth, boundDepth);
+            var scale = size / longest;
+
+            geometry.vertices.forEach(function(v) {
+                v.multiplyScalar(scale);
+            });
+
+            var physMaterial = Physijs.createMaterial(new THREE.MultiMaterial(materials), 0.8, 0.5);
+
+            var physiObj = new Physijs.ConcaveMesh(geometry, physMaterial, 0);
+            physiObj.castShadow = false;
+            physiObj.tag = tag;
+
+            return physiObj;
+        }
+    };
+
+
+})(lynx);
+
+// build apples
+(function(lynx) {
+    var builderProto = lynx.Builder.prototype;
+    var tagEnum = lynx.enum.tag;
+
+    builderProto.initApples = function() {
+        if (this.apples) return;
+
+        this.apples = [];
+
+        var rooms = [{
+            x: 4,
+            z: 0
+        }, {
+            x: 4,
+            z: 1
+        }, {
+            x: 7,
+            z: 0
+        }, {
+            x: 7,
+            z: 1
+        }];
+
+        var size = this.config.size;
+        var originX = -size / 2;
+        var originZ = -size / 2;
+        var roomSize = size / this.config.room;
+        var gridSize = roomSize / this.config.grid;
+        var offset = gridSize / 2;
+
+        for (var i = 0, iLen = rooms.length; i < iLen; i++) {
+
+            var room = rooms[i];
+            var centerx = originX + room.x * roomSize + 2.5 * gridSize - offset;
+            var centerz = originZ + room.z * roomSize + 2.5 * gridSize - offset;
+
+            for (var j = 0; j < 1; j++) {
+                var apple = createApple(gridSize / 4);
+                apple.position.x = centerx + Math.floor(Math.random() * 100) % (roomSize / 2);
+                apple.position.z = centerz + Math.floor(Math.random() * 100) % (roomSize / 2);
+                apple.position.y = 10;
+                this.addToScene(apple);
+                this.apples.push(apple.id);
+            }
+
+        }
+
+        function createApple(size) {
+            var model = lynx.getModel('apple');
+            if (!model) {
+                console.error('Missing model - ' + modelType);
+                return;
+            }
+
+            var geometry = model.geometry;
+            var materials = model.materials;
+
+            for (var m = 0; m < materials.length; m++) {
+                var material = materials[m];
+                material.vertexColors = THREE.FaceColors;
+                material.side = THREE.DoubleSide;
+            }
+
+            geometry.computeBoundingBox();
+            var bound = geometry.boundingBox;
+            var boundWidth = bound.max.x - bound.min.x;
+            var boundHeight = bound.max.y - bound.min.y;
+            var boundDepth = bound.max.z - bound.min.z;
+
+            var longest = Math.max(boundWidth, boundDepth);
+            var scale = size / longest;
+
+            var graphWidth = boundWidth * scale;
+            var graphHeight = boundHeight * scale;
+            var graphDepth = boundDepth * scale;
+
+            var threeObj = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
+            threeObj.scale.set(scale, scale, scale);
+
+            var physGeomtry = new THREE.BoxGeometry(graphWidth, graphHeight, graphDepth);
+            var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
+            physMaterial.visible = false;
+
+            var physiObj = new Physijs.BoxMesh(physGeomtry, physMaterial, 10);
+            physiObj.castShadow = false;
+
+            physiObj.tag = tagEnum.APPLE;
+            physiObj.add(threeObj);
+
+            threeObj.position.y = -graphHeight / 2;
+            physiObj.position.y = graphHeight / 2;
+
+            return physiObj;
+        }
+
+    };
+
+
+})(lynx);
+
+// build boxes
+(function(lynx) {
+    var builderProto = lynx.Builder.prototype;
+
+    builderProto.initBoxes = function() {
+        if (this.boxes) return;
+
+        var boxes = this.config.getBoxes();
+        if (!boxes) {
+            console.error('Missing boxes');
+            return;
+        }
+
+        this.boxes = [];
+
+        var textureLoader = this.textureLoader;
+
+        var size = this.config.size;
+        var originX = -size / 2;
+        var originZ = -size / 2;
+        var roomSize = size / this.config.room;
+        var gridSize = roomSize / this.config.grid;
+        var offset = gridSize / 2;
+
+        for (var i = 0, iLen = boxes.length; i < iLen; i++) {
+
+            var data = boxes[i];
+            var boxSize = gridSize * (data.gridFactor || 1);
+            var graph = createBox(boxSize);
+
+            graph.position.x = originX + data.coordinate.x * roomSize + data.coordinate.s * gridSize - offset;
+            graph.position.z = originZ + data.coordinate.z * roomSize + data.coordinate.t * gridSize - offset;
+
+            graph.position.y += boxSize / 4;
+            graph.position.z -= boxSize / 2;
+
+            this.addToScene(graph);
+
+            data.id = graph.id;
+            this.boxes.push(data);
+        }
+
+        function createBox(boxSize) {
+
+            var depth = 1;
+
+            var texture = textureLoader.load("/asset/texture/wood.jpg");
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+
+            var material = Physijs.createMaterial(new THREE.MeshPhongMaterial({
+                color: 0xffffff,
+                map: texture,
+            }), 0.8, 0.4);
+
+            var geometry = new THREE.BoxGeometry(boxSize, boxSize / 2, depth);
+
+            var front = new Physijs.BoxMesh(geometry, material, 0);
+            var back = new Physijs.BoxMesh(geometry, material, 0);
+            var left = new Physijs.BoxMesh(geometry, material, 0);
+            var right = new Physijs.BoxMesh(geometry, material, 0);
+
+            right.position.set(0, 0, boxSize);
+            left.add(right);
+
+            back.rotation.y = Math.PI / 2;
+            back.position.set(boxSize / 2 - depth / 2, 0, boxSize / 2 - depth / 2);
+            left.add(back);
+
+            front.rotation.y = Math.PI / 2;
+            front.position.set(-boxSize / 2 - depth / 2, 0, boxSize / 2 - depth / 2);
+            left.add(front);
+
+            left.tag = lynx.enum.tag.BOX;
+
+            return left;
+        }
+
+    };
+
+    builderProto.getBox = function (plot) {
+        if (!this.boxes) {
+            console.error('Missing boxes.');
+            return;
+        }
+
+        for (var i = 0, iLen = this.boxes.length; i < iLen; i++) {
+            if (this.boxes[i].plot === plot) {
+                return this.boxes[i];
+            }
+        }
+    };
+
+})(lynx);
 
 // build snow
-(function (lynx) {
+(function(lynx) {
     var builderProto = lynx.Builder.prototype;
 
     builderProto.createSnow = function() {
