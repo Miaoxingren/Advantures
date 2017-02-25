@@ -45,13 +45,23 @@
             t: 1.5
         }
     }, {
-        id: plotEnum.FLOWER,
+        id: plotEnum.FENCE,
         finished: false,
         camera: {
-            x: 0,
-            z: 0,
-            s: 1,
-            t: 1
+            x: 3,
+            z: 3,
+            s: 4.5,
+            t: 2.5
+        },
+        height: 4
+    }, {
+        id: plotEnum.RESCUE,
+        finished: false,
+        camera: {
+            x: 3,
+            z: 4,
+            s: 4.5,
+            t: 4
         }
     }];
 
@@ -70,7 +80,7 @@
 
     var plotCtrlProto = lynx.PlotCtrl.prototype;
 
-    plotCtrlProto.setUp = function () {
+    plotCtrlProto.setUp = function() {
         this.initPlots();
     };
 
@@ -110,7 +120,7 @@
 
     };
 
-    plotCtrlProto.setPlot = function(plotId) {
+    plotCtrlProto.setPlot = function(plotId, callback) {
         var plot = this.getPlot(plotId);
 
         if (!plot || plot.finished) {
@@ -120,8 +130,20 @@
 
         this.plotId = plotId;
         this.ploting = true;
-        this.setWall(plotId);
         this.switchCamByPlot(plotId);
+        this.callback = callback;
+
+        if (plotId === lynx.enum.plot.RESCUE) {
+            this.cage = this.getCage();
+            return;
+        }
+
+        if (plotId === lynx.enum.plot.FENCE) {
+            this.fences = this.getFences();
+            return;
+        }
+
+        this.setWall(plotId);
     };
 
     plotCtrlProto.clear = function() {
@@ -144,27 +166,35 @@
         }
     };
 
+    plotCtrlProto.checkPlot = function(plotId) {
+        if (!this.plots) {
+            console.error('Missing plots.');
+            return;
+        }
+
+        var plot = this.getPlot(plotId);
+        return plot.finished;
+    };
+
     plotCtrlProto.update = function() {
         if (!this.ploting) {
             return;
         }
-        // ['welcome']
 
-        //'rescue'
-        // if (world.builder.cageUpdated) {
-        //     world.plotCtrl.clear();
-        //     return;
-        // }
-        // var pos = world.builder.updateCage(1);
-        // if (pos) {
-        //     world.getCamera().lookAt(pos);
-        // }
+        if (this.plotId === lynx.enum.plot.RESCUE) {
+            this.updateCage(this.config.fallingSpeed);
+            return;
+        }
 
+        if (this.plotId === lynx.enum.plot.FENCE) {
+            this.updateFence(this.config.fallingSpeed);
+            return;
+        }
 
         this.clearWall();
     };
 
-    plotCtrlProto.setWall = function (plot) {
+    plotCtrlProto.setWall = function(plot) {
         var wall = this.getWallByPlot(plot);
         if (!wall) {
             console.error('Missing wall ' + plot);
@@ -173,7 +203,7 @@
         this.fallingWall = wall;
     };
 
-    plotCtrlProto.clearWall = function () {
+    plotCtrlProto.clearWall = function() {
         if (!this.fallingWall) {
             return;
         }
@@ -190,30 +220,122 @@
         }
     };
 
-    plotCtrlProto.endPlot = function () {
+    plotCtrlProto.endPlot = function() {
         var plot = this.getPlot(this.plotId);
         plot.finished = true;
         this.clear();
         this.switchCamByPlot();
+        if (this.callback) {
+            this.callback();
+        }
     };
 
-    plotCtrlProto.getWallByPlot = function () {
+    plotCtrlProto.updateFence = function(speed) {
+        var fences = this.fences;
+        if (!fences) {
+            return;
+        }
+
+        var yAxes = new THREE.Vector3(0, 1, 0);
+        var count = 0;
+        var height = 0;
+
+        var size = this.config.size;
+        var originX = -size / 2;
+        var originZ = -size / 2;
+        var roomSize = size / this.config.room;
+        var gridSize = roomSize / this.config.grid;
+
+        for (var i = 0; i < fences.length; i++) {
+            var fence = fences[i];
+
+            if (fence.turnedAngle < 135) {
+                var direction = fence.name === 'left' ? -1 : 1;
+                fence.rotation.y = direction * fence.turnedAngle / 180 * Math.PI;
+                fence.turnedAngle += speed;
+                fence.__dirtyRotation = true;
+            } else {
+                count++;
+                fence.__dirtyRotation = false;
+            }
+        }
+
+        if (count > 1) {
+            this.endPlot();
+            return;
+        }
+
+        var lookAtPoint = new THREE.Vector3(0, 2, 0);
+        this.cameraLookAt(lookAtPoint);
+    };
+
+    plotCtrlProto.updateCage = function(speed) {
+        var cage = this.cage;
+        if (!cage) {
+            return;
+        }
+
+        var count = 0;
+
+        var cylinder, i;
+
+        for (i = 1; i <= 9; i += 2) {
+            cylinder = getCylinder(cage, 'front' + i);
+            if (!cylinder) {
+                return;
+            }
+
+            cylinder.position.y -= speed;
+
+            if (cylinder.position.y < -cylinder._physijs.height / 2 - 10) {
+                cage.remove(cylinder);
+                count++;
+            }
+        }
+
+        if (count === 5) {
+            this.endPlot();
+            return;
+        }
+
+        var lookAtPoint = cylinder.position.clone().add(new THREE.Vector3(0, cylinder._physijs.height / 2, 0));
+        this.cameraLookAt(lookAtPoint);
+
+        function getCylinder(cage, name) {
+            var children = cage.children;
+            for (var j = 0, jLen = children.length; j < jLen; j++) {
+                if (children[j].name === name) {
+                    return children[j];
+                }
+            }
+        }
+    };
+
+    plotCtrlProto.getWallByPlot = function() {
         console.error('plotCtrlProto - Function getWallByPlot not implemented.');
     };
 
-    plotCtrlProto.removeFromScene = function () {
+    plotCtrlProto.getCage = function() {
+        console.error('plotCtrlProto - Function getCage not implemented.');
+    };
+
+    plotCtrlProto.getFences = function() {
+        console.error('plotCtrlProto - Function getFences not implemented.');
+    };
+
+    plotCtrlProto.removeFromScene = function() {
         console.error('plotCtrlProto - Function removeFromScene not implemented.');
     };
 
-    plotCtrlProto.cameraLookAt = function () {
+    plotCtrlProto.cameraLookAt = function() {
         console.error('plotCtrlProto - Function cameraLookAt not implemented.');
     };
 
-    plotCtrlProto.addCamera = function () {
+    plotCtrlProto.addCamera = function() {
         console.error('plotCtrlProto - Function addCamera not implemented.');
     };
 
-    plotCtrlProto.switchCamByPlot = function () {
+    plotCtrlProto.switchCamByPlot = function() {
         console.error('plotCtrlProto - Function switchCamByPlot not implemented.');
     };
 

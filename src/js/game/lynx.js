@@ -98,6 +98,12 @@ var lynx = {
         return world;
     };
 
+    lynx.isInRangeXZ = function(pos, upX, upZ, lowX, lowZ) {
+        var x = pos.x;
+        var z = pos.z;
+        return (x >= lowX && x <= upX && z >= lowZ && z <= upZ);
+    };
+
 })(lynx);
 
 // list all type
@@ -125,7 +131,7 @@ var lynx = {
         WOOD: 3,
         MARKET: 4,
         RESCUE: 5,
-        FLOWER: 6
+        FENCE: 6
     };
 
     lynxEnum.wall = {
@@ -146,8 +152,10 @@ var lynx = {
         APPLE: 8,
         WOOD: 9,
         TREE: 10,
-        FLOWER: 11,
-        HOUSE: 12
+        KEY: 11,
+        HOUSE: 12,
+        MEAT: 13,
+        FENCE: 14
     };
 
     // dom priority
@@ -192,7 +200,8 @@ var lynx = {
         PAUSE: 'levelcleared',
         RESUME: 'levelstart',
         CLICKTREE: 'block',
-        COLLECT: 'gold'
+        COLLECT: 'gold',
+        HURT: 'hurt1'
     };
 
 })(lynx);
@@ -206,7 +215,7 @@ var lynx = {
         size: 320,
         wallHeight: 50,
         wallDepth: 0.1,
-        fallingSpeed: 1,
+        fallingSpeed: 0.5,
         room: 8,
         grid: 4,
         gravity: 10,
@@ -383,7 +392,8 @@ var lynx = {
         'fish1', 'fish2', 'fish3', 'eagle', 'fox1', 'fox0', 'flamingo', 'frog0', 'goldenRetreiver0', 'frog2', 'goat', 'goldenRetreiver1',
         'horse1', 'horse0', 'hummingBird0', 'hummingBird1', 'moose', 'owl', 'mountainLion', 'parrot2', 'raccoon', 'panther0',
         'parrot1', 'raven', 'seal0', 'stork', 'scorpion', 'seal1', 'toad0', 'wolf', 'vulture', 'toad1', 'gator', 'tarantula0',
-        'coin', 'cat_food_yellow', 'shelf', 'tree_a', 'rose', 'plants1', 'sword', 'wood', 'cat1', 'farmhouse', 'market', 'apple'
+        'coin', 'cat_food_yellow', 'shelf', 'tree_a', 'rose', 'plants1', 'sword', 'wood', 'cat1', 'farmhouse', 'market', 'apple',
+        'doghouse', 'meat', 'fence', 'doghousemesh', 'key'
     ];
 
     function initModels() {

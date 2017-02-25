@@ -8,15 +8,15 @@
     }
 
     var monsters = [{
-        health: 10,
+        health: 20,
         model: 'chow',
         name: 'boss',
         position: {},
         coordinate: {
-            x: 3,
-            z: 3,
-            s: 8,
-            t: 4
+            x: 4,
+            z: 4,
+            s: 2,
+            t: 2
         }
     }
     // , {
@@ -41,12 +41,20 @@
 
 // Monster
 (function (lynx) {
+    var angles = [0, 180, 90, 270];
+    var xAxes = new THREE.Vector3(1, 0, 0);
+    var yAxes = new THREE.Vector3(0, 1, 0);
+    var zAxes = new THREE.Vector3(0, 0, 1);
 
-    lynx.Monster = function (graph, id, health) {
+    lynx.Monster = function (graph, id, name, health, speed) {
         this.id = id;
         this.graph = graph;
+        this.name = name;
         this.health = health;
         this.graph.health = this.health;
+        this.speed = speed;
+        this.step = 0;
+        this.chase = false;
     };
 
     var monsterProto = lynx.Monster.prototype;
@@ -64,6 +72,55 @@
         return this.health <= 0;
     };
 
+    monsterProto.update = function () {
+        if (this.stand) return;
+        var graph = this.graph;
+        var lookAtPoint = this.lookAtPoint;
+        var turn = !this.chase && (this.step++ > 500);
+        this.step = (this.step > 500) ? 0 : this.step;
+
+        moveForward(graph, this.speed, turn, lookAtPoint);
+
+        function moveForward(graph, speed, turn, lookAtPoint) {
+            var velocity = graph.getLinearVelocity();
+
+            var direction = lookAtPoint.clone().sub(graph.position).normalize();
+
+            if (turn) {
+                direction.applyAxisAngle(yAxes, THREE.Math.degToRad(angles[Math.floor(Math.random() * 100) % 4]));
+            }
+
+            var cosXAxes = direction.clone().dot(xAxes) / (direction.length() * xAxes.length());
+            var cosZAxes = direction.clone().dot(zAxes) / (direction.length() * zAxes.length());
+
+            velocity.x = cosXAxes * speed;
+            velocity.z = cosZAxes * speed;
+
+            graph.setLinearVelocity(velocity);
+
+            lookAtPoint.set(graph.position.x + velocity.x, graph.position.y, graph.position.z + velocity.z);
+            graph.lookAt(lookAtPoint);
+        }
+    };
+
+    monsterProto.chaseAfter = function (pos) {
+        this.stand = false;
+        this.chase = true;
+        this.lookAtPoint.x = pos.x;
+        this.lookAtPoint.z = pos.z;
+    };
+
+    monsterProto.stand = function () {
+        this.stand = true;
+        this.chase = false;
+    };
+
+    monsterProto.randomMove = function () {
+        this.stand = false;
+        this.chase = false;
+        this.step = 0;
+    };
+
 })(lynx);
 
 // MonsterCtrl
@@ -71,12 +128,17 @@
 
     lynx.MonsterCtrl = function (config) {
         this.config = config;
+        this.plot = null;
     };
 
     var monsterCtrlProto = lynx.MonsterCtrl.prototype;
 
     monsterCtrlProto.addToScene = function () {
         console.error('monsterCtrlProto - Function addToScene not implemented.');
+    };
+
+    monsterCtrlProto.getMeat = function () {
+        console.error('monsterCtrlProto - Function getMeat not implemented.');
     };
 
     monsterCtrlProto.setUp = function () {
@@ -100,8 +162,8 @@
         var size = this.config.size;
         var originX = -size / 2;
         var originZ = -size / 2;
-        var roomSize = size / 8; // 0 - 7
-        var gridSize = roomSize / 8; // 1- 8
+        var roomSize = size / this.config.room;
+        var gridSize = roomSize / this.config.grid;
         var offset = gridSize / 2;
 
         for (var i = 0, iLen = monsters.length; i < iLen; i++) {
@@ -114,11 +176,10 @@
             graph.position.x = originX + data.coordinate.x * roomSize + data.coordinate.s * gridSize;
             graph.position.z = originZ + data.coordinate.z * roomSize + data.coordinate.t * gridSize;
 
-            graph.lookAtPoint = new THREE.Vector3(graph.position.x, graph.position.y, graph.position.z + 1);
-
             this.addToScene(graph);
 
-            var monster = new lynx.Monster(graph, graph.id, data.health);
+            var monster = new lynx.Monster(graph, graph.id, data.name, data.health, this.config.monsterSpeed);
+            monster.lookAtPoint = new THREE.Vector3(graph.position.x, graph.position.y, graph.position.z + 1);
             this.monsters.push(monster);
         }
 
@@ -199,46 +260,89 @@
         }
     };
 
+    monsterCtrlProto.getMonsterByName = function (name) {
+        if (!this.monsters) {
+            console.error('Missing monsters.');
+            return;
+        }
+
+        var list = this.monsters;
+
+        for (var i = 0, iLen = list.length; i < iLen; i++) {
+            if (list[i].name === name) {
+                return list[i];
+            }
+        }
+    };
+
     monsterCtrlProto.updateMonster = function (pos) {
         if (!this.monsters) return;
 
         var objs = this.monsters;
-        var angles = [0, 180, 90, 270];
-        var speed = this.config.monsterSpeed;
-        var xAxes = new THREE.Vector3(1, 0, 0);
-        var yAxes = new THREE.Vector3(0, 1, 0);
-        var zAxes = new THREE.Vector3(0, 0, 1);
-
-
 
         for (var i = 0, iLen = objs.length; i < iLen; i++) {
             var obj = objs[i];
             if (!obj.isDead()) {
-                obj.graph.lookAtPoint = pos;
-                updateMonster(obj.graph);
+                // obj.lookAtPoint = pos;
+                if (this.plot === lynx.enum.plot.RESCUE) {
+                    this.updateBoss(pos, this.getMeat());
+                }
+                obj.update();
             }
         }
 
-        function updateMonster(monster) {
-            var velocity = monster.getLinearVelocity();
+    };
 
-            var direction = monster.lookAtPoint.clone().sub(monster.position).normalize();
+    monsterCtrlProto.updateBoss = function (playerPos, allMeat) {
+        var boss = this.getMonsterByName('boss');
+        if (!boss) {
+            console.error('Missing wangxingren.');
+            return;
+        }
 
-            // if (monster.userData.step++ == 1500) {
-            //     monster.userData.step = 0;
-            //     direction.applyAxisAngle(yAxes, THREE.Math.degToRad(angles[Math.floor(Math.random() * 100) % 4]));
-            // }
+        var wang = boss.graph;
 
-            var cosXAxes = direction.clone().dot(xAxes) / (direction.length() * xAxes.length());
-            var cosZAxes = direction.clone().dot(zAxes) / (direction.length() * zAxes.length());
+        var size = this.config.size;
+        var roomSize = size / this.config.room;
+        var gridSize = roomSize / this.config.grid;
+        var originX = -size / 2;
+        var originZ = -size / 2;
+        var offset = gridSize / 2;
+        var range = {
+            lowX: originX + 3 * roomSize,
+            lowZ: originZ + 4 * roomSize,
+            upX: originX + 5 * roomSize,
+            upZ: originZ + 5 * roomSize,
+        };
 
-            velocity.x = cosXAxes * speed;
-            velocity.z = cosZAxes * speed;
+        var dogInFence = lynx.isInRangeXZ(boss.graph.position, range.upX, range.upZ, range.lowX, range.lowZ);
 
-            monster.setLinearVelocity(velocity);
+        if (dogInFence) {
+            var meatInPos = checkMeat(allMeat, range);
+            var isPlayerInPos = lynx.isInRangeXZ(playerPos, range.upX, range.upZ, range.lowX, range.lowZ);
+            if (meatInPos) {
+                if (meatInPos.position.distanceTo(boss.graph.position) < offset) {
+                    meatInPos.quality -= 1;
+                }
+                boss.chaseAfter(meatInPos.position);
+            } else if (isPlayerInPos) {
+                if (playerPos.distanceTo(boss.graph.position) < offset) {
+                    this.hurtPlayer(1);
+                }
+                boss.chaseAfter(playerPos);
+            } else {
+                boss.randomMove();
+            }
+        } else {
+            boss.chaseAfter(new THREE.Vector3((range.lowX + range.upX) / 2, 0, (range.lowZ + range.upZ) / 2));
+        }
 
-            monster.lookAtPoint.set(monster.position.x + velocity.x, monster.position.y, monster.position.z + velocity.z);
-            monster.lookAt(monster.lookAtPoint);
+        function checkMeat(allMeat, range) {
+            for (var m = 0, mLen =  allMeat.length; m < mLen; m++) {
+                if (lynx.isInRangeXZ(allMeat[m].position, range.upX, range.upZ, range.lowX, range.lowZ)) {
+                    return allMeat[m];
+                }
+            }
         }
     };
 

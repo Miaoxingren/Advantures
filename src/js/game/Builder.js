@@ -228,6 +228,15 @@
             }
         }, {
             type: wallEnum.STAND,
+            vertical: true,
+            coordinate: {
+                x: 4,
+                z: 4,
+                s: 2,
+                t: 1
+            }
+        }, {
+            type: wallEnum.STAND,
             vertical: false,
             coordinate: {
                 x: 0,
@@ -323,16 +332,6 @@
             vertical: false,
             coordinate: {
                 x: 4,
-                z: 4,
-                s: 1,
-                t: 2
-            }
-        }, {
-            // TBC
-            type: wallEnum.STAND,
-            vertical: false,
-            coordinate: {
-                x: 5,
                 z: 4,
                 s: 1,
                 t: 2
@@ -751,6 +750,17 @@
         rotationY: 180,
         model: 'market',
         tag: tagEnum.HOUSE
+    }, {
+        coordinate: {
+            x: 3,
+            z: 4,
+            s: 1.5,
+            t: 3.5
+        },
+        gridFactor: 2,
+        model: 'doghouse',
+        mesh: 'doghousemesh',
+        tag: tagEnum.HOUSE
     }];
 
     paw.getHouses = function() {
@@ -832,6 +842,8 @@
         this.initHouses();
         this.initApples();
         this.initBoxes();
+        this.initMeat();
+        this.initFences();
         this.initCage();
     };
 
@@ -985,24 +997,93 @@
 // build cage
 (function(lynx) {
     var builderProto = lynx.Builder.prototype;
+    var tagEnum = lynx.enum.tag;
 
     builderProto.initCage = function() {
         var floorDepth = 1;
         var size = this.config.size;
+        var roomSize = size / this.config.room;
+        var gridSize = roomSize / this.config.grid;
+        var cageSize = gridSize * 2;
         var height = this.config.wallHeight / 4;
         var originX = -size / 2;
         var originZ = -size / 2;
-        var roomSize = size / this.config.room;
-        var gridSize = roomSize / this.config.grid;
-
-        var cageSize = gridSize * 2;
+        var offset = gridSize / 2;
+        var coordinate = {
+            x: 3,
+            z: 3,
+            s: 4.5,
+            t: 1.5
+        };
 
         var cage = this.createCage(cageSize, height, floorDepth);
         cage.position.set(0, 0, 0);
         cage.position.y += floorDepth;
-        // cage.position.z -= cageSize / 2;
+        cage.position.x = originX + coordinate.x * roomSize + coordinate.s * gridSize - offset;
+        cage.position.z = originZ + coordinate.z * roomSize + coordinate.t * gridSize - offset;
         this.cage = cage;
         this.addToScene(cage);
+
+        var keypos = {
+            x: 3,
+            z: 4,
+            s: 1.5,
+            t: 3.5
+        };
+        var key = createkey(gridSize / 4);
+        key.position.x = originX + keypos.x * roomSize + keypos.s * gridSize - offset;
+        key.position.z = originZ + keypos.z * roomSize + keypos.t * gridSize - offset;
+        key.position.y = 4;
+        this.addToScene(key);
+
+        function createkey(size) {
+            var model = lynx.getModel('key');
+            if (!model) {
+                console.error('Missing model - key');
+                return;
+            }
+
+            var geometry = model.geometry;
+            var materials = model.materials;
+
+            for (var m = 0; m < materials.length; m++) {
+                var material = materials[m];
+                material.vertexColors = THREE.FaceColors;
+                material.side = THREE.DoubleSide;
+            }
+
+            geometry.computeBoundingBox();
+            var bound = geometry.boundingBox;
+            var boundWidth = bound.max.x - bound.min.x;
+            var boundHeight = bound.max.y - bound.min.y;
+            var boundDepth = bound.max.z - bound.min.z;
+
+            var longest = Math.max(boundWidth, boundDepth);
+            var scale = size / longest;
+
+            var graphWidth = boundWidth * scale;
+            var graphHeight = boundHeight * scale;
+            var graphDepth = boundDepth * scale;
+
+            var threeObj = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
+            threeObj.scale.set(scale, scale, scale);
+
+            var physGeomtry = new THREE.BoxGeometry(graphWidth, graphHeight, graphDepth);
+            var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
+            physMaterial.visible = false;
+
+            var physiObj = new Physijs.BoxMesh(physGeomtry, physMaterial, 10);
+            physiObj.castShadow = false;
+
+            physiObj.tag = tagEnum.KEY;
+            physiObj.add(threeObj);
+
+            threeObj.position.y = -graphHeight / 2;
+            physiObj.position.y = graphHeight / 2;
+
+            return physiObj;
+        }
+
     };
 
     builderProto.createCage = function(cageSize, height, floorDepth) {
@@ -1119,37 +1200,8 @@
         }
     };
 
-    builderProto.updateCage = function(speed) {
-        if (!this.cage) {
-            console.error('Missing Cage.');
-            return;
-        }
-
-        if (this.cageUpdated) return;
-
-        var cylinder, i;
-
-        for (i = 1; i <= 9; i += 2) {
-            cylinder = getCylinder(this.cage, 'front' + i);
-            if (cylinder) {
-                cylinder.position.y -= speed;
-                this.cageUpdated = false;
-            }
-            if (cylinder.position.y < -cylinder._physijs.height / 2 - 10) {
-                this.cageUpdated = true;
-            }
-        }
-
-        return cylinder.position.clone().add(new THREE.Vector3(0, cylinder._physijs.height / 2, 0));
-
-        function getCylinder(cage, name) {
-            var children = cage.children;
-            for (var j = 0, jLen = children.length; j < jLen; j++) {
-                if (children[j].name === name) {
-                    return children[j];
-                }
-            }
-        }
+    builderProto.getCage = function () {
+        return this.cage;
     };
 
 })(lynx);
@@ -1463,6 +1515,17 @@
         for (var i = 0, iLen = houses.length; i < iLen; i++) {
 
             var data = houses[i];
+
+            if (data.mesh) {
+                var threeObj = createMesh(data.mesh, gridSize * (data.gridFactor || 1), data.tag);
+                if (data.rotationY) {
+                    threeObj.rotation.y = data.rotationY / 180 * Math.PI;
+                }
+                threeObj.position.x = originX + data.coordinate.x * roomSize + data.coordinate.s * gridSize - offset;
+                threeObj.position.z = originZ + data.coordinate.z * roomSize + data.coordinate.t * gridSize - offset;
+                this.addToScene(threeObj);
+            }
+
             var graph = createObj(data.model, gridSize * (data.gridFactor || 1), data.tag);
 
             if (data.rotationY) {
@@ -1515,8 +1578,40 @@
 
             return physiObj;
         }
-    };
 
+        function createMesh(modelType, size, tag) {
+            var model = lynx.getModel(modelType);
+            if (!model) {
+                console.error('Missing model - ' + modelType);
+                return;
+            }
+
+            var geometry = model.geometry;
+            var materials = model.materials;
+
+            for (var m = 0; m < materials.length; m++) {
+                var material = materials[m];
+                material.vertexColors = THREE.FaceColors;
+                material.side = THREE.DoubleSide;
+            }
+
+            geometry.computeBoundingBox();
+            var bound = geometry.boundingBox;
+            var boundWidth = bound.max.x - bound.min.x;
+            var boundHeight = bound.max.y - bound.min.y;
+            var boundDepth = bound.max.z - bound.min.z;
+
+            var longest = Math.max(boundWidth, boundDepth);
+            var scale = size / longest;
+
+            var mesh = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
+            mesh.scale.set(scale, scale, scale);
+            mesh.castShadow = false;
+            mesh.tag = tag;
+
+            return mesh;
+        }
+    };
 
 })(lynx);
 
@@ -1608,6 +1703,213 @@
             physiObj.castShadow = false;
 
             physiObj.tag = tagEnum.APPLE;
+            physiObj.add(threeObj);
+
+            threeObj.position.y = -graphHeight / 2;
+            physiObj.position.y = graphHeight / 2;
+
+            return physiObj;
+        }
+
+    };
+
+
+})(lynx);
+
+// build meat
+(function(lynx) {
+    var builderProto = lynx.Builder.prototype;
+    var tagEnum = lynx.enum.tag;
+
+    builderProto.initMeat = function() {
+        if (this.meat) return;
+
+        this.meat = [];
+
+        var rooms = [{
+            x: 3,
+            z: 3
+        }];
+
+        var size = this.config.size;
+        var originX = -size / 2;
+        var originZ = -size / 2;
+        var roomSize = size / this.config.room;
+        var gridSize = roomSize / this.config.grid;
+        var offset = gridSize / 2;
+
+        for (var i = 0, iLen = rooms.length; i < iLen; i++) {
+
+            var room = rooms[i];
+            var centerx = originX + room.x * roomSize + 2.5 * gridSize - offset;
+            var centerz = originZ + room.z * roomSize + 2.5 * gridSize - offset;
+
+            for (var j = 0; j < 5; j++) {
+                var graph = createMeat(gridSize / 4);
+                graph.position.x = centerx + Math.floor(Math.random() * 100) % (roomSize / 2);
+                graph.position.z = centerz + Math.floor(Math.random() * 100) % (roomSize / 2);
+                graph.position.y = 10;
+                graph.quality = 100;
+                this.addToScene(graph);
+                this.meat.push(graph.id);
+            }
+
+        }
+
+        function createMeat(size) {
+            var model = lynx.getModel('meat');
+            if (!model) {
+                console.error('Missing model - ' + modelType);
+                return;
+            }
+
+            var geometry = model.geometry;
+            var materials = model.materials;
+
+            for (var m = 0; m < materials.length; m++) {
+                var material = materials[m];
+                material.vertexColors = THREE.FaceColors;
+                material.side = THREE.DoubleSide;
+            }
+
+            geometry.computeBoundingBox();
+            var bound = geometry.boundingBox;
+            var boundWidth = bound.max.x - bound.min.x;
+            var boundHeight = bound.max.y - bound.min.y;
+            var boundDepth = bound.max.z - bound.min.z;
+
+            var longest = Math.max(boundWidth, boundDepth);
+            var scale = size / longest;
+
+            var graphWidth = boundWidth * scale;
+            var graphHeight = boundHeight * scale;
+            var graphDepth = boundDepth * scale;
+
+            var threeObj = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
+            threeObj.scale.set(scale, scale, scale);
+
+            var physGeomtry = new THREE.BoxGeometry(graphWidth, graphHeight, graphDepth);
+            var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
+            physMaterial.visible = false;
+
+            var physiObj = new Physijs.BoxMesh(physGeomtry, physMaterial, 10);
+            physiObj.castShadow = false;
+
+            physiObj.tag = tagEnum.MEAT;
+            physiObj.add(threeObj);
+
+            threeObj.position.y = -graphHeight / 2;
+            physiObj.position.y = graphHeight / 2;
+
+            return physiObj;
+        }
+
+    };
+
+})(lynx);
+
+// build fences
+(function(lynx) {
+    var builderProto = lynx.Builder.prototype;
+    var tagEnum = lynx.enum.tag;
+
+    builderProto.initFences = function() {
+        if (this.fences) return;
+
+        this.fences = [];
+
+        var rooms = [{
+            x: 3,
+            z: 4
+        }, {
+            x: 4,
+            z: 4
+        }];
+
+        var size = this.config.size;
+        var originX = -size / 2;
+        var originZ = -size / 2;
+        var roomSize = size / this.config.room;
+        var gridSize = roomSize / this.config.grid;
+        var offset = gridSize / 2;
+
+        var index = 1;
+        for (var i = 0, iLen = rooms.length; i < iLen; i++) {
+
+            var room = rooms[i];
+            var centerx = originX + room.x * roomSize;
+            var centerz = originZ + room.z * roomSize;
+
+            for (var j = 1; j <= 4; j++) {
+                var fence = createFence(gridSize);
+
+                if (index === 4 || index === 5) {
+                    var off = index === 4 ? -gridSize : gridSize;
+                    var pivotPoint = new THREE.Object3D();
+                    pivotPoint.position.z = fence.position.z;
+                    pivotPoint.position.x = off;
+                    pivotPoint.position.y = 0;
+                    pivotPoint.add(fence);
+                    fence.position.x = -off/2;
+
+                    pivotPoint.name = index === 4 ? 'right' : 'left';
+                    pivotPoint.turnedAngle = 0;
+                    pivotPoint.originPos = fence.position.clone();
+                    this.fences.push(pivotPoint.id);
+
+                    this.addToScene(pivotPoint);
+                } else {
+                    fence.position.x = centerx + j * gridSize - offset;
+                    fence.position.z = centerz + 1 * gridSize - offset;
+                    fence.position.z -= gridSize / 2;
+
+                    this.addToScene(fence);
+                }
+                index++;
+            }
+
+        }
+
+        function createFence(size) {
+            var model = lynx.getModel('fence');
+            if (!model) {
+                console.error('Missing model - ' + modelType);
+                return;
+            }
+
+            var geometry = model.geometry;
+            var materials = model.materials;
+
+            for (var m = 0; m < materials.length; m++) {
+                var material = materials[m];
+                material.vertexColors = THREE.FaceColors;
+                material.side = THREE.DoubleSide;
+            }
+
+            geometry.computeBoundingBox();
+            var bound = geometry.boundingBox;
+            var boundWidth = bound.max.x - bound.min.x;
+            var boundHeight = bound.max.y - bound.min.y;
+            var boundDepth = bound.max.z - bound.min.z;
+
+            var longest = Math.max(boundWidth, boundDepth);
+            var scale = size / longest;
+
+            var graphWidth = boundWidth * scale;
+            var graphHeight = boundHeight * scale;
+            var graphDepth = boundDepth * scale;
+
+            var threeObj = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
+            threeObj.scale.set(scale, scale, scale);
+
+            var physGeomtry = new THREE.BoxGeometry(graphWidth, graphHeight, graphDepth);
+            var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
+            physMaterial.visible = false;
+
+            var physiObj = new Physijs.BoxMesh(physGeomtry, physMaterial, 0);
+            physiObj.castShadow = false;
+
+            physiObj.tag = tagEnum.FENCE;
             physiObj.add(threeObj);
 
             threeObj.position.y = -graphHeight / 2;

@@ -142,6 +142,8 @@
 
         this.monsterCtrl = new lynx.MonsterCtrl(this.config);
         this.monsterCtrl.addToScene = lynx.bind(this, this.addToScene);
+        this.monsterCtrl.getMeat = lynx.bindGet(this, this.getMeat);
+        this.monsterCtrl.hurtPlayer = lynx.bind(this, this.hurtPlayer);
         this.monsterCtrl.setUp();
     };
 
@@ -152,6 +154,8 @@
         }
         this.plotCtrl = new lynx.PlotCtrl(this.config);
         this.plotCtrl.getWallByPlot = lynx.bindGet(this, this.getWallByPlot);
+        this.plotCtrl.getCage = lynx.bindGet(this, this.getCage);
+        this.plotCtrl.getFences = lynx.bindGet(this, this.getFences);
         this.plotCtrl.removeFromScene = lynx.bind(this, this.removeFromScene);
         this.plotCtrl.addCamera = lynx.bind(this, this.addCamera);
         this.plotCtrl.cameraLookAt = lynx.bind(this, this.cameraLookAt);
@@ -296,10 +300,10 @@
         switch (event.button) {
 
             case 0:
-                if (this.dragApple) {
-                    this.moveAppleByMouse(event.clientX, event.clientY, true);
+                if (this.mouseDrag) {
+                    this.dragObjByMos(event.clientX, event.clientY, true);
                 }
-                this.dragApple = false;
+                this.mouseDrag = false;
                 break;
 
         }
@@ -383,6 +387,14 @@
                 this.clickApple(intersections[0].object.id);
             }
 
+            if (intersections[0].object.tag === tagEnum.MEAT) {
+                this.clickMEAT(intersections[0].object.id);
+            }
+
+            if (intersections[0].object.tag === tagEnum.KEY) {
+                this.clickKEY(intersections[0].object.id);
+            }
+
             if (intersections[0].object.tag === tagEnum.MONSTER) {
                 this.clickMonster(intersections[0].object.id);
             }
@@ -418,20 +430,36 @@
     };
 
     worldProto.clickApple = function(id) {
-        this.dragApple = true;
-        this.appleId = id;
+        this.mouseDrag = true;
+        this.dragObjId = id;
     };
 
-    worldProto.moveAppleByMouse = function (x, y, loose) {
-        var apple = this.scene.getObjectById(this.appleId);
-        if (!apple) {
+    worldProto.clickMEAT = function(id) {
+        this.mouseDrag = true;
+        this.dragObjId = id;
+    };
+
+    worldProto.clickKEY = function(id) {
+        this.player.addGood({
+            name: 'key',
+            count: 1,
+            src: '/img/merchant_cat.jpg',
+            description: 'Key to open the cage.'
+        });
+        lynx.getHUD().playMusic(musicEnum.COLLECT);
+        this.scene.remove(this.scene.getObjectById(id));
+    };
+
+    worldProto.dragObjByMos = function (x, y, loose) {
+        var obj = this.scene.getObjectById(this.dragObjId);
+        if (!obj) {
             return;
         }
 
         if (loose) {
-            apple.__dirtyPosition = false;
-            this.dragApple = false;
-            this.appleId = null;
+            obj.__dirtyPosition = false;
+            this.mouseDrag = false;
+            this.dragObjId = null;
             return;
         }
 
@@ -450,10 +478,10 @@
         var cosXAxes = direction.clone().dot(xAxes) / (direction.length() * xAxes.length());
         var cosZAxes = direction.clone().dot(zAxes) / (direction.length() * zAxes.length());
 
-        apple.__dirtyPosition = true;
-        apple.position.x = cosXAxes * 20 + origin.x;
-        apple.position.z = cosZAxes * 20 + origin.z;
-        apple.position.y = origin.clone().add(direction).y;
+        obj.__dirtyPosition = true;
+        obj.position.x = cosXAxes * 20 + origin.x;
+        obj.position.z = cosZAxes * 20 + origin.z;
+        obj.position.y = origin.clone().add(direction).y;
 
     };
 
@@ -549,7 +577,7 @@
             var melonpi = this.npcCtrl.getNPC(npcEnum.MELONPI);
             var distance = melonpi.graph.position.distanceTo(npc.graph.position);
 
-            task.state = distance < roomSize ? taskState.COMPLET : task.state;
+            task.state = taskState.COMPLET;//distance < roomSize ? taskState.COMPLET : task.state;
             return;
         }
 
@@ -587,10 +615,9 @@
         }
 
 
-        if (npc.id === 'Melonpi') {
-
-                task.state = taskState.COMPLET;
-                npc.graph.position.copy(this.player.graph.position.clone()).add(new THREE.Vector3(10, 0, 10));
+        if (npc.id === npcEnum.MELONPI) {
+            task.state = this.player.removeGood('key', 1) ? taskState.COMPLET : task.state;
+            return;
         }
 
         function isFlower(good) {
@@ -617,8 +644,8 @@
             }
 
             if (task.state === taskState.COMPLET) {
-                // world.snowing = true;
-                // world.createSnow();
+                this.snowing = true;
+                this.createSnow();
             }
         }
 
@@ -665,10 +692,24 @@
         }
 
 
-        if (npc.id === 'Melonpi') {
-
-                task.state = taskState.COMPLET;
-                npc.graph.position.copy(this.player.graph.position.clone()).add(new THREE.Vector3(10, 0, 10));
+        if (npc.id === npcEnum.MELONPI) {
+            if (task.state === taskState.ACCEPT) {
+                this.plotCtrl.setPlot(lynx.enum.plot.FENCE);
+                this.monsterCtrl.plot = lynx.enum.plot.RESCUE;
+                return;
+            }
+            if (task.state === taskState.COMPLET) {
+                var callback = function () {
+                    npc.graph.position.x = -this.config.size/2+3*this.config.size/8+1*this.config.size/8/4;
+                    npc.graph.position.z = -this.config.size/2+0*this.config.size/8+1*this.config.size/8/4;
+                    npc.graph.position.y = npc.graph._physijs.height / 2;
+                    npc.graph.__dirtyPosition = true;
+                    return;
+                };
+                this.plotCtrl.setPlot(task.plot, callback);
+                this.monsterCtrl.plot = null;
+                return;
+            }
         }
 
         function isFlower(good) {
@@ -760,6 +801,47 @@
         }
     };
 
+    worldProto.getCage = function () {
+        return this.builder.cage;
+    };
+
+    worldProto.getFences = function () {
+        var fenceIds = this.builder.fences;
+        var fences = [];
+
+        var size = this.config.size;
+        var originX = -size / 2;
+        var originZ = -size / 2;
+        var roomSize = size / this.config.room;
+        var gridSize = roomSize / this.config.grid;
+
+        for (var i = 0, iLen = fenceIds.length; i < iLen; i++) {
+            var fence = this.scene.getObjectById(fenceIds[i]);
+            fences.push(fence);
+        }
+        return fences;
+    };
+
+    worldProto.getMeat = function () {
+        var meatIds = this.builder.meat;
+        var meat = [];
+        var newMeatIds = [];
+
+        for (var i = 0, iLen = meatIds.length; i < iLen; i++) {
+            var obj = this.scene.getObjectById(meatIds[i]);
+            if (obj.quality > 0) {
+                meat.push(obj);
+                newMeatIds.push(meatIds[i]);
+            } else {
+                this.scene.remove(obj);
+            }
+        }
+
+        this.builder.meat = newMeatIds;
+
+        return meat;
+    };
+
     worldProto.removeFromScene = function (obj) {
         if (!this.scene) {
             console.error('Missing scene.');
@@ -810,6 +892,10 @@
         return true;
     };
 
+    worldProto.hurtPlayer = function (hp) {
+        this.player.hurt(hp);
+    };
+
 })(lynx);
 
 // update world
@@ -817,21 +903,25 @@
     var worldProto = lynx.World.prototype;
 
     worldProto.update = function(delta) {
-        if (this.dragApple) {
-            this.moveAppleByMouse(this.mouseX, this.mouseY);
+
+        if (this.mouseDrag) {
+            this.dragObjByMos(this.mouseX, this.mouseY);
         }
+
         if (this.plotCtrl.ploting) {
             this.plotCtrl.update();
         }
+
+        this.player.hurt(0);
+
         this.control.enabled = !(lynx.getHUD().isTalking() || this.plotCtrl.ploting);
-        // this.getCamera().lookAt(0, 0, 0);
 
-        // this.monsterCtrl.updateMonster(this.player.graph.position.clone());
+        this.monsterCtrl.updateMonster(this.player.graph.position.clone());
+
         // this.updateMelonpi(this.player.graph.position.clone(), 10);
-
-        // if (this.snowing) {
-        //     this.updateSnow(delta);
-        // }
+        if (this.snowing) {
+            this.updateSnow(delta);
+        }
 
         this.control.update(delta);
         // this.updateMixer(delta);
@@ -878,4 +968,70 @@
         }
     };
 
+    worldProto.createSnow = function() {
+        var textureLoader = this.textureLoader;
+        var scene = this.scene;
+
+        var worldSize = this.config.size;
+
+        createPointClouds();
+
+        function createPointClouds() {
+
+            var materials = [];
+            var geometry = new THREE.Geometry();
+
+            for (i = 0; i < 20000; i++) {
+                var vertex = new THREE.Vector3();
+                vertex.x = Math.random() * worldSize - worldSize / 2;
+                vertex.y = Math.random() * 200 - 150;
+                vertex.z = Math.random() * worldSize - worldSize / 2;
+                geometry.vertices.push(vertex);
+            }
+
+            var parameters = [
+                [
+                    [1, 1, 0.5], 5
+                ],
+                [
+                    [0.95, 1, 0.5], 4
+                ],
+                [
+                    [0.90, 1, 0.5], 3
+                ],
+                [
+                    [0.85, 1, 0.5], 2
+                ],
+                [
+                    [0.80, 1, 0.5], 1
+                ]
+            ];
+
+            for (i = 0; i < parameters.length; i++) {
+                var color = parameters[i][0];
+                var size = Math.floor(Math.random() * 10) % 5;
+                materials[i] = new THREE.PointsMaterial({
+                    size: size
+                });
+                materials[i].color.setHSL(color[0], color[1], color[2]);
+
+                var particles = new THREE.Points(geometry, materials[i]);
+                particles.rotation.x = Math.random() * 6;
+                particles.rotation.y = Math.random() * 6;
+                particles.rotation.z = Math.random() * 6;
+                scene.add(particles);
+            }
+        }
+    };
+
+    worldProto.updateSnow = function(delta) {
+        var scene = this.scene;
+        var time = Date.now() * 0.00005;
+        for (i = 0; i < scene.children.length; i++) {
+            var object = scene.children[i];
+            if (object instanceof THREE.Points) {
+                object.rotation.y += 0.01 ; //time * ( i < 4 ? i + 1 : - ( i + 1 ) );
+            }
+        }
+    };
 })(lynx);

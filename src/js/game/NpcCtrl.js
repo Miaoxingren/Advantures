@@ -215,7 +215,7 @@
             x: 3,
             z: 3,
             s: 4.5,
-            t: 4.5
+            t: 1.5
         },
         name: 'Melonpi',
         model: 'cat1',
@@ -226,13 +226,16 @@
             state: taskState.CREATE,
             messages: [
                 [
-                    '必须先取得钥匙我才能出来。'
+                    '铲屎官出去了，但是这笼子被锁上了，我无法出去。',
+                    '笼子的钥匙就在汪星人的房子。',
+                    '但是汪星人总是十分激动，见人就会扑上去。',
+                    '你必须小心点，不要被咬到。'
                 ],
                 [
-                    '必须先取得钥匙我才能出来。'
+                    '可以试试用肉引开汪星人。'
                 ],
                 [
-                    '谢谢你的帮忙，现在回Merchant Cat那里吧。'
+                    '谢谢你的帮忙，向Merchant汇报吧。'
                 ]
             ]
         }]
@@ -273,17 +276,6 @@
     npcProto.checkTask = function (task) {
         if (task.state === taskState.COMPLET) {
             this.endTask(task);
-        }
-    };
-
-    npcProto.endTask = function (task) {
-        var list = this.tasks;
-        for(var i = 0, iLen = list.length; i < iLen; i++) {
-            if (list[i].name === task.name) {
-                task.end();
-                // task.state = taskState.COMPLET;
-                list.splice(i, 1);
-            }
         }
     };
 

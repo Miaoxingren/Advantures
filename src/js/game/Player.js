@@ -8,6 +8,7 @@
         this.money = money;
         this.goods = [];
         this.tasks = [];
+        this.hurtStep = 0;
     };
 
     var playerProto = lynx.Player.prototype;
@@ -125,21 +126,20 @@
     };
 
     playerProto.addGoods = function(goods) {
-        while (goods.length) {
-            var good = lynx.merge(goods.pop(), {
-                src: '/img/merchant_cat.jpg',
-                description: 'merchant_cat.'
-            });
-            // this.goods.push(good);
-            this.addGood(good);
+        for (var i = 0; i < goods.length; i++) {
+            this.addGood(goods[i]);
         }
-        // for (var i = 0; i < goods.length; i++) {
-        //     var good = lynx.merge(goods[i], {
-        //         src: '/img/merchant_cat.jpg',
-        //         description: 'merchant_cat.'
-        //     });
-        //     this.goods.push(good);
-        // }
+    };
+
+    playerProto.hurt = function (hp) {
+        this.hurtStep = this.hurtStep > 100 ? 0 : this.hurtStep;
+        if (this.hurtStep === 0 && hp > 0) {
+            this.health -= hp;
+            lynx.getHUD().showHealth(this.health);
+            lynx.getHUD().playMusic(lynx.enum.music.HURT);
+        }
+
+        this.hurtStep++;
     };
 
 })(lynx);
