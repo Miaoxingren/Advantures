@@ -1,6 +1,6 @@
-# Advantures
+# Cat Go
 
-Advantures
+Cat Go - A WebGL game.
 
 ## TAG
 
