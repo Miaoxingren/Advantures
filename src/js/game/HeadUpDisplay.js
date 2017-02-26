@@ -380,7 +380,7 @@
 
         this.toolsCtrl.toggleVisibility(this.domShown, false);
         lynx.state = lynx.enum.world.GAMECLEAR;
-        this.playMusic(musicEnum.END);
+        this.playMusic(musicEnum.GAMECLEAR);
         this.domShown = domEnum.GAMECLEAR;
         lynx.toggle(this.gameClearDom, true);
     };
