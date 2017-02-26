@@ -113,9 +113,10 @@ var lynx = {
 
     lynxEnum.world = {
         INIT: 0,
-        PLAY: 1,
-        PAUSE: 2,
-        GAMEOVER: 3
+        PAUSE: 1,
+        GAMEOVER: 2,
+        PLAY: 3,
+        GAMECLEAR: 4
     };
 
     lynxEnum.task = {
@@ -167,20 +168,12 @@ var lynx = {
         EMPTY: 1,
         DIALOG: 2,
         PAUSE: 3,
-        WELCOME: 4
+        GAMEOVER: 4.2,
+        GAMECLEAR: 4.4,
+        WELCOME: 5
     };
 
     lynx.enum.npc = {
-        // Charles: 1,
-        // Mark: 2,
-        // Bill: 3,
-        // Vincent: 4,
-        // William: 5,
-        // Joseph: 6,
-        // James: 7,
-        // Henry: 8,
-        // Gary: 9,
-        // Martin: 10
         MELONPI: 0,
         CHARLES: 1,
         MARK: 2,
@@ -201,7 +194,9 @@ var lynx = {
         RESUME: 'levelstart',
         CLICKTREE: 'block',
         COLLECT: 'gold',
-        HURT: 'hurt1'
+        HURT: 'hurt1',
+        DEAD: 'death',
+        GAMECLEAR: 'end'
     };
 
 })(lynx);
@@ -274,7 +269,7 @@ var lynx = {
         };
 
         var _mouseLeave = function(event) {
-            if (lynx.state === lynx.enum.world.PAUSE) {
+            if (lynx.state >= lynx.enum.world.PAUSE) {
                 return;
             }
             lynx.getHUD().pause();
@@ -294,7 +289,7 @@ var lynx = {
 
         function animate() {
             requestAnimationFrame(animate);
-            if (lynx.state === lynx.enum.world.PLAY) {
+            if (lynx.state >= lynx.enum.world.PLAY) {
                 render();
             }
         }

@@ -120,6 +120,8 @@
     worldProto.initBuilder = function() {
         this.builder = new lynx.Builder(this.config);
         this.builder.addToScene = lynx.bind(this, this.addToScene);
+        this.builder.removeById = lynx.bind(this, this.removeById);
+        this.builder.getObjectById = lynx.bindGet(this, this.getObjectById);
         this.builder.setUp();
     };
 
@@ -277,7 +279,7 @@
     var musicEnum = lynx.enum.music;
 
     worldProto.onMouseDown = function(event) {
-        if (lynx.state === lynx.enum.world.PAUSE) {
+        if (lynx.state <= lynx.enum.world.PAUSE) {
             return;
         }
 
@@ -293,7 +295,7 @@
     };
 
     worldProto.onMouseUp = function(event) {
-        if (lynx.state === lynx.enum.world.PAUSE) {
+        if (lynx.state <= lynx.enum.world.PAUSE) {
             return;
         }
 
@@ -311,7 +313,7 @@
     };
 
     worldProto.onMouseMove = function(event) {
-        if (lynx.state === lynx.enum.world.PAUSE) {
+        if (lynx.state <= lynx.enum.world.PAUSE) {
             return;
         }
 
@@ -336,6 +338,9 @@
     };
 
     worldProto.onKeyDown = function(event) {
+        if (lynx.state !== lynx.enum.world.PAUSE && lynx.state !== lynx.enum.world.PLAY) {
+            return;
+        }
 
         switch (event.keyCode) {
             case 32:
@@ -350,7 +355,7 @@
     };
 
     worldProto.onKeyUp = function(event) {
-        if (lynx.state === lynx.enum.world.PAUSE) {
+        if (lynx.state <= lynx.enum.world.PAUSE) {
             return;
         }
     };
@@ -577,7 +582,7 @@
             var melonpi = this.npcCtrl.getNPC(npcEnum.MELONPI);
             var distance = melonpi.graph.position.distanceTo(npc.graph.position);
 
-            task.state = taskState.COMPLET;//distance < roomSize ? taskState.COMPLET : task.state;
+            task.state = distance < roomSize ? taskState.COMPLET : task.state;
             return;
         }
 
@@ -644,8 +649,7 @@
             }
 
             if (task.state === taskState.COMPLET) {
-                this.snowing = true;
-                this.createSnow();
+                this.gameClear();
             }
         }
 
@@ -850,6 +854,18 @@
         this.scene.remove(obj);
     };
 
+    worldProto.removeById = function (id) {
+        if (!this.scene) {
+            console.error('Missing scene.');
+            return;
+        }
+
+        var obj = this.scene.getObjectById(id);
+        if (obj) {
+            this.scene.remove(obj);
+        }
+    };
+
     worldProto.cameraLookAt = function (position) {
         var camera = this.getCamera();
         camera.lookAt(position);
@@ -894,6 +910,24 @@
 
     worldProto.hurtPlayer = function (hp) {
         this.player.hurt(hp);
+        if (this.player.health <= 0) {
+            this.gameOver();
+        }
+    };
+
+    worldProto.getObjectById = function (id) {
+        return this.scene.getObjectById(id);
+    };
+
+    worldProto.gameOver = function () {
+        lynx.state = lynx.enum.world.GAMEOVER;
+        lynx.getHUD().gameOver();
+    };
+
+    worldProto.gameClear = function () {
+        this.builder.createSnow();
+        lynx.state = lynx.enum.world.GAMECLEAR;
+        lynx.getHUD().gameClear();
     };
 
 })(lynx);
@@ -919,8 +953,8 @@
         this.monsterCtrl.updateMonster(this.player.graph.position.clone());
 
         // this.updateMelonpi(this.player.graph.position.clone(), 10);
-        if (this.snowing) {
-            this.updateSnow(delta);
+        if (lynx.state === lynx.enum.world.GAMECLEAR) {
+            this.builder.updateSnow(delta);
         }
 
         this.control.update(delta);
@@ -968,70 +1002,5 @@
         }
     };
 
-    worldProto.createSnow = function() {
-        var textureLoader = this.textureLoader;
-        var scene = this.scene;
 
-        var worldSize = this.config.size;
-
-        createPointClouds();
-
-        function createPointClouds() {
-
-            var materials = [];
-            var geometry = new THREE.Geometry();
-
-            for (i = 0; i < 20000; i++) {
-                var vertex = new THREE.Vector3();
-                vertex.x = Math.random() * worldSize - worldSize / 2;
-                vertex.y = Math.random() * 200 - 150;
-                vertex.z = Math.random() * worldSize - worldSize / 2;
-                geometry.vertices.push(vertex);
-            }
-
-            var parameters = [
-                [
-                    [1, 1, 0.5], 5
-                ],
-                [
-                    [0.95, 1, 0.5], 4
-                ],
-                [
-                    [0.90, 1, 0.5], 3
-                ],
-                [
-                    [0.85, 1, 0.5], 2
-                ],
-                [
-                    [0.80, 1, 0.5], 1
-                ]
-            ];
-
-            for (i = 0; i < parameters.length; i++) {
-                var color = parameters[i][0];
-                var size = Math.floor(Math.random() * 10) % 5;
-                materials[i] = new THREE.PointsMaterial({
-                    size: size
-                });
-                materials[i].color.setHSL(color[0], color[1], color[2]);
-
-                var particles = new THREE.Points(geometry, materials[i]);
-                particles.rotation.x = Math.random() * 6;
-                particles.rotation.y = Math.random() * 6;
-                particles.rotation.z = Math.random() * 6;
-                scene.add(particles);
-            }
-        }
-    };
-
-    worldProto.updateSnow = function(delta) {
-        var scene = this.scene;
-        var time = Date.now() * 0.00005;
-        for (i = 0; i < scene.children.length; i++) {
-            var object = scene.children[i];
-            if (object instanceof THREE.Points) {
-                object.rotation.y += 0.01 ; //time * ( i < 4 ? i + 1 : - ( i + 1 ) );
-            }
-        }
-    };
 })(lynx);

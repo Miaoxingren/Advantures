@@ -300,6 +300,9 @@
         this.musicDom = document.getElementById('music');
         this.healthDom = document.getElementById('health');
         this.moneyDom = document.getElementById('money');
+        this.dialogDom = document.getElementById('dialog');
+        this.gameOverDom = document.getElementById('gameover');
+        this.gameClearDom = document.getElementById('gameclear');
 
         this.domShown = domEnum.WELCOME;
 
@@ -312,6 +315,9 @@
 
         lynx.toggle(this.welcomeDom, true);
         lynx.toggle(this.pauseDom, false);
+        lynx.toggle(this.dialogDom, false);
+        lynx.toggle(this.gameOverDom, false);
+        lynx.toggle(this.gameClearDom, false);
     };
 
     hudProto.gameReady = function() {
@@ -335,6 +341,72 @@
         lynx.toggle(this.welcomeDom, false);
         lynx.state = lynx.enum.world.PLAY;
         lynx.enterGame();
+    };
+
+    hudProto.gameOver = function() {
+        if (!this.gameOverDom) {
+            console.error('Game Over dom not found.');
+            return;
+        }
+
+        if (lynx.toggle(this.gameOverDom)) {
+            return;
+        }
+
+        if (this.domShown > domEnum.GAMEOVER + 1 || this.domShown === domEnum.GAMEOVER) {
+            return;
+        }
+
+        this.toolsCtrl.toggleVisibility(this.domShown, false);
+        lynx.state = lynx.enum.world.GAMEOVER;
+        this.playMusic(musicEnum.DEAD);
+        this.domShown = domEnum.GAMEOVER;
+        lynx.toggle(this.gameOverDom, true);
+    };
+
+    hudProto.gameClear = function() {
+        if (!this.gameClearDom) {
+            console.error('Game Over dom not found.');
+            return;
+        }
+
+        if (lynx.toggle(this.gameClearDom)) {
+            return;
+        }
+
+        if (this.domShown > domEnum.GAMECLEAR + 1 || this.domShown === domEnum.GAMECLEAR) {
+            return;
+        }
+
+        this.toolsCtrl.toggleVisibility(this.domShown, false);
+        lynx.state = lynx.enum.world.GAMECLEAR;
+        this.playMusic(musicEnum.END);
+        this.domShown = domEnum.GAMECLEAR;
+        lynx.toggle(this.gameClearDom, true);
+    };
+
+    hudProto.toggleVisibility = function (domPriority, show) {
+        var dom;
+
+        switch (domPriority) {
+            case domEnum.PAUSE:
+                dom = this.pauseDom;
+                break;
+            case domEnum.WELCOME:
+                dom = this.welcomeDom;
+                break;
+            case domEnum.DIALOG:
+                dom = this.dialogDom;
+                break;
+            case domEnum.GAMEOVER:
+                dom = this.gameOverDom;
+                break;
+            default:
+                this.toolsCtrl.toggleVisibility(domPriority, show);
+                return;
+        }
+
+        lynx.toggle(dom, show);
     };
 
     hudProto.pause = function() {
@@ -386,10 +458,6 @@
             return;
         }
 
-        // control by world
-        if (!health) {
-            this.pause();
-        }
         this.healthDom.innerHTML = health;
     };
 

@@ -851,6 +851,14 @@
         console.error('builderProto - Function addToScene not implemented.');
     };
 
+    builderProto.removeById = function() {
+        console.error('builderProto - Function removeById not implemented.');
+    };
+
+    builderProto.getObjectById = function() {
+        console.error('builderProto - Function getObjectById not implemented.');
+    };
+
 })(lynx);
 
 // build wall
@@ -2022,178 +2030,65 @@
     var builderProto = lynx.Builder.prototype;
 
     builderProto.createSnow = function() {
-        var addToScene = this.addToScene();
-        var textureLoader = this.textureLoader;
+        if (this.snow) return;
 
-        createPointClouds(Math.floor(Math.random() * 50) % 50, false, 0.8, true, new THREE.Color());
+        var addToScene = this.addToScene;
+        var worldSize = this.config.size;
 
-        function createPointCloud(name, texture, size, transparent, opacity, sizeAttenuation, color_) {
-            var geom = new THREE.Geometry();
+        var snow = createPointClouds();
+        this.snow = snow;
 
-            var color = new THREE.Color(color_);
-            color.setHSL(color.getHSL().h,
-                color.getHSL().s,
-                (Math.random()) * color.getHSL().l);
-
-            var material = new THREE.PointsMaterial({
-                size: size,
-                transparent: transparent,
-                opacity: opacity,
-                map: texture,
-                blending: THREE.AdditiveBlending,
-                depthWrite: false,
-                sizeAttenuation: sizeAttenuation,
-                color: color
-            });
-
-            var range = 40;
-            for (var i = 0; i < 50; i++) {
-                var particle = new THREE.Vector3(
-                    Math.random() * range - range / 2,
-                    Math.random() * range * 1.5,
-                    Math.random() * range - range / 2);
-                particle.velocityY = 0.1 + Math.random() / 5;
-                particle.velocityX = (Math.random() - 0.5) / 3;
-                particle.velocityZ = (Math.random() - 0.5) / 3;
-                geom.vertices.push(particle);
-            }
-
-            var system = new THREE.Points(geom, material);
-            system.name = name;
-            system.sortParticles = true;
-            return system;
-        }
-
-        function createPointClouds(size, transparent, opacity, sizeAttenuation, color) {
-
-            // var texture1 = textureLoader.load("/asset/texture/snowflake1.png");
-            // var texture2 = textureLoader.load("/asset/texture/snowflake2.png");
-            // var texture3 = textureLoader.load("/asset/texture/snowflake3.png");
-            // var texture4 = textureLoader.load("/asset/texture/snowflake4.png");
-            // var texture5 = textureLoader.load("/asset/texture/snowflake5.png");
-
-            // scene.add(createPointCloud("system1", texture1, size, transparent, opacity, sizeAttenuation, color));
-            // scene.add(createPointCloud("system2", texture2, size, transparent, opacity, sizeAttenuation, color));
-            // scene.add(createPointCloud("system3", texture3, size, transparent, opacity, sizeAttenuation, color));
-            // scene.add(createPointCloud("system4", texture4, size, transparent, opacity, sizeAttenuation, color));
-
-            // var texture1 = textureLoader.load("/asset/texture/star.png");
-            // var texture2 = textureLoader.load("/asset/texture/star.png");
-            // var texture3 = textureLoader.load("/asset/texture/star.png");
-            // var texture4 = textureLoader.load("/asset/texture/star.png");
-            // var texture5 = textureLoader.load("/asset/texture/star.png");
+        function createPointClouds() {
 
             var materials = [];
+            var snow = [];
             var geometry = new THREE.Geometry();
-            //
-            // for (i = 0; i < 10000; i++) {
-            //     var vertex = new THREE.Vector3();
-            //     vertex.x = Math.random() * 2000 - 1000;
-            //     vertex.y = Math.random() * 2000 - 1000;
-            //     vertex.z = Math.random() * 2000 - 1000;
-            //     geometry.vertices.push(vertex);
-            // }
-            //
-            // var parameters = [
-            //     [
-            //         [1.0, 0.2, 0.5], texture2, 20
-            //     ],
-            //     [
-            //         [0.95, 0.1, 0.5], texture3, 15
-            //     ],
-            //     [
-            //         [0.90, 0.05, 0.5], texture1, 10
-            //     ],
-            //     [
-            //         [0.85, 0, 0.5], texture5, 8
-            //     ],
-            //     [
-            //         [0.80, 0, 0.5], texture4, 5
-            //     ]
-            // ];
-            //
-            // for (i = 0; i < parameters.length; i++) {
-            //     color = parameters[i][0];
-            //     sprite = parameters[i][1];
-            //     size = parameters[i][2];
-            //     materials[i] = new THREE.PointsMaterial({
-            //         size: size,
-            //         map: sprite,
-            //         blending: THREE.AdditiveBlending,
-            //         depthTest: false,
-            //         transparent: true
-            //     });
-            //     materials[i].color.setHSL(color[0], color[1], color[2]);
-            //     particles = new THREE.Points(geometry, materials[i]);
-            //     particles.rotation.x = Math.random() * 6;
-            //     particles.rotation.y = Math.random() * 6;
-            //     particles.rotation.z = Math.random() * 6;
-            //     scene.add(particles);
-            // }
 
-            for (i = 0; i < 20000; i++) {
+            for (i = 0; i < 3000; i++) {
                 var vertex = new THREE.Vector3();
-                vertex.x = Math.random() * 2000 - 1000;
-                vertex.y = Math.random() * 200 - 100;
-                vertex.z = Math.random() * 2000 - 1000;
+                vertex.x = Math.random() * worldSize - worldSize / 2;
+                vertex.y = Math.random() * 100 * (Math.random() > 0.5 ? 1 : -1);
+                vertex.z = Math.random() * worldSize - worldSize / 2;
                 geometry.vertices.push(vertex);
             }
-            var parameters = [
-                [
-                    [1, 1, 0.5], 5
-                ],
-                [
-                    [0.95, 1, 0.5], 4
-                ],
-                [
-                    [0.90, 1, 0.5], 3
-                ],
-                [
-                    [0.85, 1, 0.5], 2
-                ],
-                [
-                    [0.80, 1, 0.5], 1
-                ]
-            ];
-            for (i = 0; i < parameters.length; i++) {
-                color = parameters[i][0];
-                size = parameters[i][1];
+
+            var colors = [[1, 1, 0.5], [0.95, 1, 0.5], [0.90, 1, 0.5], [0.85, 1, 0.5], [0.80, 1, 0.5]];
+
+            for (i = 0; i < colors.length; i++) {
+                var color = colors[i];
+                var size = Math.floor(Math.random() * 10) % 5;
                 materials[i] = new THREE.PointsMaterial({
                     size: size
                 });
                 materials[i].color.setHSL(color[0], color[1], color[2]);
-                particles = new THREE.Points(geometry, materials[i]);
+
+                var particles = new THREE.Points(geometry, materials[i]);
                 particles.rotation.x = Math.random() * 6;
                 particles.rotation.y = Math.random() * 6;
                 particles.rotation.z = Math.random() * 6;
                 addToScene(particles);
+                snow.push(particles.id);
             }
+
+            return snow;
         }
+
     };
 
     builderProto.updateSnow = function(delta) {
-        // this.scene.children.forEach(function(child) {
-        //     if (child instanceof THREE.Points) {
-        //         var vertices = child.geometry.vertices;
-        //         vertices.forEach(function(v) {
-        //             v.y = v.y - (v.velocityY);
-        //             v.x = v.x - (v.velocityX);
-        //             v.z = v.z - (v.velocityZ);
-        //
-        //             if (v.y <= 0) v.y = 6;
-        //             if (v.x <= -2 || v.x >= 2) v.velocityX = v.velocityX * -1;
-        //             if (v.z <= -2 || v.z >= 2) v.velocityZ = v.velocityZ * -1;
-        //         });
-        //     }
-        // });
-        var scene = this.scene;
-        var time = Date.now() * 0.00005;
-        for (i = 0; i < scene.children.length; i++) {
-            var object = scene.children[i];
+        if (!this.snow) {
+            return;
+        }
+
+        var snow = this.snow;
+
+        for (var i = 0, iLen = snow.length; i < iLen; i++) {
+            var object = this.getObjectById(snow[i]);
             if (object instanceof THREE.Points) {
-                object.rotation.y = (object.rotation.y + 0.005) % (Math.PI * 2); //time * ( i < 4 ? i + 1 : - ( i + 1 ) );
+                object.rotation.y += 0.01;
             }
         }
+
     };
 
 })(lynx);

@@ -752,7 +752,7 @@ html, body {
     content: "\e8fd";
 }
 
-#taskList, #goodList, #helpList, #empty {
+#taskList, #goodList, #helpList, #empty, #gameover, #gameclear {
     margin: auto;
     position: absolute;
     left: 0;
@@ -776,6 +776,43 @@ html, body {
     animation-duration: .6s;
     animation-direction: alternate;
 }
+
+#gameover {
+    text-align: center;
+    background-color: #101016;
+    color: #f4f9fb;
+    font-size: 40px;
+    width: 8em;
+    height: 5.5em;
+    padding: 1em;
+    border-radius: 1em;
+    line-height: 1.5;
+
+    animation-iteration-count: infinite;
+    animation-duration: 1s;
+    animation-direction: alternate;
+}
+
+#gameclear {
+    text-align: center;
+    background-color: #ffc296;
+    color: #30688b;
+    font-size: 25px;
+    width: 8em;
+    height: 8em;
+    padding: 1em;
+    border-radius: 1em;
+    line-height: 1.5;
+
+    animation-iteration-count: infinite;
+    animation-duration: 1.2s;
+    animation-direction: alternate;
+}
+
+#gameclear>h1 {
+    font-size: 40px;
+}
+
 
 /* task list */
 
