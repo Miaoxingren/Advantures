@@ -242,18 +242,18 @@ html, body {
     padding-bottom: 1em;
 }
 
-#hint {
+#progress {
     font-size: 30px;
     padding: 0.5em;
     border: 0.125em solid #263238;
 }
 
-#hint.fade {
+#progress.fade {
     cursor: pointer;
     background-color: #009688;
 }
 
-#hint:hover {
+#progress:hover {
     border-color: #009688;
 }
 
@@ -555,6 +555,17 @@ html, body {
     top: 0;
 }
 
+/* --- hurt effect --- */
+
+#hurt-effect {
+    background: #CB132E;
+    background: -webkit-radial-gradient(circle, #CB132E, #d23e30);
+    background: -o-radial-gradient(circle, #CB132E, #d23e30);
+    background: -moz-radial-gradient(circle, #CB132E, #d23e30);
+    background: radial-gradient(circle, #CB132E, #d23e30);
+    animation-iteration-count: 1;
+}
+
 /* --- money & health --- */
 
 #points {
@@ -588,6 +599,93 @@ html, body {
 
 #points>li>span.icon-moneybag {
     color: #a1887f;
+}
+
+/* --- tips --- */
+@keyframes tipSlide {
+    from, to {
+        transform: translateX(100%);
+        -webkit-transform: translateX(100%);
+    }
+
+    20% {
+        transform: translateX(0);
+        -webkit-transform: translateX(0);
+    }
+
+    80% {
+        transform: translateX(0);
+        -webkit-transform: translateX(0);
+    }
+
+    99.999% {
+        height: auto;
+        padding: 0.5em 1em;
+        margin-top: 0.5em;
+    }
+
+    100% {
+        height: 0;
+        padding: 0;
+        margin-top: 0;
+    }
+
+}
+
+@-webkit-keyframes tipSlide {
+    from, to {
+        transform: translateX(100%);
+        -webkit-transform: translateX(100%);
+    }
+
+    20% {
+        transform: translateX(0);
+        -webkit-transform: translateX(0);
+    }
+
+    80% {
+        transform: translateX(0);
+        -webkit-transform: translateX(0);
+    }
+
+    99.999% {
+        height: auto;
+        padding: 0.5em 1em;
+        margin-top: 0.5em;
+    }
+
+    100% {
+        height: 0;
+        padding: 0;
+        margin-top: 0;
+    }
+
+}
+
+.tipSlide {
+    -webkit-animation-timing-function: cubic-bezier(0.6, 0.30, 0.45, 1.000);
+    animation-timing-function: cubic-bezier(0.6, 0.30, 0.45, 1.000);
+    -webkit-animation-name: tipSlide;
+    animation-name: tipSlide;
+    animation-duration: 2s;
+}
+
+#tips {
+    text-align: left;
+    font-size: 20px;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 3em;
+    right: 0;
+}
+
+#tips>li {
+    padding: 0.5em 1em;
+    margin-top: 0.5em;
+    background-color: #e2664c;
+    border-radius: 1em 0 0 1em;
 }
 
 /* --- tools --- */

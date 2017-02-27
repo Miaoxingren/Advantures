@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('/fonts/icomoon.eot?fw4ih3');
-  src:  url('/fonts/icomoon.eot?fw4ih3#iefix') format('embedded-opentype'),
-    url('/fonts/icomoon.ttf?fw4ih3') format('truetype'),
-    url('/fonts/icomoon.woff?fw4ih3') format('woff'),
-    url('/fonts/icomoon.svg?fw4ih3#icomoon') format('svg');
+  src:  url('/fonts/icomoon.eot?7ahdk3');
+  src:  url('/fonts/icomoon.eot?7ahdk3#iefix') format('embedded-opentype'),
+    url('/fonts/icomoon.ttf?7ahdk3') format('truetype'),
+    url('/fonts/icomoon.woff?7ahdk3') format('woff'),
+    url('/fonts/icomoon.svg?7ahdk3#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -24,6 +24,9 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-bones:before {
+  content: "\e90b";
+}
 .icon-check_circle:before {
   content: "\e86c";
 }
@@ -44,6 +47,9 @@
 }
 .icon-radio_button_unchecked:before {
   content: "\e836";
+}
+.icon-times:before {
+  content: "\e90c";
 }
 .icon-mouse:before {
   content: "\e906";
@@ -80,4 +86,10 @@
 }
 .icon-cog:before {
   content: "\e994";
+}
+.icon-heart-broken:before {
+  content: "\e9db";
+}
+.icon-question:before {
+  content: "\ea09";
 }

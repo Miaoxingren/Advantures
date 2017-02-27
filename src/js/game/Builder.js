@@ -222,7 +222,7 @@
             vertical: true,
             coordinate: {
                 x: 4,
-                z: 3,
+                z: 4,
                 s: 2,
                 t: 1
             }
@@ -814,9 +814,9 @@
         var children = this.graph.children;
 
         if (this.goods.length) {
-            lynx.getHUD().playMusic(lynx.enum.music.COLLECT);
             this.graph.remove(children[children.length - 1]);
-            return this.goods.pop();
+            var item = this.goods.pop();
+            return item;
         }
 
     };
@@ -1660,7 +1660,7 @@
             var centerx = originX + room.x * roomSize + 2.5 * gridSize - offset;
             var centerz = originZ + room.z * roomSize + 2.5 * gridSize - offset;
 
-            for (var j = 0; j < 1; j++) {
+            for (var j = 0; j < 10; j++) {
                 var apple = createApple(gridSize / 4);
                 apple.position.x = centerx + Math.floor(Math.random() * 100) % (roomSize / 2);
                 apple.position.z = centerz + Math.floor(Math.random() * 100) % (roomSize / 2);

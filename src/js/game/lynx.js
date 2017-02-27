@@ -222,17 +222,14 @@ var lynx = {
             name: 'panther0',
             model: 'panther0',
             health: 5,
-            money: 50,
+            money: 5,
             coordinate: {
                 x: 3,
                 z: 0,
-                s: 3,
-                t: 3
+                s: 1,
+                t: 2.5
             }
-        },
-        walls: [],
-        npcs: [],
-        monsters: []
+        }
     };
 
     conf.paw = paw;
@@ -249,6 +246,7 @@ var lynx = {
         }
 
         var renderer = lynx.getRenderer();
+        lynx.getHUD().progress('创建世界...');
         var world = new lynx.World("paw", renderer.domElement);
 
         lynx.getCurrentWorld = function () {
@@ -269,14 +267,22 @@ var lynx = {
         };
 
         var _mouseLeave = function(event) {
-            if (lynx.state >= lynx.enum.world.PAUSE) {
+            if (lynx.state !== lynx.enum.world.PLAY) {
                 return;
             }
             lynx.getHUD().pause();
         };
 
+        var _mouseEnter = function(event) {
+            if (lynx.state !== lynx.enum.world.PAUSE) {
+                return;
+            }
+            lynx.getHUD().resume();
+        };
+
         document.addEventListener('mouseleave', _mouseLeave);
-        document.addEventListener('resize', _resize);
+        document.addEventListener('mouseenter', _mouseEnter);
+        window.addEventListener('resize', _resize);
 
         var stats = lynx.getStats();
         var renderer = lynx.getRenderer();
@@ -311,8 +317,11 @@ var lynx = {
 
         initHUD();
         initPhysi();
+        lynx.getHUD().progress('创建统计工具...');
         initStats('stats');
+        lynx.getHUD().progress('创建渲染器...');
         initRenderer('game');
+        lynx.getHUD().progress('加载模型中...');
         initModels();
     };
 

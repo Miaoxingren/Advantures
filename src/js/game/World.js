@@ -21,22 +21,23 @@
         }
 
         this.mixers = [];
-
+        lynx.getHUD().progress('创建场景...');
         this.initScene();
-
+        lynx.getHUD().progress('创建相机...');
         this.initCamCtrl();
-
+        lynx.getHUD().progress('创建灯光...');
         this.initLight();
-
+        lynx.getHUD().progress('添加建筑...');
         this.initBuilder();
-
+        lynx.getHUD().progress('创建NPC...');
         this.initNpcCtrl();
-
+        lynx.getHUD().progress('创建monster...');
         this.initMonsterCtrl();
-
+        lynx.getHUD().progress('创建plot...');
         this.initPlotCtrl();
-
+        lynx.getHUD().progress('创建玩家...');
         this.initPlayer();
+        lynx.getHUD().progress('添加玩家控制...');
         this.initControl();
 
         var hud = lynx.getHUD();
@@ -430,6 +431,8 @@
         var good = this.builder.getShelfGood(id);
         if (good) {
             this.player.addGood(good);
+        } else {
+            lynx.getHUD().tips();
         }
         lynx.getHUD().showMoney(this.player.money);
     };
@@ -451,7 +454,6 @@
             src: '/img/merchant_cat.jpg',
             description: 'Key to open the cage.'
         });
-        lynx.getHUD().playMusic(musicEnum.COLLECT);
         this.scene.remove(this.scene.getObjectById(id));
     };
 

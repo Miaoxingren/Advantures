@@ -200,7 +200,7 @@
             var description = task.messages[taskState.CREATE].join('\n');
             var taskHTML = '<div class="mission">' + '<div class="title">' +
                 '<span class="' + stateClass + '"></span>' +
-                '<span>Welcome</span>' + '</div>' +
+                '<span>' + task.name + '</span>' + '</div>' +
                 '<div class="description">' + description + '</div>' + '</div>';
             return taskHTML;
         }
@@ -283,6 +283,47 @@
 
 })(lynx);
 
+// TipsCtrl
+(function (lynx) {
+    lynx.TipsCtrl = function() {
+        this.tipsDom = document.getElementById('tips');
+    };
+
+    var tipProto = lynx.TipsCtrl.prototype;
+
+    tipProto.showTips = function (goods) {
+        if (!this.tipsDom) {
+            console.error('Tips dom not found.');
+            return;
+        }
+
+        var frag = document.createDocumentFragment();
+        var goodNode;
+
+        if (!goods || !goods.length) {
+            goodNode = createGood();
+            frag.appendChild(goodNode);
+            this.tipsDom.appendChild(frag);
+            return;
+        }
+
+        for (var i = 0, iLen = goods.length; i < iLen; i++) {
+            goodNode = createGood(goods[i]);
+            frag.appendChild(goodNode);
+        }
+
+        this.tipsDom.appendChild(frag);
+
+        function createGood(good) {
+            var li = document.createElement("li");
+            li.className = "animated tipSlide";
+            li.innerHTML = good ? '获得' + good.name + '<span class="icon-times"></span>' + good.count : '什么也没有~';
+            return li;
+        }
+    };
+
+})(lynx);
+
 // HeadUpDisplay
 (function (lynx) {
     var domEnum = lynx.enum.dom;
@@ -303,11 +344,15 @@
         this.dialogDom = document.getElementById('dialog');
         this.gameOverDom = document.getElementById('gameover');
         this.gameClearDom = document.getElementById('gameclear');
+        this.progressDom = document.getElementById('progress');
+        this.tipsDom = document.getElementById('tips');
+        this.hurtEctDom = document.getElementById('hurt-effect');
 
         this.domShown = domEnum.WELCOME;
 
         this.dialogCtrl = new lynx.DialogCtrl();
         this.toolsCtrl = new lynx.ToolsCtrl();
+        this.tipsCtrl = new lynx.TipsCtrl();
 
         this.toolsCtrl.getDom = this.getDomFunc();
         this.toolsCtrl.setDom = lynx.bind(this, this.setDom);
@@ -321,18 +366,17 @@
     };
 
     hudProto.gameReady = function() {
-        if (!this.welcomeDom) {
-            console.error('Welcome dom not found.');
+        if (!this.progressDom) {
+            console.error('Progress dom not found.');
             return;
         }
         this.playMusic(musicEnum.GAMEREADY);
 
-        var hintDom = document.getElementById('hint');
-        hintDom.innerHTML = 'Click here to begin.';
-        hintDom.classList.add('fade');
+        lynx.getHUD().progress('Click here to begin.');
+        this.progressDom.classList.add('fade');
 
-        var hintClick = lynx.bind(this, this.enterGame);
-        hintDom.addEventListener('click', hintClick, false);
+        var clickHandler = lynx.bind(this, this.enterGame);
+        this.progressDom.addEventListener('click', clickHandler, false);
     };
 
     hudProto.enterGame = function() {
@@ -409,6 +453,23 @@
         lynx.toggle(dom, show);
     };
 
+    hudProto.progress = function (msg) {
+        if (!this.progressDom) {
+            console.error('Progress dom not found.');
+            return;
+        }
+
+        this.progressDom.innerHTML = msg;
+    };
+
+    hudProto.tips = function (goods) {
+        if (!this.tipsCtrl) {
+            console.error('Missing Tips control');
+            return;
+        }
+        this.tipsCtrl.showTips(goods);
+    };
+
     hudProto.pause = function() {
         if (!this.pauseDom) {
             console.error('Pause dom not found.');
@@ -451,6 +512,24 @@
         this.musicDom.src = '/asset/music/' + music + '.mp3';
         this.musicDom.play();
     };
+
+    hudProto.hurtPlayer = function (health) {
+        this.toggleHurtEffect();
+        this.playMusic(lynx.enum.music.HURT);
+        this.showHealth(health);
+        setTimeout(lynx.bind(this, this.toggleHurtEffect), 1000);
+    };
+
+    hudProto.toggleHurtEffect = function () {
+        if (!this.hurtEctDom) {
+            console.error('Hurt effect dom not found.');
+            return;
+        }
+
+        var show = !lynx.toggle(this.hurtEctDom);
+        lynx.toggle(this.hurtEctDom, show);
+    };
+
 
     hudProto.showHealth = function(health) {
         if (!this.healthDom) {

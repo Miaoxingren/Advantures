@@ -128,7 +128,6 @@
 
     lynx.MonsterCtrl = function (config) {
         this.config = config;
-        this.plot = null;
     };
 
     var monsterCtrlProto = lynx.MonsterCtrl.prototype;
@@ -284,9 +283,9 @@
             var obj = objs[i];
             if (!obj.isDead()) {
                 // obj.lookAtPoint = pos;
-                if (this.plot === lynx.enum.plot.RESCUE) {
+                // if (this.plot === lynx.enum.plot.RESCUE) {
                     this.updateBoss(pos, this.getMeat());
-                }
+                // }
                 obj.update();
             }
         }

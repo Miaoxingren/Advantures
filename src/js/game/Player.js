@@ -1,5 +1,6 @@
 (function(lynx) {
     var tagEnum = lynx.enum.tag;
+    var musicEnum = lynx.enum.music;
     var taskState = lynx.enum.task;
 
     lynx.Player = function(graph, health, money) {
@@ -33,8 +34,8 @@
         var goods = this.goods;
 
         for (var i = 0; i < goods.length; i++) {
-            if (good.name === name) {
-                return good;
+            if (goods[i].name === name) {
+                return goods[i];
             }
         }
     };
@@ -58,9 +59,9 @@
 
         for (var i = 0; i < goods.length; i++) {
             if (goods[i].name === name && goods[i].count >= count) {
-                goods.count -= count;
+                goods[i].count -= count;
                 if (goods[i].count === 0) {
-                    goods.slice(i, 1);
+                    goods.splice(i, 1);
                 }
                 return true;
             }
@@ -108,21 +109,28 @@
     };
 
     playerProto.addGood = function(good) {
+        if (!good) {
+            return;
+        }
 
-        var goods = this.goods;
+        if (good.tag === tagEnum.MONEY) {
+            this.money += good.count;
+            lynx.getHUD().playMusic(musicEnum.COLLECT);
+            lynx.getHUD().tips([good]);
+            return;
+        }
 
-        for (var i = 0; i < goods.length; i++) {
-            if (good.tag === tagEnum.MONEY) {
-                this.money += good.count;
-                return;
-            }
-            if (goods[i].name === good.name) {
-                goods[i].count += good.count;
-                return;
-            }
+        var exist = this.getGood(good.name);
+        if (exist) {
+            exist.count += good.count;
+            lynx.getHUD().tips([good]);
+            lynx.getHUD().playMusic(musicEnum.COLLECT);
+            return;
         }
 
         this.goods.push(good);
+        lynx.getHUD().tips([good]);
+        lynx.getHUD().playMusic(musicEnum.COLLECT);
     };
 
     playerProto.addGoods = function(goods) {
@@ -135,8 +143,7 @@
         this.hurtStep = this.hurtStep > 100 ? 0 : this.hurtStep;
         if (this.hurtStep === 0 && hp > 0) {
             this.health -= hp;
-            lynx.getHUD().showHealth(this.health);
-            lynx.getHUD().playMusic(lynx.enum.music.HURT);
+            lynx.getHUD().hurtPlayer(this.health);
         }
 
         this.hurtStep++;
