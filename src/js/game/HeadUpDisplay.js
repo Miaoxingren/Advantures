@@ -347,8 +347,9 @@
         this.progressDom = document.getElementById('progress');
         this.tipsDom = document.getElementById('tips');
         this.hurtEctDom = document.getElementById('hurt-effect');
-
         this.domShown = domEnum.WELCOME;
+
+        this.musicDom.addEventListener("canplaythrough", lynx.bind(this, this.actualPlayMusic), false);
 
         this.dialogCtrl = new lynx.DialogCtrl();
         this.toolsCtrl = new lynx.ToolsCtrl();
@@ -510,6 +511,15 @@
         }
 
         this.musicDom.src = '/asset/music/' + music + '.mp3';
+        this.musicDom.load();
+    };
+
+    hudProto.actualPlayMusic = function() {
+        if (!this.musicDom) {
+            console.error('Music dom not found.');
+            return;
+        }
+
         this.musicDom.play();
     };
 

@@ -39,17 +39,17 @@ Cat Go - A WebGL game.
 - Game over. (done)
 - Game clear. (done)
 - Collect items. (done)
-- Given items.(done)
+- Given items. (done)
 - Walking.
 
 ### Camera Control
 
 - Switch camera. (done)
-- Change lookAtPoint of camera. (done)
+- Change look-at point of camera. (done)
 
 ### Builder
 
-- Build orld. (done)
+- Build world. (done)
 - Build snow. (done)
 - object positioned by grid. (done)
 
@@ -88,3 +88,9 @@ Cat Go - A WebGL game.
 - Object animation.
 - Remove Physijs.
 - Good enum.
+
+## TroubleList
+
+### Music
+
+- Uncaught (in promise) DOMException: The play() request was interrupted by a new load request. (solved)
