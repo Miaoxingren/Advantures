@@ -30,6 +30,8 @@ Cat Go - A WebGL game.
 - Dom priority. (done)
 - Show tips when get some goods. (done)
 - Show effect when player getting hurt. (done)
+- Move music dom to help dom.
+- Turn on/off music.
 
 ### Music
 
@@ -94,3 +96,4 @@ Cat Go - A WebGL game.
 ### Music
 
 - Uncaught (in promise) DOMException: The play() request was interrupted by a new load request. (solved)
+- Apple falls down when mouse move. (solved)
