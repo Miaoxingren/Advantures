@@ -32,9 +32,6 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
 
     this.autoSpeedFactor = 0.0;
 
-    this.mouseX = 0;
-    this.mouseY = 0;
-
     this.lat = 0;
     this.lon = 0;
     this.phi = 0;
@@ -56,17 +53,8 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
     this.mouseDragOn = false;
 
     this.rotateLook = false;
-
-    this.viewHalfX = 0;
-    this.viewHalfY = 0;
-    this.ViewLowerX = 0;
-    this.ViewLowerY = 0;
-    this.ViewUpperX = 0;
-    this.ViewUpperY = 0;
-
     this.rotateStartX = 0;
     this.rotateStartY = 0;
-
     this.rotateCurX = 0;
     this.rotateCurY = 0;
 
@@ -90,11 +78,6 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
 
         }
 
-        this.ViewLowerX = this.viewHalfX * 0.75;
-        this.ViewUpperX = this.viewHalfX * 1.25;
-        this.ViewLowerY = this.viewHalfY * 0.75;
-        this.ViewUpperY = this.viewHalfY * 1.25;
-
     };
 
     this.onMouseDown = function(event) {
@@ -105,13 +88,16 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
 
         }
 
-        this.rotateStartX = 0;
-        this.rotateStartY = 0;
-
         event.preventDefault();
         event.stopPropagation();
 
+        this.rotateStartX = 0;
+        this.rotateStartY = 0;
+
         if (this.activeLook) {
+
+            var mousePosX = this.domElement === document ? event.pageX : event.pageX - this.domElement.offsetLeft;
+            var mousePosY = this.domElement === document ? event.pageY : event.pageY - this.domElement.offsetTop;
 
             switch (event.button) {
 
@@ -125,8 +111,6 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
 
                 case 2:
                     this.rotateLook = true;
-                    var mousePosX = this.domElement === document ? event.pageX : event.pageX - this.domElement.offsetLeft;
-                    var mousePosY = this.domElement === document ? event.pageY : event.pageY - this.domElement.offsetTop;
                     this.rotateStartX = mousePosX;
                     this.rotateStartY = mousePosY;
                     break;
@@ -149,6 +133,9 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
 
         event.preventDefault();
         event.stopPropagation();
+
+        this.rotateStartX = 0;
+        this.rotateStartY = 0;
 
         if (this.activeLook) {
 
@@ -181,31 +168,20 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
 
     this.onMouseMove = function(event) {
 
-        this.mouseX = 0;
-        this.mouseY = 0;
-
         var mousePosX = this.domElement === document ? event.pageX : event.pageX - this.domElement.offsetLeft;
         var mousePosY = this.domElement === document ? event.pageY : event.pageY - this.domElement.offsetTop;
 
-        if (mousePosX >= this.ViewLowerX && mousePosX <= this.ViewUpperX && mousePosY >= this.ViewLowerY && mousePosY <= this.ViewUpperY) {
-            this.mouseX = 0;
-            this.mouseY = 0;
-        } else {
-
-            this.mouseX = mousePosX - this.viewHalfX;
-            this.mouseY = mousePosY - this.viewHalfY;
-        }
-
         if (this.rotateLook) {
+
             this.rotateCurX = mousePosX;
             this.rotateCurY = mousePosY;
 
         } else {
+
             this.rotateCurX = this.rotateStartX;
             this.rotateCurY = this.rotateStartY;
 
         }
-
 
         if (this.worldMouseMove) {
 
