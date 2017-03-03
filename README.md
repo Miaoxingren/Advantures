@@ -68,7 +68,7 @@ Cat Go - A WebGL game.
 
 ### Player
 
-- Move mouse to look around. (done)
+- Move mouse and right button down to look around. (done)
 - Press WASD to move. (done)
 - Show HP. (done)
 - Show task list. (done)

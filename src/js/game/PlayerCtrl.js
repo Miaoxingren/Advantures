@@ -55,12 +55,20 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
 
     this.mouseDragOn = false;
 
+    this.rotateLook = false;
+
     this.viewHalfX = 0;
     this.viewHalfY = 0;
     this.ViewLowerX = 0;
     this.ViewLowerY = 0;
     this.ViewUpperX = 0;
     this.ViewUpperY = 0;
+
+    this.rotateStartX = 0;
+    this.rotateStartY = 0;
+
+    this.rotateCurX = 0;
+    this.rotateCurY = 0;
 
     if (this.domElement !== document) {
 
@@ -97,6 +105,9 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
 
         }
 
+        this.rotateStartX = 0;
+        this.rotateStartY = 0;
+
         event.preventDefault();
         event.stopPropagation();
 
@@ -111,6 +122,14 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
                 // case 2:
                 //     this.moveBackward = true;
                 //     break;
+
+                case 2:
+                    this.rotateLook = true;
+                    var mousePosX = this.domElement === document ? event.pageX : event.pageX - this.domElement.offsetLeft;
+                    var mousePosY = this.domElement === document ? event.pageY : event.pageY - this.domElement.offsetTop;
+                    this.rotateStartX = mousePosX;
+                    this.rotateStartY = mousePosY;
+                    break;
 
             }
 
@@ -143,6 +162,9 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
                 //     this.moveBackward = false;
                 //     break;
 
+                case 2:
+                    this.rotateLook = false;
+                    break;
             }
 
         }
@@ -172,6 +194,16 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
 
             this.mouseX = mousePosX - this.viewHalfX;
             this.mouseY = mousePosY - this.viewHalfY;
+        }
+
+        if (this.rotateLook) {
+            this.rotateCurX = mousePosX;
+            this.rotateCurY = mousePosY;
+
+        } else {
+            this.rotateCurX = this.rotateStartX;
+            this.rotateCurY = this.rotateStartY;
+
         }
 
 
@@ -364,8 +396,8 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
             verticalLookRatio = Math.PI / (this.verticalMax - this.verticalMin);
         }
 
-        this.lon += this.mouseX * actualLookSpeed;
-        if (this.lookVertical) this.lat -= this.mouseY * actualLookSpeed * verticalLookRatio;
+        this.lon += (this.rotateCurX - this.rotateStartX) * actualLookSpeed;
+        if (this.lookVertical) this.lat -= (this.rotateCurY - this.rotateStartY) * actualLookSpeed * verticalLookRatio;
 
         this.lat = THREE.Math.clamp(this.lat, -85, 85);
         this.phi = THREE.Math.degToRad(90 - this.lat);
