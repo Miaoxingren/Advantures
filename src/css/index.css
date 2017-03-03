@@ -38,6 +38,7 @@ html, body {
     height: 100%;
     margin: 0;
     padding: 0;
+    border: 0;
     color: #FFF;
     overflow: hidden;
 }
@@ -81,6 +82,16 @@ html, body {
 /* rolling box */
 
 @keyframes rolling {
+    from {
+        transform: rotate3d(1, -1, 1, 360deg);
+        -webkit-transform: rotate3d(1, -1, 1, 360deg);
+    }
+
+    50% {
+        transform: none;
+        -webkit-transform: none;
+    }
+
     to {
         transform: rotate3d(1, 1, 1, 360deg);
         -webkit-transform: rotate3d(1, 1, 1, 360deg);
@@ -88,15 +99,25 @@ html, body {
 }
 
 @-webkit-keyframes rolling {
+    from {
+        transform: rotate3d(1, -1, 1, 360deg);
+        -webkit-transform: rotate3d(1, -1, 1, 360deg);
+    }
+
+    50% {
+        transform: none;
+        -webkit-transform: none;
+    }
+
     to {
         transform: rotate3d(1, 1, 1, 360deg);
         -webkit-transform: rotate3d(1, 1, 1, 360deg);
     }
 }
 
-.contain {
-    perspective: 1000px;
-    -webkit-perspective: 1000px;
+.cube-container {
+    perspective: 500px;
+    -webkit-perspective: 500px;
 }
 
 .cube {
@@ -106,7 +127,7 @@ html, body {
     height: 2em;
 
     position: relative;
-    margin: 1em auto;
+    margin: auto;
 
     animation-name: rolling;
     -webkit-animation-name: rolling;
@@ -130,40 +151,40 @@ html, body {
 
 }
 
-.face:nth-child(1) {
+.face:nth-child(1), .one {
     background-color: #F9F9F8;
-    transform: translateZ(1em);
-    -webkit-transform: translateZ(1em);
+    transform: translateZ(1em) perspective(500px);
+    -webkit-transform: translateZ(1em) perspective(500px);
 }
 
-.face:nth-child(2) {
+.face:nth-child(2), .two {
     background-color: #868FBF;
-    transform: rotateX(180deg) translateZ(1em);
-    -webkit-transform: rotateX(180deg) translateZ(1em);
+    transform: rotateX(180deg) translateZ(1em) perspective(500px);
+    -webkit-transform: rotateX(180deg) translateZ(1em) perspective(500px);
 }
 
-.face:nth-child(3) {
+.face:nth-child(3), .three {
     background-color: #59B2CE;
-    transform: rotateY(-90deg) translateZ(1em);
-    -webkit-transform: rotateY(-90deg) translateZ(1em);
+    transform: rotateY(-90deg) translateZ(1em) perspective(500px);
+    -webkit-transform: rotateY(-90deg) translateZ(1em) perspective(500px);
 }
 
-.face:nth-child(4) {
+.face:nth-child(4), .four {
     background-color: #CE2535;
-    transform: rotateY(90deg) translateZ(1em);
-    -webkit-transform: rotateY(90deg) translateZ(1em);
+    transform: rotateY(90deg) translateZ(1em) perspective(500px);
+    -webkit-transform: rotateY(90deg) translateZ(1em) perspective(500px);
 }
 
-.face:nth-child(5) {
+.face:nth-child(5), .five {
     background-color: #D79F52;
-    transform: rotateX(90deg) translateZ(1em);
-    -webkit-transform: rotateX(90deg) translateZ(1em);
+    transform: rotateX(90deg) translateZ(1em) perspective(500px);
+    -webkit-transform: rotateX(90deg) translateZ(1em) perspective(500px);
 }
 
-.face:nth-child(6) {
+.face:nth-child(6), .six {
     background-color: #EFBCB6;
-    transform: rotateX(-90deg) translateZ(1em);
-    -webkit-transform: rotateX(-90deg) translateZ(1em);
+    transform: rotateX(-90deg) translateZ(1em) perspective(500px);
+    -webkit-transform: rotateX(-90deg) translateZ(1em) perspective(500px);
 }
 
 .face>img {
@@ -230,16 +251,41 @@ html, body {
 #welcome {
     background-color: #263238;
     text-align: center;
-    font-size: 25px;
-    overflow-y: auto;
+    font-size: 20px;
 }
 
 #welcome .logo {
-    margin: 2.5em auto;
+    height: 40%;
+    padding: 2em 0;
+    box-sizing: border-box;
 }
 
-#welcome .contain {
-    padding-bottom: 1em;
+#welcome .loading {
+    height: 40%;
+    box-sizing: border-box;
+    position: relative;
+}
+
+#welcome .loading>div {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+}
+
+#welcome .hint {
+    height: 20%;
+    position: relative;
+}
+
+#welcome .hint>div {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+    height: auto;
 }
 
 #progress {
@@ -251,9 +297,11 @@ html, body {
 #progress.fade {
     cursor: pointer;
     background-color: #009688;
+    border-color: #009688;
 }
 
 #progress:hover {
+    border-color: #009688;
     border-color: #009688;
 }
 
