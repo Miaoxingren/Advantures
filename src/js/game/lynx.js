@@ -263,7 +263,7 @@ var lynx = {
         var _resize = function (event) {
             var renderer = lynx.getRenderer();
             var container = renderer.domElement;
-            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setSize(container.offsetWidth, container.offsetHeight);
         };
 
         var _mouseLeave = function(event) {
@@ -380,7 +380,7 @@ var lynx = {
             antialias: true
         });
         renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setSize(container.offsetWidth, container.offsetHeight);
         // close shadowMap
         renderer.shadowMap.enabled = false;
         renderer.shadowMapSoft = false;
