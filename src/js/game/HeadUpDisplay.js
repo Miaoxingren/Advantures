@@ -347,9 +347,13 @@
         this.progressDom = document.getElementById('progress');
         this.tipsDom = document.getElementById('tips');
         this.hurtEctDom = document.getElementById('hurt-effect');
+        this.soundDom = document.getElementById('sound');
         this.domShown = domEnum.WELCOME;
 
+        this.musicDom.muted = false;
+
         this.musicDom.addEventListener("canplaythrough", lynx.bind(this, this.actualPlayMusic), false);
+        this.soundDom.addEventListener("click", lynx.bind(this, this.toggleSound), false);
 
         this.dialogCtrl = new lynx.DialogCtrl();
         this.toolsCtrl = new lynx.ToolsCtrl();
@@ -428,6 +432,18 @@
         this.playMusic(musicEnum.GAMECLEAR);
         this.domShown = domEnum.GAMECLEAR;
         lynx.toggle(this.gameClearDom, true);
+    };
+
+    hudProto.toggleSound = function () {
+        if (!this.soundDom) {
+            console.error('Sound dom not found.');
+            return;
+        }
+
+        this.playMusic(musicEnum.CLICKDOM);
+        this.toggleMuted();
+        this.soundDom.classList.toggle('icon-sound-alt');
+        this.soundDom.classList.toggle('icon-soundoff');
     };
 
     hudProto.toggleVisibility = function (domPriority, show) {
@@ -510,8 +526,47 @@
             return;
         }
 
+        if (this.musicDom.muted) {
+            return;
+        }
+
+        if (music !== musicEnum.WALK) {
+            this.musicDom.loop = false;
+        }
+
+        this.musicPlaying = music;
         this.musicDom.src = '/asset/music/' + music + '.mp3';
         this.musicDom.load();
+    };
+
+    hudProto.walking = function (isWalking) {
+        if (!this.musicDom) {
+            console.error('Music dom not found.');
+            return;
+        }
+
+        if (this.musicPlaying !== musicEnum.WALK) {
+            this.playMusic(musicEnum.WALK);
+        }
+
+        if (!this.musicDom.loop) {
+            this.musicDom.loop = true;
+        }
+
+        if (!isWalking) {
+            this.musicDom.loop = false;
+            this.musicPlaying = musicEnum.NOTHING;
+        }
+
+    };
+
+    hudProto.toggleMuted = function() {
+        if (!this.musicDom) {
+            console.error('Music dom not found.');
+            return;
+        }
+
+        this.musicDom.muted = !this.musicDom.muted;
     };
 
     hudProto.actualPlayMusic = function() {

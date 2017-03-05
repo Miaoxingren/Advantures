@@ -188,6 +188,7 @@ var lynx = {
     };
 
     lynx.enum.music = {
+        NOTHING: '',
         CLICKDOM: 'button',
         GAMEREADY: 'shop',
         PAUSE: 'levelcleared',
@@ -196,7 +197,8 @@ var lynx = {
         COLLECT: 'gold',
         HURT: 'hurt1',
         DEAD: 'death',
-        GAMECLEAR: 'end'
+        GAMECLEAR: 'end',
+        WALK: 'step1'
     };
 
 })(lynx);

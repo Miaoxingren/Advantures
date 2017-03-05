@@ -344,6 +344,25 @@
         }
 
         switch (event.keyCode) {
+            case 38:
+                /*up*/
+            case 87:
+                /*W*/
+            case 37:
+                /*left*/
+            case 65:
+                /*A*/
+            case 40:
+                /*down*/
+            case 83:
+                /*S*/
+            case 39:
+                /*right*/
+            case 68:
+                /*D*/
+                lynx.getHUD().walking(true);
+                break;
+
             case 32:
                 this.toggleWorld();
                 break;
@@ -358,6 +377,28 @@
     worldProto.onKeyUp = function(event) {
         if (lynx.state <= lynx.enum.world.PAUSE) {
             return;
+        }
+
+        switch (event.keyCode) {
+            case 38:
+                /*up*/
+            case 87:
+                /*W*/
+            case 37:
+                /*left*/
+            case 65:
+                /*A*/
+            case 40:
+                /*down*/
+            case 83:
+                /*S*/
+            case 39:
+                /*right*/
+            case 68:
+                /*D*/
+                lynx.getHUD().walking(false);
+                break;
+
         }
     };
 
