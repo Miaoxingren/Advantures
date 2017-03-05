@@ -1390,6 +1390,7 @@
             graph.position.z = originZ + data.coordinate.z * roomSize + data.coordinate.t * gridSize - offset;
 
             this.addToScene(graph);
+
             if (data.model === 'wood') {
                 this.woods.push(graph);
             } else {

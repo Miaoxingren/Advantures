@@ -329,6 +329,21 @@
         }
     };
 
+
+    tipProto.hint = function (msg) {
+        if (!this.tipsDom) {
+            console.error('Tips dom not found.');
+            return;
+        }
+
+        var frag = document.createDocumentFragment();
+        var li = document.createElement("li");
+        li.className = "animated tipSlide";
+        li.innerHTML = msg;
+        frag.appendChild(li);
+        this.tipsDom.appendChild(frag);
+
+    };
 })(lynx);
 
 // HeadUpDisplay
@@ -492,6 +507,14 @@
             return;
         }
         this.tipsCtrl.showTips(goods);
+    };
+
+    hudProto.hint = function (msg) {
+        if (!this.tipsCtrl) {
+            console.error('Missing Tips control');
+            return;
+        }
+        this.tipsCtrl.hint(msg);
     };
 
     hudProto.pause = function() {

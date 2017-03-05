@@ -393,7 +393,8 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
         lookAtPos.z = playerPos.z + 100 * Math.sin(this.phi) * Math.sin(this.theta);
 
         this.camera.lookAt(lookAtPos);
-        this.player.lookAt(new THREE.Vector3(lookAtPos.x, playerPos.y, lookAtPos.z));
+        this.player.lookAtPos = new THREE.Vector3(lookAtPos.x, playerPos.y, lookAtPos.z);
+        this.player.lookAt(this.player.lookAtPos.clone());
 
         var viewOpposite = cameraPos.clone().sub(lookAtPos).normalize();
         var cosXAxesCamera = viewOpposite.clone().dot(this.xAxes) / (viewOpposite.length() * this.xAxes.length());

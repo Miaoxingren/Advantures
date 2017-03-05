@@ -772,6 +772,19 @@
 
     };
 
+    worldProto.colliedWith = function (object) {
+        if (object.tag === tagEnum.FLOWER) {
+            this.colliedWithFlower(object.id);
+        }
+    };
+
+    worldProto.colliedWithFlower = function (object) {
+        if (Math.random() > 0.5) {
+            this.hurtPlayer(1);
+            lynx.getHUD().hint('花有毒~');
+        }
+    };
+
 })(lynx);
 
 // common method
@@ -979,6 +992,7 @@
 // update world
 (function(lynx) {
     var worldProto = lynx.World.prototype;
+    var tagEnum = lynx.enum.tag;
 
     worldProto.update = function(delta) {
 
@@ -1002,11 +1016,24 @@
         }
 
         this.control.update(delta);
+
+        // this.updatePlayer();
         // this.updateMixer(delta);
 
         this.scene.simulate(undefined, 100);
 
     };
+
+    worldProto.updatePlayer = function() {
+        var player = this.player.graph;
+        var raycaster = new THREE.Raycaster(player.position, player.lookAtPos);
+
+        var intersections = raycaster.intersectObjects(this.scene.children);
+        if (intersections && intersections[0] && intersections[0].object.tag) {
+            this.colliedWith(intersections[0].object);
+        }
+    };
+
 
     worldProto.updateMelonpi = function(pos, speed) {
         var npc = this.npcCtrl.getNPC('Melonpi');
