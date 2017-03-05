@@ -129,11 +129,14 @@
         useGood.apply(this, [goodElem, goodElem.getAttribute('goodNum')]);
 
         function useGood(elem, goodNum) {
-            var good = this.getGoods()[goodNum];
+            var goods = this.getGoods();
+            if (!goods) return;
+
+            var good = goods[goodNum];
             if (!good) return;
 
             if (good.count > 0) {
-                good.count--;
+                this.useGood(good);
                 elem.outerHTML = this.createGood(good, goodNum);
                 return true;
             }
@@ -152,7 +155,7 @@
 
     };
 
-     toolProto.createGood = function(good, goodNum) {
+    toolProto.createGood = function(good, goodNum) {
         var goodHTML = '<div class="good" goodnum="' + goodNum + '">' +
             '<div class="title">' +
             '<span class="icon icon-help"></span>' +
@@ -271,6 +274,10 @@
 
     toolProto.getGoods = function () {
         console.error('Function getGoods not implemented.');
+    };
+
+    toolProto.useGood = function () {
+        console.error('Function useGood not implemented.');
     };
 
     toolProto.getTasks = function () {
@@ -647,6 +654,10 @@
 
     hudProto.getGoods = function () {
         console.error('hudProto - Function getGoods not implemented.');
+    };
+
+    hudProto.useGood = function () {
+        console.error('hudProto - Function useGood not implemented.');
     };
 
     hudProto.getTasks = function () {

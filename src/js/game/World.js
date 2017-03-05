@@ -45,6 +45,7 @@
         hud.playerState(player.health, player.money);
         hud.toolsCtrl.getTasks = player.getTasksFunc();
         hud.toolsCtrl.getGoods = player.getGoodsFunc();
+        hud.toolsCtrl.useGood = lynx.bind(player, player.useGood);
 
         lynx.getHUD().gameReady();
     };
@@ -546,7 +547,7 @@
                 name: 'leaves',
                 count: Math.min(leaves, this.config.leavesPerClick),
                 src: '/img/merchant_cat.jpg',
-                description: 'leaves.'
+                description: 'leaves from tree.'
             });
             lynx.getHUD().playMusic(musicEnum.CLICKTREE);
         }

@@ -40,6 +40,21 @@
         }
     };
 
+    playerProto.useGood = function(good) {
+        if (!good) return;
+
+        if (good.tag === tagEnum.HEALTH) {
+            this.health += 1;
+            good.count--;
+            lynx.getHUD().showHealth(this.health);
+        }
+
+        if (!good.count) {
+            this.removeGood(good.name, good.count);
+        }
+
+    };
+
     playerProto.getGoodsIf = function(isRequired) {
         var result = [];
 
