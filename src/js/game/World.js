@@ -173,6 +173,8 @@
             return;
         }
 
+        var world = this;
+
         var size = this.config.size;
         var originX = -size / 2;
         var originZ = -size / 2;
@@ -203,8 +205,10 @@
 
             for (var m = 0; m < materials.length; m++) {
                 var material = materials[m];
-                material.morphTargets = false;
-                material.vertexColors = THREE.FaceColors;
+                material.skinning = true;
+				material.morphTargets = true;
+                material.specular.setHSL( 0, 0, 0.1 );
+				material.color.setHSL( 0.6, 0, 0.6 );
             }
 
             geometry.computeBoundingBox();
@@ -213,7 +217,7 @@
             var height = bound.max.y - bound.min.y;
             var depth = bound.max.z - bound.min.z;
 
-            var threeObj = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
+            var threeObj = new THREE.SkinnedMesh(geometry, new THREE.MultiMaterial(materials));
             var physGeomtry = new THREE.BoxGeometry(width, width, depth);
             var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
             physMaterial.visible = false;
@@ -225,7 +229,8 @@
             physiObj.userData.width = width;
             physiObj.userData.height = height;
             physiObj.userData.depth = depth;
-            threeObj.position.y = -width / 2;
+            // threeObj.position.y = -width / 2;
+            threeObj.rotation.y = THREE.Math.degToRad(-90);
 
             var unit = [width, height, depth];
             unit.sort();
@@ -233,14 +238,11 @@
             var scale = size / unit[2];
             physiObj.scale.set(scale, scale, scale);
 
-            // if (geometry.morphTargets && geometry.morphTargets.length) {
-            //
-            //     var mixer = new THREE.AnimationMixer(threeObj);
-            //     var clip = THREE.AnimationClip.CreateFromMorphTargetSequence('gallop', geometry.morphTargets, 30);
-            //     mixer.clipAction(clip).setDuration(1).play();
-            //
-            //     this.addMixer(mixer);
-            // }
+            var mixer = new THREE.AnimationMixer(threeObj);
+            var clip = geometry.animations[0];
+            mixer.clipAction(clip).play();
+
+            world.addMixer(mixer);
 
             return physiObj;
         }
@@ -1006,7 +1008,7 @@
 
         this.player.hurt(0);
 
-        this.control.enabled = !(lynx.getHUD().isTalking() || this.plotCtrl.ploting);
+        // this.control.enabled = !(lynx.getHUD().isTalking() || this.plotCtrl.ploting);
 
         this.monsterCtrl.updateMonster(this.player.graph.position.clone());
 
@@ -1018,7 +1020,7 @@
         this.control.update(delta);
 
         // this.updatePlayer();
-        // this.updateMixer(delta);
+        this.updateMixer(delta);
 
         this.scene.simulate(undefined, 100);
 

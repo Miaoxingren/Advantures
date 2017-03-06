@@ -222,7 +222,7 @@ var lynx = {
         monsterNum: 30,
         player: {
             name: 'panther0',
-            model: 'panther0',
+            model: 'magic_cat',
             health: 5,
             money: 5,
             coordinate: {
@@ -283,7 +283,7 @@ var lynx = {
         };
 
         document.addEventListener('mouseleave', _mouseLeave);
-        document.addEventListener('mouseenter', _mouseEnter);
+        // document.addEventListener('mouseenter', _mouseEnter);
         window.addEventListener('resize', _resize);
 
         var stats = lynx.getStats();
@@ -399,7 +399,7 @@ var lynx = {
         'horse1', 'horse0', 'hummingBird0', 'hummingBird1', 'moose', 'owl', 'mountainLion', 'parrot2', 'raccoon', 'panther0',
         'parrot1', 'raven', 'seal0', 'stork', 'scorpion', 'seal1', 'toad0', 'wolf', 'vulture', 'toad1', 'gator', 'tarantula0',
         'coin', 'cat_food_yellow', 'shelf', 'tree_a', 'rose', 'plants1', 'sword', 'wood', 'cat1', 'farmhouse', 'market', 'apple',
-        'doghouse', 'meat', 'fence', 'doghousemesh', 'key'
+        'doghouse', 'meat', 'fence', 'doghousemesh', 'key', 'magic_cat'
     ];
 
     function initModels() {
