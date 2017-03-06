@@ -293,10 +293,19 @@ var lynx = {
 
         var clock = new THREE.Clock();
 
-        animate();
+        // animate();
+        var physics_framerate = 1000 / 60;
+        var step = world.scene.step.bind(world.scene, physics_framerate / 1000, undefined, animate);
+
+        // world.scene.step( physics_framerate / 1000, undefined, animate );
+        step();
+
 
         function animate() {
-            requestAnimationFrame(animate);
+            // requestAnimationFrame(animate);
+            // requestAnimationFrame( world.scene.step.bind( world.scene, physics_framerate / 1000, undefined, animate ) );
+            requestAnimationFrame(step);
+
             if (lynx.state >= lynx.enum.world.PLAY) {
                 render();
             }
@@ -311,6 +320,23 @@ var lynx = {
 
             renderer.render(world.scene, world.getCamera());
         }
+
+        // var physics_framerate = 1000 / 60;
+        //
+		// function onStep() {
+        //     var delta = clock.getDelta();
+        //
+        //     world.update(delta);
+        //
+        //     stats.update();
+        //
+		// 	renderer.render( world.scene, world.getCamera() );
+        //
+		// 	requestAnimationFrame( world.scene.step.bind( world.scene, physics_framerate / 1000, undefined, onStep ) );
+		// }
+        //
+		// world.scene.step( physics_framerate / 1000, undefined, onStep );
+
     };
 
     lynx.setUpBeforeGame = function () {
@@ -339,13 +365,13 @@ var lynx = {
     }
 
     function initPhysi() {
-        if (!Physijs) {
+        if (!physijs) {
             console.error('Physijs is not ready.');
             return;
         }
 
-        Physijs.scripts.worker = '/js/lib/physijs_worker.js';
-        Physijs.scripts.ammo = '/js/lib/ammo.js';
+        // physijs.scripts.worker = '/js/lib/physijs-worker.js';
+        // physijs.scripts.ammo = '/js/lib/ammo.js';
     }
 
     function initStats(id) {

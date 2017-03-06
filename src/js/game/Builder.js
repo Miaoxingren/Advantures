@@ -889,15 +889,15 @@
         texture.repeat.set(48, 48);
         normalTexture.repeat.set(48, 48);
 
-        var material = Physijs.createMaterial(new THREE.MeshPhongMaterial({
+        var material = new THREE.MeshPhongMaterial({
             color: 0xffffff,
             map: texture,
             side: THREE.DoubleSide,
             normalMap: normalTexture
-        }), 0.8, 0.4);
+        });
 
         var planeGeometry = new THREE.PlaneGeometry(size, size);
-        var ground = new Physijs.PlaneMesh(planeGeometry, material, 0);
+        var ground = new physijs.Plane(planeGeometry, material, { mass: 0, type: 'RIGID' });
         ground.rotation.x = -Math.PI / 2;
         ground.position.set(0, 0, 0);
         ground.receiveShadow = true;
@@ -918,41 +918,33 @@
         texture.repeat.set(12, 6);
         normalTexture.repeat.set(12, 6);
 
-        var material = Physijs.createMaterial(new THREE.MeshPhongMaterial({
+        var material = new THREE.MeshPhongMaterial({
             color: 0xffffff,
             map: texture,
             side: THREE.DoubleSide,
             normalMap: normalTexture
-        }), 0.8, 0.4);
+        });
 
         var boxGeometry = new THREE.BoxGeometry(depth, height, size);
 
-        var border = new Physijs.BoxMesh(boxGeometry, material, 0, {
-            restitution: 0.2
-        });
+        var border = new physijs.Box(boxGeometry, material, { mass: 0, type: 'RIGID' });
         border.position.set(-size / 2, height / 2, 0);
         border.receiveShadow = true;
         border.castShadow = true;
         border.name = 'border';
 
-        var borderRight = new Physijs.BoxMesh(boxGeometry, material, 0, {
-            restitution: 0.2
-        });
+        var borderRight = new physijs.Box(boxGeometry, material, { mass: 0, type: 'RIGID' });
         borderRight.position.set(size, 0, 0);
         borderRight.receiveShadow = true;
         borderRight.castShadow = true;
         border.add(borderRight);
 
-        var borderTop = new Physijs.BoxMesh(boxGeometry, material, 0, {
-            restitution: 0.2
-        });
+        var borderTop = new physijs.Box(boxGeometry, material, { mass: 0, type: 'RIGID' });
         borderTop.rotation.y = Math.PI / 2;
         borderTop.position.set(size / 2, 0, size / 2);
         border.add(borderTop);
 
-        var borderBottom = new Physijs.BoxMesh(boxGeometry, material, 0, {
-            restitution: 0.2
-        });
+        var borderBottom = new physijs.Box(boxGeometry, material, { mass: 0, type: 'RIGID' });
         borderBottom.rotation.y = Math.PI / 2;
         borderBottom.position.set(size / 2, 0, -size / 2);
         border.add(borderBottom);
@@ -975,11 +967,11 @@
         texture.repeat.set(12, 6);
         normalTexture.repeat.set(12, 6);
 
-        var material = Physijs.createMaterial(new THREE.MeshPhongMaterial({
+        var material = new THREE.MeshPhongMaterial({
             color: 0xffffff,
             map: texture,
             normalMap: normalTexture
-        }), 0.8, 0.4);
+        });
 
         var height = this.config.wallHeight;
         var depth = this.config.wallDepth;
@@ -996,7 +988,7 @@
 
         function createWall(wall) {
             var geometry = new THREE.BoxGeometry(roomSize, height, depth);
-            var wallMesh = new Physijs.BoxMesh(geometry, material, 0);
+            var wallMesh = new physijs.Box(geometry, material, { mass: 0, type: 'RIGID' });
 
             wallMesh.position.x = originX + wall.coordinate.x * roomSize + wall.coordinate.s * unit;
             wallMesh.position.z = originZ + wall.coordinate.z * roomSize + wall.coordinate.t * unit;
@@ -1089,10 +1081,10 @@
             threeObj.scale.set(scale, scale, scale);
 
             var physGeomtry = new THREE.BoxGeometry(graphWidth, graphHeight, graphDepth);
-            var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
+            var physMaterial = new THREE.MeshBasicMaterial({});
             physMaterial.visible = false;
 
-            var physiObj = new Physijs.BoxMesh(physGeomtry, physMaterial, 10);
+            var physiObj = new physijs.Box(physGeomtry, physMaterial, {mass:10});
             physiObj.castShadow = false;
 
             physiObj.tag = tagEnum.KEY;
@@ -1194,13 +1186,13 @@
             var texture = textureLoader.load("/asset/texture/wood.jpg");
             texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 
-            var material = Physijs.createMaterial(new THREE.MeshPhongMaterial({
+            var material = new THREE.MeshPhongMaterial({
                 color: 0xffffff,
                 map: texture,
-            }), 0.8, 0.4);
+            });
 
             var geometry = new THREE.BoxGeometry(cageSize, floorDepth, cageSize);
-            var floor = new Physijs.BoxMesh(geometry, material, 0);
+            var floor = new physijs.Box(geometry, material, { mass: 0, type: 'RIGID' });
             return floor;
         }
 
@@ -1209,13 +1201,13 @@
             var texture = textureLoader.load("/asset/texture/wood.jpg");
             texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 
-            var material = Physijs.createMaterial(new THREE.MeshPhongMaterial({
+            var material = new THREE.MeshPhongMaterial({
                 color: 0xffffff,
                 map: texture,
-            }), 0.8, 0.4);
+            });
 
             var geometry = new THREE.CylinderGeometry(radius, radius, height);
-            var cylinder = new Physijs.CylinderMesh(geometry, material, 0);
+            var cylinder = new physijs.Cylinder(geometry, material, { mass: 0, type: 'RIGID' });
             return cylinder;
         }
     };
@@ -1249,6 +1241,12 @@
         var offset = gridSize / 2;
 
         var shelfScaled = 1;
+        var widthScaled = 1;
+        var heightScaled = 1;
+        var depthScaled = 1;
+        var graphWidth = 0;
+        var graphHeight = 0;
+        var graphDepth = 0;
         var boardSize = 0.9;
 
         for (var i = 0, iLen = shelves.length; i < iLen; i++) {
@@ -1262,21 +1260,17 @@
             shelfGraph.position.x = originX + shelfData.coordinate.x * roomSize + shelfData.coordinate.s * gridSize - offset;
             shelfGraph.position.z = originZ + shelfData.coordinate.z * roomSize + shelfData.coordinate.t * gridSize - offset;
 
-            var widthScaled = shelfGraph._physijs.width;
-            var heightScaled = shelfGraph._physijs.height;
-            var depthScaled = shelfGraph._physijs.depth;
-
             var shortest = Math.min(widthScaled - shelfScaled * 4 * boardSize, heightScaled - shelfScaled * 6 * boardSize, depthScaled);
 
             var itemTop = shelfData.goods[0];
             var graphTop = createObj(itemTop.model, shortest * 0.8, itemTop.tag, true);
             shelfGraph.add(graphTop);
-            graphTop.position.y = shelfScaled * boardSize + graphTop._physijs.height / 2;
+            graphTop.position.y = shelfScaled * boardSize + graphHeight / 2;
 
             var itemBottom = shelfData.goods[1];
             var graphBottom = createObj(itemBottom.model, shortest * 0.8, itemBottom.tag, true);
             shelfGraph.add(graphBottom);
-            graphBottom.position.y = -heightScaled / 2 + shelfScaled * boardSize + graphBottom._physijs.height / 2;
+            graphBottom.position.y = -heightScaled / 2 + shelfScaled * boardSize + graphHeight / 2;
 
             this.addToScene(shelfGraph);
 
@@ -1308,20 +1302,26 @@
 
             var longest = heightLimited ? Math.max(boundWidth, boundHeight, boundDepth) : Math.max(boundWidth, boundDepth);
             var scale = size / longest;
-            shelfScaled = modelType === 'shelf' ? scale : shelfScaled;
 
-            var graphWidth = boundWidth * scale;
-            var graphHeight = boundHeight * scale;
-            var graphDepth = boundDepth * scale;
+            graphWidth = boundWidth * scale;
+            graphHeight = boundHeight * scale;
+            graphDepth = boundDepth * scale;
+
+            if (modelType === 'shelf') {
+                shelfScaled = scale;
+                widthScaled = graphWidth;
+                heightScaled = graphHeight;
+                depthScaled = graphDepth;
+            }
 
             var threeObj = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
             threeObj.scale.set(scale, scale, scale);
 
             var physGeomtry = new THREE.BoxGeometry(graphWidth, graphHeight, graphDepth);
-            var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
+            var physMaterial = new THREE.MeshBasicMaterial({});
             physMaterial.visible = false;
 
-            var physiObj = new Physijs.BoxMesh(physGeomtry, physMaterial, 0);
+            var physiObj = new physijs.Box(physGeomtry, physMaterial, { mass: 0, type: 'RIGID' });
             physiObj.castShadow = false;
             physiObj.tag = tag;
             physiObj.add(threeObj);
@@ -1436,10 +1436,10 @@
             }
 
             var physGeomtry = new THREE.BoxGeometry(graphWidth, graphHeight, graphDepth);
-            var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
+            var physMaterial = new THREE.MeshBasicMaterial({});
             physMaterial.visible = false;
 
-            var physiObj = new Physijs.BoxMesh(physGeomtry, physMaterial, 0);
+            var physiObj = new physijs.Box(physGeomtry, physMaterial, { mass: 0, type: 'RIGID' });
             physiObj.castShadow = false;
 
             physiObj.tag = tag;
@@ -1553,6 +1553,7 @@
                 graph.rotation.y = data.rotationY / 180 * Math.PI;
             }
 
+
             graph.position.x = originX + data.coordinate.x * roomSize + data.coordinate.s * gridSize - offset;
             graph.position.z = originZ + data.coordinate.z * roomSize + data.coordinate.t * gridSize - offset;
 
@@ -1591,9 +1592,9 @@
                 v.multiplyScalar(scale);
             });
 
-            var physMaterial = Physijs.createMaterial(new THREE.MultiMaterial(materials), 0.8, 0.5);
+            var physMaterial = new THREE.MultiMaterial(materials);
 
-            var physiObj = new Physijs.ConcaveMesh(geometry, physMaterial, 0);
+            var physiObj = new physijs.TriangleMesh(geometry, physMaterial, { mass: 0, type: 'RIGID' });
             physiObj.castShadow = false;
             physiObj.tag = tag;
 
@@ -1717,10 +1718,10 @@
             threeObj.scale.set(scale, scale, scale);
 
             var physGeomtry = new THREE.BoxGeometry(graphWidth, graphHeight, graphDepth);
-            var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
+            var physMaterial = new THREE.MeshBasicMaterial({});
             physMaterial.visible = false;
 
-            var physiObj = new Physijs.BoxMesh(physGeomtry, physMaterial, 10);
+            var physiObj = new physijs.Box(physGeomtry, physMaterial, { mass: 10 });
             physiObj.castShadow = false;
 
             physiObj.tag = tagEnum.APPLE;
@@ -1810,10 +1811,10 @@
             threeObj.scale.set(scale, scale, scale);
 
             var physGeomtry = new THREE.BoxGeometry(graphWidth, graphHeight, graphDepth);
-            var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
+            var physMaterial = new THREE.MeshBasicMaterial({});
             physMaterial.visible = false;
 
-            var physiObj = new Physijs.BoxMesh(physGeomtry, physMaterial, 10);
+            var physiObj = new physijs.Box(physGeomtry, physMaterial, {mass:10});
             physiObj.castShadow = false;
 
             physiObj.tag = tagEnum.MEAT;
@@ -1924,10 +1925,10 @@
             threeObj.scale.set(scale, scale, scale);
 
             var physGeomtry = new THREE.BoxGeometry(graphWidth, graphHeight, graphDepth);
-            var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
+            var physMaterial = new THREE.MeshBasicMaterial({});
             physMaterial.visible = false;
 
-            var physiObj = new Physijs.BoxMesh(physGeomtry, physMaterial, 0);
+            var physiObj = new physijs.Box(physGeomtry, physMaterial, { mass: 0, type: 'RIGID' });
             physiObj.castShadow = false;
 
             physiObj.tag = tagEnum.FENCE;
@@ -1993,17 +1994,17 @@
             var texture = textureLoader.load("/asset/texture/wood.jpg");
             texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 
-            var material = Physijs.createMaterial(new THREE.MeshPhongMaterial({
+            var material = new THREE.MeshPhongMaterial({
                 color: 0xffffff,
                 map: texture,
-            }), 0.8, 0.4);
+            });
 
             var geometry = new THREE.BoxGeometry(boxSize, boxSize / 2, depth);
 
-            var front = new Physijs.BoxMesh(geometry, material, 0);
-            var back = new Physijs.BoxMesh(geometry, material, 0);
-            var left = new Physijs.BoxMesh(geometry, material, 0);
-            var right = new Physijs.BoxMesh(geometry, material, 0);
+            var front = new physijs.Box(geometry, material, { mass: 0, type: 'RIGID' });
+            var back = new physijs.Box(geometry, material, { mass: 0, type: 'RIGID' });
+            var left = new physijs.Box(geometry, material, { mass: 0, type: 'RIGID' });
+            var right = new physijs.Box(geometry, material, { mass: 0, type: 'RIGID' });
 
             right.position.set(0, 0, boxSize);
             left.add(right);

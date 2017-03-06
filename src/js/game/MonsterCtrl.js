@@ -207,10 +207,10 @@
 
             var threeObj = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
             var physGeomtry = new THREE.BoxGeometry(width, height, depth);
-            var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
+            var physMaterial = new THREE.MeshBasicMaterial({});
             physMaterial.visible = false;
 
-            var physiObj = new Physijs.BoxMesh(physGeomtry, physMaterial, width * height * depth * 99);
+            var physiObj = new physijs.Box(physGeomtry, physMaterial, {mass:width * height * depth * 99});
             physiObj.castShadow = true;
             physiObj.tag = tag;
             physiObj.add(threeObj);

@@ -397,10 +397,10 @@
             threeObj.scale.set(scale, scale, scale);
 
             var physGeomtry = new THREE.BoxGeometry(graphWidth, graphHeight, graphDepth);
-            var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
+            var physMaterial = new THREE.MeshBasicMaterial({});
             physMaterial.visible = false;
 
-            var physiObj = new Physijs.BoxMesh(physGeomtry, physMaterial, 0);
+            var physiObj = new physijs.Box(physGeomtry, physMaterial, { mass: 0, type: 'RIGID' });
             physiObj.castShadow = false;
             physiObj.tag = tag;
             physiObj.add(threeObj);

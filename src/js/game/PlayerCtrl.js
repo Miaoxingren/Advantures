@@ -323,7 +323,7 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
 
         }
 
-        var velocity = this.player.getLinearVelocity();
+        var velocity = this.player.physics.linear_velocity;
 
         if (this.moveForward || this.moveBackward || this.moveLeft || this.moveRight) {
 
@@ -338,7 +338,8 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
             velocity.x = cosXAxes * actualMoveSpeed;
             velocity.z = cosZAxes * actualMoveSpeed;
 
-            this.player.setLinearVelocity(velocity);
+            this.player.physics.linear_velocity.x = velocity.x;
+            this.player.physics.linear_velocity.z = velocity.z;
 
         }
 
@@ -346,7 +347,7 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
 
             velocity.y = this.jumpSpeed;
 
-            this.player.setLinearVelocity(velocity);
+            this.player.physics.linear_velocity.y = velocity.y;
 
         }
 
@@ -354,7 +355,7 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
 
             velocity.y = -this.jumpSpeed;
 
-            this.player.setLinearVelocity(velocity);
+            this.player.physics.linear_velocity.y = velocity.y;
 
         }
 

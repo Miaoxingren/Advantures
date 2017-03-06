@@ -55,8 +55,8 @@
             console.error('Scene has been created.');
             return;
         }
-        var scene = new Physijs.Scene();
-        scene.setGravity(new THREE.Vector3(0, -this.config.gravity, 0));
+        var scene = new physijs.Scene('/js/lib/physijs-worker.js');
+        // scene.setGravity(new THREE.Vector3(0, -this.config.gravity, 0));
         setSceneBg(scene, this.name);
         this.scene = scene;
 
@@ -229,10 +229,10 @@
             threeObj.rotation.y = THREE.Math.degToRad(-90);
 
             var physGeomtry = new THREE.BoxGeometry(graphWidth, graphHeight, graphDepth);
-            var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
+            var physMaterial = new THREE.MeshBasicMaterial({});
             physMaterial.visible = false;
 
-            var physiObj = new Physijs.BoxMesh(physGeomtry, physMaterial);
+            var physiObj = new physijs.Box(physGeomtry, physMaterial, {mass: 50});
             physiObj.castShadow = false;
             physiObj.tag = tag;
             physiObj.add(threeObj);
@@ -1013,7 +1013,7 @@
 
         // this.control.enabled = !(lynx.getHUD().isTalking() || this.plotCtrl.ploting);
 
-        this.monsterCtrl.updateMonster(this.player.graph.position.clone());
+        // this.monsterCtrl.updateMonster(this.player.graph.position.clone());
 
         // this.updateMelonpi(this.player.graph.position.clone(), 10);
         if (lynx.state === lynx.enum.world.GAMECLEAR) {
@@ -1025,7 +1025,7 @@
         // this.updatePlayer();
         this.updateMixer(delta);
 
-        this.scene.simulate(undefined, 100);
+        // this.scene.simulate(undefined, 100);
 
     };
 
