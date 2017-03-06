@@ -184,7 +184,7 @@
 
         var playerConf = this.config.player;
 
-        var graph = createObj(playerConf.model, gridSize / 2, lynx.enum.tag.PLAYER);
+        var graph = createObj(playerConf.model, gridSize, lynx.enum.tag.PLAYER);
         graph.position.x = originX + playerConf.coordinate.x * roomSize + playerConf.coordinate.s * gridSize;
         graph.position.z = originZ + playerConf.coordinate.z * roomSize + playerConf.coordinate.t * gridSize;
         graph.position.y = 50;
@@ -213,30 +213,33 @@
 
             geometry.computeBoundingBox();
             var bound = geometry.boundingBox;
-            var width = bound.max.x - bound.min.x;
-            var height = bound.max.y - bound.min.y;
-            var depth = bound.max.z - bound.min.z;
+            var boundWidth = bound.max.x - bound.min.x;
+            var boundHeight = bound.max.y - bound.min.y;
+            var boundDepth = bound.max.z - bound.min.z;
+
+            var longest = Math.max(boundWidth, boundDepth);
+            var scale = size / longest;
+
+            var graphWidth = boundWidth * scale;
+            var graphHeight = boundHeight * scale;
+            var graphDepth = boundDepth * scale;
 
             var threeObj = new THREE.SkinnedMesh(geometry, new THREE.MultiMaterial(materials));
-            var physGeomtry = new THREE.BoxGeometry(width, width, depth);
+            threeObj.scale.set(scale, scale, scale);
+            threeObj.rotation.y = THREE.Math.degToRad(-90);
+
+            var physGeomtry = new THREE.BoxGeometry(graphWidth, graphHeight, graphDepth);
             var physMaterial = new Physijs.createMaterial(new THREE.MeshBasicMaterial({}), 0.8, 0.5);
             physMaterial.visible = false;
 
             var physiObj = new Physijs.BoxMesh(physGeomtry, physMaterial);
-            physiObj.castShadow = true;
+            physiObj.castShadow = false;
             physiObj.tag = tag;
             physiObj.add(threeObj);
-            physiObj.userData.width = width;
-            physiObj.userData.height = height;
-            physiObj.userData.depth = depth;
-            // threeObj.position.y = -width / 2;
-            threeObj.rotation.y = THREE.Math.degToRad(-90);
 
-            var unit = [width, height, depth];
-            unit.sort();
-
-            var scale = size / unit[2];
-            physiObj.scale.set(scale, scale, scale);
+            physiObj.userData.width = graphWidth;
+            physiObj.userData.height = graphHeight;
+            physiObj.userData.depth = graphDepth;
 
             var mixer = new THREE.AnimationMixer(threeObj);
             var clip = geometry.animations[0];
