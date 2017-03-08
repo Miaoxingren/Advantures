@@ -1458,7 +1458,7 @@
             var physMaterial = new THREE.MeshBasicMaterial({});
             physMaterial.visible = false;
 
-            var physiObj = new physijs.Box(physGeomtry, physMaterial, { mass: 0, type: 'RIGID' });
+            var physiObj = new physijs.Box(physGeomtry, physMaterial, { mass: 0 });
             physiObj.castShadow = false;
 
             physiObj.tag = tag;
@@ -1885,24 +1885,23 @@
                 var fence = createFence(gridSize);
 
                 if (index === 4 || index === 5) {
-                    var off = index === 4 ? -gridSize : gridSize;
-                    var pivotPoint = new THREE.Object3D();
-                    pivotPoint.position.z = fence.position.z;
-                    pivotPoint.position.x = off;
-                    pivotPoint.position.y = 0;
-                    pivotPoint.add(fence);
-                    fence.position.x = -off/2;
+                    var object = new THREE.Object3D();
+                    object.name = index === 4 ? 'right' : 'left';
+                    object.turnedAngle = 0;
+                    
+                    var off = index === 4 ? -gridSize / 2 : gridSize / 2;
+                    fence.position.x -= off;
+                    object.add(fence);
 
-                    pivotPoint.name = index === 4 ? 'right' : 'left';
-                    pivotPoint.turnedAngle = 0;
-                    pivotPoint.originPos = fence.position.clone();
-                    this.fences.push(pivotPoint.id);
+                    object.position.x = centerx + j * gridSize - offset + off;
+                    object.position.z = centerz + 1 * gridSize - offset - gridSize / 2;
 
-                    this.addToScene(pivotPoint);
+                    var mesh = new physijs.CompoundObject(object, {mass:0});
+                    this.fences.push(mesh.id);
+                    this.addToScene(mesh);
                 } else {
                     fence.position.x = centerx + j * gridSize - offset;
-                    fence.position.z = centerz + 1 * gridSize - offset;
-                    fence.position.z -= gridSize / 2;
+                    fence.position.z = centerz + 1 * gridSize - offset - gridSize / 2;
 
                     this.addToScene(fence);
                 }

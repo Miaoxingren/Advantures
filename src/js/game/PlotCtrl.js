@@ -249,12 +249,10 @@
 
             if (fence.turnedAngle < 135) {
                 var direction = fence.name === 'left' ? -1 : 1;
-                fence.rotation.y = direction * fence.turnedAngle / 180 * Math.PI;
+                fence.rotation.y = direction * THREE.Math.degToRad(fence.turnedAngle);
                 fence.turnedAngle += speed;
-                fence.__dirtyRotation = true;
             } else {
                 count++;
-                fence.__dirtyRotation = false;
             }
         }
 
