@@ -1997,13 +1997,12 @@
 
             var data = boxes[i];
             var boxSize = gridSize * (data.gridFactor || 1);
+
             var graph = createBox(boxSize);
 
             graph.position.x = originX + data.coordinate.x * roomSize + data.coordinate.s * gridSize - offset;
             graph.position.z = originZ + data.coordinate.z * roomSize + data.coordinate.t * gridSize - offset;
-
             graph.position.y += boxSize / 4;
-            graph.position.z -= boxSize / 2;
 
             this.addToScene(graph);
 
@@ -2023,27 +2022,32 @@
                 map: texture,
             });
 
-            var geometry = new THREE.BoxGeometry(boxSize, boxSize / 2, depth);
+            var geometryFB = new THREE.BoxGeometry(depth, boxSize / 2, boxSize);
+            var geometryLR = new THREE.BoxGeometry(boxSize, boxSize / 2, depth);
 
-            var front = new physijs.Box(geometry, material, { mass: 0, type: 'RIGID' });
-            var back = new physijs.Box(geometry, material, { mass: 0, type: 'RIGID' });
-            var left = new physijs.Box(geometry, material, { mass: 0, type: 'RIGID' });
-            var right = new physijs.Box(geometry, material, { mass: 0, type: 'RIGID' });
+            var front = new physijs.Box(geometryFB, material, { mass: 0 });
+            var back = new physijs.Box(geometryFB, material, { mass: 0 });
+            var left = new physijs.Box(geometryLR, material, { mass: 0 });
+            var right = new physijs.Box(geometryLR, material, { mass: 0 });
 
-            right.position.set(0, 0, boxSize);
-            left.add(right);
+            var objects = new THREE.Object3D();
 
-            back.rotation.y = Math.PI / 2;
-            back.position.set(boxSize / 2 - depth / 2, 0, boxSize / 2 - depth / 2);
-            left.add(back);
+            front.position.set(boxSize / 2, 0, 0);
+            objects.add(front);
 
-            front.rotation.y = Math.PI / 2;
-            front.position.set(-boxSize / 2 - depth / 2, 0, boxSize / 2 - depth / 2);
-            left.add(front);
+            back.position.set(-boxSize / 2, 0, 0);
+            objects.add(back);
 
-            left.tag = lynx.enum.tag.BOX;
+            left.position.set(0, 0, -boxSize / 2);
+            objects.add(left);
 
-            return left;
+            right.position.set(0, 0, boxSize / 2);
+            objects.add(right);
+
+            var box = new physijs.CompoundObject(objects, {mass:0});
+            box.tag = lynx.enum.tag.BOX;
+
+            return box;
         }
 
     };
