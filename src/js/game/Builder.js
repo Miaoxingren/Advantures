@@ -1049,8 +1049,7 @@
         };
 
         var cage = this.createCage(cageSize, height, floorDepth);
-        cage.position.set(0, 0, 0);
-        cage.position.y += floorDepth;
+        cage.position.y = floorDepth;
         cage.position.x = originX + coordinate.x * roomSize + coordinate.s * gridSize - offset;
         cage.position.z = originZ + coordinate.z * roomSize + coordinate.t * gridSize - offset;
         this.cage = cage;
@@ -1089,31 +1088,22 @@
             var boundWidth = bound.max.x - bound.min.x;
             var boundHeight = bound.max.y - bound.min.y;
             var boundDepth = bound.max.z - bound.min.z;
-
-            var longest = Math.max(boundWidth, boundDepth);
-            var scale = size / longest;
+            var scale = size / Math.max(boundWidth, boundDepth);
 
             var graphWidth = boundWidth * scale;
             var graphHeight = boundHeight * scale;
             var graphDepth = boundDepth * scale;
 
-            var threeObj = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
-            threeObj.scale.set(scale, scale, scale);
+            geometry.vertices.forEach(function (v) {
+                v.multiplyScalar(scale);
+            });
 
-            var physGeomtry = new THREE.BoxGeometry(graphWidth, graphHeight, graphDepth);
-            var physMaterial = new THREE.MeshBasicMaterial({});
-            physMaterial.visible = false;
+            var key = new physijs.Box(geometry, new THREE.MultiMaterial(materials), {mass: 10, type: 'RIGID'});
+            key.castShadow = false;
+            key.tag = tagEnum.KEY;
+            key.name = 'key';
 
-            var physiObj = new physijs.Box(physGeomtry, physMaterial, {mass:10});
-            physiObj.castShadow = false;
-
-            physiObj.tag = tagEnum.KEY;
-            physiObj.add(threeObj);
-
-            threeObj.position.y = -graphHeight / 2;
-            physiObj.position.y = graphHeight / 2;
-
-            return physiObj;
+            return key;
         }
 
     };
@@ -1122,60 +1112,66 @@
 
         var textureLoader = this.textureLoader;
 
-        var cnt = 9;
+        var cnt = 18;
+        var step = 4;
         var unit = cageSize / cnt;
         var radius = unit / 2;
 
-        var bottomFloor = createFloor();
-        var topFloor = createFloor();
+        var objects = new THREE.Object3D();
 
-        bottomFloor.add(topFloor);
+        var topFloor = createFloor();
+        var bottomFloor = createFloor();
+
         topFloor.position.y = height;
+        objects.add(topFloor);
+        objects.add(bottomFloor);
 
         var i;
         var cylinder;
         var pos;
-        for (i = 1; i <= 9; i += 2) {
+        for (i = 1; i <= cnt; i += step) {
             cylinder = createCylinder();
             pos = getPos(i, 'front');
-            bottomFloor.add(cylinder);
+            objects.add(cylinder);
             cylinder.name = 'front' + i;
             cylinder.position.y = height / 2;
             cylinder.position.x = pos.x;
             cylinder.position.z = pos.z;
         }
 
-        for (i = 1; i <= 9; i += 2) {
+        for (i = 1; i <= cnt; i += step) {
             cylinder = createCylinder();
             pos = getPos(i, 'back');
-            bottomFloor.add(cylinder);
+            objects.add(cylinder);
             cylinder.name = 'back' + i;
             cylinder.position.y = height / 2;
             cylinder.position.x = pos.x;
             cylinder.position.z = pos.z;
         }
 
-        for (i = 3; i <= 7; i += 2) {
+        for (i = 1 + step; i <= cnt - step; i += step) {
             cylinder = createCylinder();
             pos = getPos(i, 'left');
-            bottomFloor.add(cylinder);
+            objects.add(cylinder);
             cylinder.name = 'left' + i;
             cylinder.position.y = height / 2;
             cylinder.position.x = pos.x;
             cylinder.position.z = pos.z;
         }
 
-        for (i = 3; i <= 7; i += 2) {
+        for (i = 1 + step; i <= cnt - step; i += step) {
             cylinder = createCylinder();
             pos = getPos(i, 'right');
-            bottomFloor.add(cylinder);
+            objects.add(cylinder);
             cylinder.name = 'right' + i;
             cylinder.position.y = height / 2;
             cylinder.position.x = pos.x;
             cylinder.position.z = pos.z;
         }
 
-        return bottomFloor;
+        var cage = new physijs.CompoundObject(objects, {mass: 0});
+
+        return cage;
 
         function getPos(n, way) {
             if (way === 'front') {
@@ -1207,12 +1203,11 @@
             texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 
             var material = new THREE.MeshPhongMaterial({
-                color: 0xffffff,
                 map: texture,
             });
 
             var geometry = new THREE.BoxGeometry(cageSize, floorDepth, cageSize);
-            var floor = new physijs.Box(geometry, material, { mass: 0, type: 'RIGID' });
+            var floor = new physijs.Box(geometry, material, { mass: 0 });
             return floor;
         }
 
@@ -1222,12 +1217,12 @@
             texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 
             var material = new THREE.MeshPhongMaterial({
-                color: 0xffffff,
                 map: texture,
             });
 
             var geometry = new THREE.CylinderGeometry(radius, radius, height);
-            var cylinder = new physijs.Cylinder(geometry, material, { mass: 0, type: 'RIGID' });
+            var cylinder = new physijs.Cylinder(geometry, material, { mass: 0 });
+            cylinder.userData.height = height;
             return cylinder;
         }
     };

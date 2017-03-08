@@ -210,11 +210,9 @@
 
         var wall = this.fallingWall;
         if (wall.position.y <= -wall.userData.height / 2 - 10) {
-            // wall.__dirtyPosition = false;
             this.removeFromScene(wall);
             this.endPlot();
         } else {
-            // wall.__dirtyPosition = true;
             wall.position.y -= this.config.fallingSpeed;
             this.cameraLookAt(wall.position.clone().add(new THREE.Vector3(0, wall.userData.height / 2, 0)));
         }
