@@ -209,14 +209,14 @@
         }
 
         var wall = this.fallingWall;
-        if (wall.position.y <= -wall._physijs.height / 2 - 10) {
-            wall.__dirtyPosition = false;
+        if (wall.position.y <= -wall.userData.height / 2 - 10) {
+            // wall.__dirtyPosition = false;
             this.removeFromScene(wall);
             this.endPlot();
         } else {
-            wall.__dirtyPosition = true;
+            // wall.__dirtyPosition = true;
             wall.position.y -= this.config.fallingSpeed;
-            this.cameraLookAt(wall.position.clone().add(new THREE.Vector3(0, wall._physijs.height / 2, 0)));
+            this.cameraLookAt(wall.position.clone().add(new THREE.Vector3(0, wall.userData.height / 2, 0)));
         }
     };
 
@@ -287,7 +287,7 @@
 
             cylinder.position.y -= speed;
 
-            if (cylinder.position.y < -cylinder._physijs.height / 2 - 10) {
+            if (cylinder.position.y < -cylinder.userData.height / 2 - 10) {
                 cage.remove(cylinder);
                 count++;
             }
@@ -298,7 +298,7 @@
             return;
         }
 
-        var lookAtPoint = cylinder.position.clone().add(new THREE.Vector3(0, cylinder._physijs.height / 2, 0));
+        var lookAtPoint = cylinder.position.clone().add(new THREE.Vector3(0, cylinder.userData.height / 2, 0));
         this.cameraLookAt(lookAtPoint);
 
         function getCylinder(cage, name) {

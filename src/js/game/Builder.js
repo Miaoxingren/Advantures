@@ -1012,6 +1012,10 @@
 
             wallMesh.rotation.y = wall.vertical ? Math.PI / 2 : 0;
 
+            wallMesh.userData.width = roomSize;
+            wallMesh.userData.height = height;
+            wallMesh.userData.depth = depth;
+
             if (wall.plot !== undefined) {
                 wallMesh.userData.plot = wall.plot;
             }
