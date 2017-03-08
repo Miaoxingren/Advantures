@@ -878,6 +878,7 @@
     var builderProto = lynx.Builder.prototype;
 
     builderProto.initFloor = function() {
+
         var size = this.config.size,
             height = this.config.wallHeight,
             depth = this.config.wallDepth;
@@ -897,13 +898,14 @@
         });
 
         var geometry = new THREE.PlaneGeometry(size, size);
-        
-        var floor = new physijs.Plane(geometry, material, { restitution: 0.1 });
-        floor.position.set(0, 0, 0);
+
+        var floor = new physijs.Plane(geometry, material, { mass: 0, restitution: 0.1 });
         floor.rotation.x = -Math.PI / 2;
+        floor.position.set(0, 0, 0);
         floor.receiveShadow = false;
         floor.name = 'floor';
         this.addToScene(floor);
+
     };
 
     builderProto.initBorder = function() {
@@ -928,36 +930,46 @@
 
         var geometry = new THREE.BoxGeometry(depth, height, size);
 
-        var borderLeft = new physijs.Box(geometry, material, { restitution: 0.3 });
+        var borders = new THREE.Object3D();
+
+        var borderLeft = new physijs.Box(geometry, material, { mass: 0, restitution: 0.3 });
         borderLeft.position.set(-size / 2, height / 2, 0);
         borderLeft.receiveShadow = false;
         borderLeft.castShadow = false;
         borderLeft.name = 'borderLeft';
-        this.addToScene(borderLeft);
+        borders.add(borderLeft);
 
-        var borderRight = new physijs.Box(geometry, material, { restitution: 0.3 });
+        var borderRight = new physijs.Box(geometry, material, { mass: 0, restitution: 0.3 });
         borderRight.position.set(size / 2, height / 2, 0);
         borderRight.receiveShadow = false;
         borderRight.castShadow = false;
-        this.addToScene(borderRight);
+        borderRight.name = 'borderRight';
+        borders.add(borderRight);
 
-        var borderTop = new physijs.Box(geometry, material, { restitution: 0.3 });
-        borderTop.position.set(0, height / 2, -size / 2);
-        borderTop.rotation.y = Math.PI / 2;
-        borderRight.receiveShadow = false;
-        borderRight.castShadow = false;
-        this.addToScene(borderTop);
+        var borderBack = new physijs.Box(geometry, material, { mass: 0, restitution: 0.3 });
+        borderBack.position.set(0, height / 2, -size / 2);
+        borderBack.rotation.y = Math.PI / 2;
+        borderBack.receiveShadow = false;
+        borderBack.castShadow = false;
+        borderBack.name = 'borderBack';
+        borders.add(borderBack);
 
-        var borderBottom = new physijs.Box(geometry, material, { restitution: 0.3 });
-        borderBottom.position.set(0, height / 2, size / 2);
-        borderBottom.rotation.y = Math.PI / 2;
-        borderRight.receiveShadow = false;
-        borderRight.castShadow = false;
-        this.addToScene(borderBottom);
+        var borderFront = new physijs.Box(geometry, material, { mass: 0, restitution: 0.3 });
+        borderFront.position.set(0, height / 2, size / 2);
+        borderFront.rotation.y = Math.PI / 2;
+        borderFront.receiveShadow = false;
+        borderFront.castShadow = false;
+        borderFront.name = 'borderFront';
+        borders.add(borderFront);
+
+        var bordersMesh = new physijs.CompoundObject(borders, { mass: 0 });
+        bordersMesh.name = 'borders';
+        this.addToScene(bordersMesh);
 
     };
 
     builderProto.initWalls = function() {
+
         var walls = this.config.getWalls();
         if (!walls) {
             console.error('Missing walls');
@@ -992,7 +1004,7 @@
 
         function createWall(wall) {
             var geometry = new THREE.BoxGeometry(roomSize, height, depth);
-            var wallMesh = new physijs.Box(geometry, material, { mass: 0, type: 'RIGID' });
+            var wallMesh = new physijs.Box(geometry, material, { mass: 0, restitution: 0.3 });
 
             wallMesh.position.x = originX + wall.coordinate.x * roomSize + wall.coordinate.s * unit;
             wallMesh.position.z = originZ + wall.coordinate.z * roomSize + wall.coordinate.t * unit;
