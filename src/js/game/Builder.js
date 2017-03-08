@@ -846,7 +846,7 @@
     var builderProto = lynx.Builder.prototype;
 
     builderProto.setUp = function() {
-        this.initGround();
+        this.initFloor();
         this.initBorder();
         this.initWalls();
         this.initShelves();
@@ -877,7 +877,7 @@
 (function(lynx) {
     var builderProto = lynx.Builder.prototype;
 
-    builderProto.initGround = function() {
+    builderProto.initFloor = function() {
         var size = this.config.size,
             height = this.config.wallHeight,
             depth = this.config.wallDepth;
@@ -896,13 +896,14 @@
             normalMap: normalTexture
         });
 
-        var planeGeometry = new THREE.PlaneGeometry(size, size);
-        var ground = new physijs.Plane(planeGeometry, material, { mass: 0, type: 'RIGID' });
-        ground.rotation.x = -Math.PI / 2;
-        ground.position.set(0, 0, 0);
-        ground.receiveShadow = true;
-        ground.name = 'ground';
-        this.addToScene(ground);
+        var geometry = new THREE.PlaneGeometry(size, size);
+        
+        var floor = new physijs.Plane(geometry, material, { restitution: 0.1 });
+        floor.position.set(0, 0, 0);
+        floor.rotation.x = -Math.PI / 2;
+        floor.receiveShadow = false;
+        floor.name = 'floor';
+        this.addToScene(floor);
     };
 
     builderProto.initBorder = function() {
@@ -925,31 +926,34 @@
             normalMap: normalTexture
         });
 
-        var boxGeometry = new THREE.BoxGeometry(depth, height, size);
+        var geometry = new THREE.BoxGeometry(depth, height, size);
 
-        var border = new physijs.Box(boxGeometry, material, { mass: 0, type: 'RIGID' });
-        border.position.set(-size / 2, height / 2, 0);
-        border.receiveShadow = true;
-        border.castShadow = true;
-        border.name = 'border';
+        var borderLeft = new physijs.Box(geometry, material, { restitution: 0.3 });
+        borderLeft.position.set(-size / 2, height / 2, 0);
+        borderLeft.receiveShadow = false;
+        borderLeft.castShadow = false;
+        borderLeft.name = 'borderLeft';
+        this.addToScene(borderLeft);
 
-        var borderRight = new physijs.Box(boxGeometry, material, { mass: 0, type: 'RIGID' });
-        borderRight.position.set(size, 0, 0);
-        borderRight.receiveShadow = true;
-        borderRight.castShadow = true;
-        border.add(borderRight);
+        var borderRight = new physijs.Box(geometry, material, { restitution: 0.3 });
+        borderRight.position.set(size / 2, height / 2, 0);
+        borderRight.receiveShadow = false;
+        borderRight.castShadow = false;
+        this.addToScene(borderRight);
 
-        var borderTop = new physijs.Box(boxGeometry, material, { mass: 0, type: 'RIGID' });
+        var borderTop = new physijs.Box(geometry, material, { restitution: 0.3 });
+        borderTop.position.set(0, height / 2, -size / 2);
         borderTop.rotation.y = Math.PI / 2;
-        borderTop.position.set(size / 2, 0, size / 2);
-        border.add(borderTop);
+        borderRight.receiveShadow = false;
+        borderRight.castShadow = false;
+        this.addToScene(borderTop);
 
-        var borderBottom = new physijs.Box(boxGeometry, material, { mass: 0, type: 'RIGID' });
+        var borderBottom = new physijs.Box(geometry, material, { restitution: 0.3 });
+        borderBottom.position.set(0, height / 2, size / 2);
         borderBottom.rotation.y = Math.PI / 2;
-        borderBottom.position.set(size / 2, 0, -size / 2);
-        border.add(borderBottom);
-
-        this.addToScene(border);
+        borderRight.receiveShadow = false;
+        borderRight.castShadow = false;
+        this.addToScene(borderBottom);
 
     };
 
