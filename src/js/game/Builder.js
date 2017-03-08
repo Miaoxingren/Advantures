@@ -1257,40 +1257,36 @@
         var offset = gridSize / 2;
 
         var shelfScaled = 1;
-        var widthScaled = 1;
-        var heightScaled = 1;
-        var depthScaled = 1;
-        var graphWidth = 0;
-        var graphHeight = 0;
-        var graphDepth = 0;
-        var boardSize = 0.9;
+        var boardSize = 1;
 
         for (var i = 0, iLen = shelves.length; i < iLen; i++) {
-            var shelfData = shelves[i];
-            var shelfGraph = createObj('shelf', gridSize, lynx.enum.tag.SHELF);
+            var data = shelves[i];
 
-            if (shelfData.rotationY) {
-                shelfGraph.rotation.y = shelfData.rotationY / 180 * Math.PI;
-            }
+            var graph = createObj('shelf', gridSize, lynx.enum.tag.SHELF);
 
-            shelfGraph.position.x = originX + shelfData.coordinate.x * roomSize + shelfData.coordinate.s * gridSize - offset;
-            shelfGraph.position.z = originZ + shelfData.coordinate.z * roomSize + shelfData.coordinate.t * gridSize - offset;
+            graph.rotation.y = THREE.Math.degToRad(data.rotationY || 0);
+            graph.position.x = originX + data.coordinate.x * roomSize + data.coordinate.s * gridSize - offset;
+            graph.position.z = originZ + data.coordinate.z * roomSize + data.coordinate.t * gridSize - offset;
 
-            var shortest = Math.min(widthScaled - shelfScaled * 4 * boardSize, heightScaled - shelfScaled * 6 * boardSize, depthScaled);
+            var shelfWidth = graph.userData.width;
+            var shelfHeight = graph.userData.height;
+            var shelfDepth = graph.userData.depth;
 
-            var itemTop = shelfData.goods[0];
-            var graphTop = createObj(itemTop.model, shortest * 0.8, itemTop.tag, true);
-            shelfGraph.add(graphTop);
-            graphTop.position.y = shelfScaled * boardSize + graphHeight / 2;
+            var shortest = Math.min(shelfWidth - shelfScaled * boardSize * 2, (shelfHeight - shelfScaled * boardSize * 3) / 2, shelfDepth);
 
-            var itemBottom = shelfData.goods[1];
-            var graphBottom = createObj(itemBottom.model, shortest * 0.8, itemBottom.tag, true);
-            shelfGraph.add(graphBottom);
-            graphBottom.position.y = -heightScaled / 2 + shelfScaled * boardSize + graphHeight / 2;
+            var itemTop = data.goods[0];
+            var graphTop = createObj(itemTop.model, shortest, itemTop.tag, true);
+            graphTop.position.y = shelfScaled * boardSize / 2;
+            graph.add(graphTop);
 
-            this.addToScene(shelfGraph);
+            var itemBottom = data.goods[1];
+            var graphBottom = createObj(itemBottom.model, shortest, itemBottom.tag, true);
+            graphBottom.position.y = -shelfHeight / 2 + shelfScaled * boardSize;
+            graph.add(graphBottom);
 
-            var shelf = new lynx.SHELF(shelfGraph.id, shelfGraph, shelfData.goods);
+            this.addToScene(graph);
+
+            var shelf = new lynx.SHELF(graph.id, graph, data.goods);
             this.shelves.push(shelf);
         }
 
@@ -1319,31 +1315,39 @@
             var longest = heightLimited ? Math.max(boundWidth, boundHeight, boundDepth) : Math.max(boundWidth, boundDepth);
             var scale = size / longest;
 
-            graphWidth = boundWidth * scale;
-            graphHeight = boundHeight * scale;
-            graphDepth = boundDepth * scale;
+            var graphWidth = boundWidth * scale;
+            var graphHeight = boundHeight * scale;
+            var graphDepth = boundDepth * scale;
 
-            if (modelType === 'shelf') {
+            if (tag === lynx.enum.tag.SHELF) {
                 shelfScaled = scale;
-                widthScaled = graphWidth;
-                heightScaled = graphHeight;
-                depthScaled = graphDepth;
             }
 
             var threeObj = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
             threeObj.scale.set(scale, scale, scale);
+            
+            if (tag !== lynx.enum.tag.SHELF) {
+                threeObj.userData.width = graphWidth;
+                threeObj.userData.height = graphHeight;
+                threeObj.userData.depth = graphDepth;
+                return threeObj;
+            }
 
             var physGeomtry = new THREE.BoxGeometry(graphWidth, graphHeight, graphDepth);
             var physMaterial = new THREE.MeshBasicMaterial({});
             physMaterial.visible = false;
 
-            var physiObj = new physijs.Box(physGeomtry, physMaterial, { mass: 0, type: 'RIGID' });
+            var physiObj = new physijs.Box(physGeomtry, physMaterial, { mass: 0});
             physiObj.castShadow = false;
             physiObj.tag = tag;
             physiObj.add(threeObj);
 
             threeObj.position.y = -graphHeight / 2;
             physiObj.position.y = graphHeight / 2;
+
+            physiObj.userData.width = graphWidth;
+            physiObj.userData.height = graphHeight;
+            physiObj.userData.depth = graphDepth;
 
             return physiObj;
         }
