@@ -184,7 +184,7 @@
 
         var playerConf = this.config.player;
 
-        var graph = createObj(playerConf.model, gridSize * 2, lynx.enum.tag.PLAYER);
+        var graph = createObj(playerConf.model, gridSize * 1.5, lynx.enum.tag.PLAYER);
         graph.position.x = originX + playerConf.coordinate.x * roomSize + playerConf.coordinate.s * gridSize;
         graph.position.z = originZ + playerConf.coordinate.z * roomSize + playerConf.coordinate.t * gridSize;
         graph.position.y = 50;
