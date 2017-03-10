@@ -9,6 +9,7 @@
         this.money = money;
         this.goods = [];
         this.tasks = [];
+        this.foes = [];
         this.hurtStep = 0;
     };
 
@@ -154,14 +155,44 @@
         }
     };
 
-    playerProto.hurt = function (hp) {
-        this.hurtStep = this.hurtStep > 100 ? 0 : this.hurtStep;
-        if (this.hurtStep === 0 && hp > 0) {
+    playerProto.hurt = function (id, hp) {
+        var foe = this.getFoe(id);
+        var hurtable = false;
+        
+        if (foe && Date.now() - foe.time > 1000 * 2) {
+            foe.time = new Date();
+            hurtable = true;
+        }
+
+        if (!foe) {
+            this.addFoe(id);
+            hurtable = true;
+        }
+
+
+        if (hurtable && hp > 0) {
             this.health -= hp;
             lynx.getHUD().hurtPlayer(this.health);
         }
 
-        this.hurtStep++;
+    };
+
+    playerProto.getFoe = function (id) {
+        var found = null;
+        this.foes.forEach(function (foe) {
+            if (foe.id === id) {
+                found = foe;
+            }
+        });
+        return found;
+    };
+
+    playerProto.addFoe = function (id) {
+        var foe = {
+            id: id,
+            time: new Date()
+        };
+        this.foes.push(foe);
     };
 
 })(lynx);

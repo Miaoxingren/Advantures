@@ -338,8 +338,8 @@
                 }
                 boss.chaseAfter(meatInPos.position);
             } else if (isPlayerInPos) {
-                if (playerPos.distanceTo(boss.graph.position) < offset) {
-                    this.hurtPlayer(1);
+                if (playerPos.distanceTo(boss.graph.position) < offset * 2) {
+                    this.hurtPlayer(boss.graph.id, 1);
                 }
                 boss.chaseAfter(playerPos);
             } else {

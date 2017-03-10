@@ -283,7 +283,7 @@ var lynx = {
         RESUME: 'levelstart',
         CLICKTREE: 'block',
         COLLECT: 'gold',
-        HURT: 'hurt1',
+        HURT: 'hurt',
         DEAD: 'death',
         GAMECLEAR: 'end',
         WALK: 'step1'

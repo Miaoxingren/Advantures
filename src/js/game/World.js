@@ -792,7 +792,7 @@
 
     worldProto.colliedWithFlower = function (object) {
         if (Math.random() > 0.5) {
-            this.hurtPlayer(1);
+            this.hurtPlayer(object.id, 1);
             lynx.getHUD().hint('花有毒~');
         }
     };
@@ -977,8 +977,8 @@
         return true;
     };
 
-    worldProto.hurtPlayer = function (hp) {
-        this.player.hurt(hp);
+    worldProto.hurtPlayer = function (id, hp) {
+        this.player.hurt(id, hp);
         if (this.player.health <= 0) {
             this.gameOver();
         }
