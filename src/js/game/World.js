@@ -203,6 +203,9 @@
 
         }
 
+        var colliedEvent = lynx.bind(this, this.colliedWith);
+        graph.addEventListener('physics.contactStart', colliedEvent);
+
         function createObj(modelType, size, tag) {
             var model = lynx.getModel(modelType);
             if (!model) {
@@ -804,17 +807,29 @@
 
     };
 
-    worldProto.colliedWith = function (object) {
+    worldProto.colliedWith = function (event) {
+        var object = event.other_body;
         if (object.tag === tagEnum.FLOWER) {
             this.colliedWithFlower(object.id);
+        }
+
+        if (object.tag === tagEnum.MONSTER) {
+            this.colliedWithMonster(object.id);
         }
     };
 
     worldProto.colliedWithFlower = function (object) {
-        if (Math.random() > 0.5) {
-            this.hurtPlayer(object.id, 1);
+        if (Math.random() < 0.8) {
+            return;
+        }
+        var hurted = this.hurtPlayer(object.id, 1);
+        if (hurted) {
             lynx.getHUD().hint('花有毒~');
         }
+    };
+
+    worldProto.colliedWithMonster = function (object) {
+        var hurted = this.hurtPlayer(object.id, 1);
     };
 
 
@@ -884,7 +899,7 @@
         if (!mixer) {
             return;
         }
-        
+
         var tailClip = this.player.animations[0];
         var fightClip= this.player.animations[1];
 
@@ -1028,10 +1043,11 @@
     };
 
     worldProto.hurtPlayer = function (id, hp) {
-        this.player.hurt(id, hp);
+        var hurted = this.player.hurt(id, hp);
         if (this.player.health <= 0) {
             this.gameOver();
         }
+        return hurted;
     };
 
     worldProto.getObjectById = function (id) {

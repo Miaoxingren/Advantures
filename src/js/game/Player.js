@@ -174,6 +174,7 @@
         if (hurtable && hp > 0) {
             this.health -= hp;
             lynx.getHUD().hurtPlayer(this.health);
+            return true;
         }
 
     };
@@ -197,11 +198,7 @@
     };
 
     playerProto.fight = function (fighting) {
-        if (!this.animations) {
-            return;
-        }
-        var clip = fighting ? this.animations[1] : this.animations[0];
-        return clip;
+        this.fighting = fighting;
     };
 
 })(lynx);

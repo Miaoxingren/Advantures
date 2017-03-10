@@ -51,18 +51,22 @@
         this.graph = graph;
         this.name = name;
         this.health = health;
-        this.graph.health = this.health;
         this.speed = speed;
         this.step = 0;
         this.chase = false;
+        this.stand = false;
+        this.time = new Date();
     };
 
     var monsterProto = lynx.Monster.prototype;
 
     monsterProto.hurt = function (hp) {
+        if (Date.now() - this.time < 1000 * 5) return;
+        if (Date.now() - this.time > 1000 * 5) {
+            this.time = new Date();
+        }
         if (this.health <= 0) return;
         this.health -= hp;
-        this.graph.health = this.health;
         if (this.health < 0) {
             this.graph.rotation.z = Math.PI / 2;
         }
@@ -272,6 +276,14 @@
         }
     };
 
+    monsterCtrlProto.getMonster = function (id, hp) {
+        var monster = this.getMonster(id);
+        if (!monster) {
+            return;
+        }
+        monster.hurt(hp);
+    };
+
     monsterCtrlProto.getMonsterByName = function (name) {
         if (!this.monsters) {
             console.error('Missing monsters.');
@@ -338,9 +350,9 @@
                 }
                 boss.chaseAfter(meatInPos.position);
             } else if (isPlayerInPos) {
-                if (playerPos.distanceTo(boss.graph.position) < offset * 2) {
-                    this.hurtPlayer(boss.graph.id, 1);
-                }
+                // if (playerPos.distanceTo(boss.graph.position) < offset * 2) {
+                //     this.hurtPlayer(boss.graph.id, 1);
+                // }
                 boss.chaseAfter(playerPos);
             } else {
                 boss.randomMove();

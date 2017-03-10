@@ -244,7 +244,8 @@ var lynx = {
         KEY: 11,
         HOUSE: 12,
         MEAT: 13,
-        FENCE: 14
+        FENCE: 14,
+        FLOWER: 15
     };
 
     // dom priority
