@@ -76,13 +76,13 @@
         if (this.stand) return;
         var graph = this.graph;
         var lookAtPoint = this.lookAtPoint;
-        var turn = !this.chase && (this.step++ > 500);
-        this.step = (this.step > 500) ? 0 : this.step;
+        var turn = !this.chase && (this.step + 1 >= 30);
+        this.step = (this.step + 1) % 30;
 
         moveForward(graph, this.speed, turn, lookAtPoint);
 
         function moveForward(graph, speed, turn, lookAtPoint) {
-            var velocity = graph.getLinearVelocity();
+            var velocity = graph.physics.linear_velocity;
 
             var direction = lookAtPoint.clone().sub(graph.position).normalize();
 
@@ -96,7 +96,8 @@
             velocity.x = cosXAxes * speed;
             velocity.z = cosZAxes * speed;
 
-            graph.setLinearVelocity(velocity);
+            graph.physics.linear_velocity.x = velocity.x;
+            graph.physics.linear_velocity.z = velocity.z;
 
             lookAtPoint.set(graph.position.x + velocity.x, graph.position.y, graph.position.z + velocity.z);
             graph.lookAt(lookAtPoint);
@@ -118,7 +119,6 @@
     monsterProto.randomMove = function () {
         this.stand = false;
         this.chase = false;
-        this.step = 0;
     };
 
 })(lynx);
@@ -201,26 +201,35 @@
 
             geometry.computeBoundingBox();
             var bound = geometry.boundingBox;
-            var width = bound.max.x - bound.min.x;
-            var height = bound.max.y - bound.min.y;
-            var depth = bound.max.z - bound.min.z;
+            var boundWidth = bound.max.x - bound.min.x;
+            var boundHeight = bound.max.y - bound.min.y;
+            var boundDepth = bound.max.z - bound.min.z;
+
+            var longest = Math.max(boundWidth, boundDepth);
+            var scale = size / longest;
+
+            var graphWidth = boundWidth * scale;
+            var graphHeight = boundHeight * scale;
+            var graphDepth = boundDepth * scale;
 
             var threeObj = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
-            var physGeomtry = new THREE.BoxGeometry(width, height, depth);
+            threeObj.scale.set(scale, scale, scale);
+
+            var physGeomtry = new THREE.BoxGeometry(graphWidth, graphHeight, graphDepth);
             var physMaterial = new THREE.MeshBasicMaterial({});
             physMaterial.visible = false;
 
-            var physiObj = new physijs.Box(physGeomtry, physMaterial, {mass:width * height * depth * 99});
-            physiObj.castShadow = true;
+            var physiObj = new physijs.Box(physGeomtry, physMaterial, { mass: 10, type: 'RIGID' });
+            physiObj.castShadow = false;
             physiObj.tag = tag;
             physiObj.add(threeObj);
-            threeObj.position.y = -height / 4;
 
-            var unit = [width, height, depth];
-            unit.sort();
+            threeObj.position.y = -graphHeight / 2;
+            physiObj.position.y = graphHeight / 2;
 
-            var scale = size / unit[2];
-            physiObj.scale.set(scale, scale, scale);
+            physiObj.userData.width = graphWidth;
+            physiObj.userData.height = graphHeight;
+            physiObj.userData.depth = graphDepth;
 
             // if (geometry.morphTargets && geometry.morphTargets.length) {
             //

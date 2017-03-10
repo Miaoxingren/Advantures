@@ -1010,9 +1010,9 @@
 
         this.player.hurt(0);
 
-        // this.control.enabled = !(lynx.getHUD().isTalking() || this.plotCtrl.ploting);
+        this.control.enabled = !(lynx.getHUD().isTalking() || this.plotCtrl.ploting);
 
-        // this.monsterCtrl.updateMonster(this.player.graph.position.clone());
+        this.monsterCtrl.updateMonster(this.player.graph.position.clone());
 
         // this.updateMelonpi(this.player.graph.position.clone(), 10);
         if (lynx.state === lynx.enum.world.GAMECLEAR) {
