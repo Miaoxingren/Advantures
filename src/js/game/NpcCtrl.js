@@ -408,6 +408,9 @@
             threeObj.position.y = -graphHeight / 2;
             physiObj.position.y = graphHeight / 2;
 
+            physiObj.userData.width = graphWidth;
+            physiObj.userData.height = graphHeight;
+            physiObj.userData.depth = graphDepth;
 
             // fix deviation
             if (modelType === 'merchant_cat') {

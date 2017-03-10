@@ -38,6 +38,94 @@ var lynx = {
         return dst;
     };
 
+    lynx.clone = function(target, isDeep) {
+        
+        if (!target || target === window || target === document) {
+            return target;
+        }
+        if (!isDeep) {
+            if (Array.isArray(target)) {
+                return target.slice(0);
+            }
+            var result = {};
+            for (var key in target) {
+                if (target.hasOwnProperty(key)) {
+                    result[key] = target[key];
+                }
+            }
+            return result;
+        }
+        return deepClone(target);
+
+        function deepClone(target) {
+            var stack = [],
+                origin = target,
+                dest = Array.isArray(target) ? [] : {};
+            stack.push({
+                origin: origin,
+                dest: target,
+                keys: keys[origin],
+                idx: 0
+            });
+            while (true) {
+                var stackTop = top(stack);
+                if (!stackTop) {
+                    break;
+                }
+                if (stackTop.keys.length <= stackTop.idx) {
+                    stack.pop();
+                    continue;
+                }
+                origin = stackTop.origin;
+                dest = stackTop.dest;
+                var keys = stackTop.keys,
+                    key = keys[stackTop.idx++];
+                if (Array.isArray(origin[key])) {
+                    dest[key] = [];
+                } else if (typeof origin[key] === 'object') {
+                    dest[key] = {};
+                } else {
+                    dest[key] = origin[key];
+                    continue;
+                }
+                stackTop.push({
+                    origin: origin[key],
+                    dest: dest[key],
+                    keys: keys[origin[key]],
+                    idx: 0
+                });
+            }
+            return dest;
+            function top(stack) {
+                return stack.length > 0 ? stack[0] : null;
+            }
+            function keys(obj) {
+                var keys = [];
+                if (Array.isArray(obj)) {
+                    for (var i = 0, l = obj.length; i < l; i++) {
+                        keys.push(i);
+                    }
+                } else {
+                    for (var key in obj) {
+                        if (obj.hasOwnProperty(key)) {
+                            keys.push(key);
+                        }
+                    }
+                }
+                return keys;
+            }
+        };
+
+    }
+
+    lynx.copyVertices = function (vertices) {
+        var result = [];
+        vertices.forEach(function (v) {
+            result.push(v.clone());
+        });
+        return result;
+    }
+
     lynx.getChildren = function(obj, qualified) {
         var rets = [];
         if (qualified(obj)) {
@@ -212,7 +300,9 @@ var lynx = {
         size: 320,
         wallHeight: 50,
         wallDepth: 0.1,
-        fallingSpeed: 0.5,
+        fallingSpeed: 0.1,
+        cageCount: 18,
+        cageStep: 4,
         room: 8,
         grid: 4,
         gravity: 10,
@@ -227,7 +317,7 @@ var lynx = {
             money: 5,
             coordinate: {
                 x: 3,
-                z: 0,
+                z: 3,
                 s: 1,
                 t: 2.5
             }

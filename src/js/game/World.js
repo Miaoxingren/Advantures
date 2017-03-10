@@ -158,7 +158,7 @@
         }
         this.plotCtrl = new lynx.PlotCtrl(this.config);
         this.plotCtrl.getWallByPlot = lynx.bindGet(this, this.getWallByPlot);
-        this.plotCtrl.getCage = lynx.bindGet(this, this.getCage);
+        this.plotCtrl.getCylinders = lynx.bindGet(this, this.getCylinders);
         this.plotCtrl.getFences = lynx.bindGet(this, this.getFences);
         this.plotCtrl.removeFromScene = lynx.bind(this, this.removeFromScene);
         this.plotCtrl.addCamera = lynx.bind(this, this.addCamera);
@@ -184,7 +184,7 @@
 
         var playerConf = this.config.player;
 
-        var graph = createObj(playerConf.model, gridSize * 1.5, lynx.enum.tag.PLAYER);
+        var graph = createObj(playerConf.model, gridSize * 2, lynx.enum.tag.PLAYER);
         graph.position.x = originX + playerConf.coordinate.x * roomSize + playerConf.coordinate.s * gridSize;
         graph.position.z = originZ + playerConf.coordinate.z * roomSize + playerConf.coordinate.t * gridSize;
         graph.position.y = 50;
@@ -755,8 +755,7 @@
                 var callback = function () {
                     npc.graph.position.x = -this.config.size/2+3*this.config.size/8+1*this.config.size/8/4;
                     npc.graph.position.z = -this.config.size/2+0*this.config.size/8+1*this.config.size/8/4;
-                    npc.graph.position.y = npc.graph._physijs.height / 2;
-                    npc.graph.__dirtyPosition = true;
+                    npc.graph.position.y = npc.graph.userData.height / 2;
                     return;
                 };
                 this.plotCtrl.setPlot(task.plot, callback);
@@ -867,8 +866,8 @@
         }
     };
 
-    worldProto.getCage = function () {
-        return this.builder.cage;
+    worldProto.getCylinders = function () {
+        return this.builder.cylinders;
     };
 
     worldProto.getFences = function () {

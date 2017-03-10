@@ -134,7 +134,7 @@
         this.callback = callback;
 
         if (plotId === lynx.enum.plot.RESCUE) {
-            this.cage = this.getCage();
+            this.cylinders = this.getCylinders();
             return;
         }
 
@@ -246,12 +246,14 @@
 
         for (var i = 0; i < fences.length; i++) {
             var fence = fences[i];
+            var direction = fence.name === 'left' ? -1 : 1;
 
-            if (fence.turnedAngle < 135) {
-                var direction = fence.name === 'left' ? -1 : 1;
+            if (fence.turnedAngle < 90) {
                 fence.rotation.y = direction * THREE.Math.degToRad(fence.turnedAngle);
                 fence.turnedAngle += speed;
             } else {
+                fence.turnedAngle = 135;
+                fence.rotation.y = direction * THREE.Math.degToRad(fence.turnedAngle);
                 count++;
             }
         }
@@ -266,30 +268,30 @@
     };
 
     plotCtrlProto.updateCage = function(speed) {
-        var cage = this.cage;
-        if (!cage) {
+        var cylinders = this.cylinders;
+        if (!cylinders) {
             return;
         }
 
-        var count = 0;
+        var cageCount = this.config.cageCount;
+        var cageStep = this.config.cageStep;
 
-        var cylinder, i;
+        var plotOver = false;
 
-        for (i = 1; i <= 9; i += 2) {
-            cylinder = getCylinder(cage, 'front' + i);
-            if (!cylinder) {
-                return;
-            }
+        var cylinder = this.cylinders.children[0];
 
-            cylinder.position.y -= speed;
-
-            if (cylinder.position.y < -cylinder.userData.height / 2 - 10) {
-                cage.remove(cylinder);
-                count++;
-            }
+        if (!cylinder) {
+            return;
         }
 
-        if (count === 5) {
+        cylinders.position.y -= speed;
+
+        if (cylinders.position.y < -cylinder.userData.height / 2 - 10) {
+            this.removeFromScene(cylinders);
+            plotOver = true;
+        }
+
+        if (plotOver) {
             this.endPlot();
             return;
         }
@@ -311,8 +313,8 @@
         console.error('plotCtrlProto - Function getWallByPlot not implemented.');
     };
 
-    plotCtrlProto.getCage = function() {
-        console.error('plotCtrlProto - Function getCage not implemented.');
+    plotCtrlProto.getCylinders = function() {
+        console.error('plotCtrlProto - Function getCylinders not implemented.');
     };
 
     plotCtrlProto.getFences = function() {

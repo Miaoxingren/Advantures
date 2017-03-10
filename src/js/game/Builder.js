@@ -1049,11 +1049,22 @@
         };
 
         var cage = this.createCage(cageSize, height, floorDepth);
-        cage.position.y = floorDepth;
+        cage.position.y = floorDepth / 2;
         cage.position.x = originX + coordinate.x * roomSize + coordinate.s * gridSize - offset;
         cage.position.z = originZ + coordinate.z * roomSize + coordinate.t * gridSize - offset;
         this.cage = cage;
         this.addToScene(cage);
+
+        var cylinders = cage.userData.cylinders;
+        var objects = new THREE.Object3D();
+        cylinders.forEach(function (cylinder) {
+            objects.add(cylinder);
+        });
+        this.cylinders = new physijs.CompoundObject(objects, {mass: 0});
+        this.cylinders.position.y = floorDepth / 2;
+        this.cylinders.position.x = originX + coordinate.x * roomSize + coordinate.s * gridSize - offset;
+        this.cylinders.position.z = originZ + coordinate.z * roomSize + coordinate.t * gridSize - offset;
+        this.addToScene(this.cylinders);
 
         var keypos = {
             x: 3,
@@ -1112,12 +1123,13 @@
 
         var textureLoader = this.textureLoader;
 
-        var cnt = 18;
-        var step = 4;
+        var cnt = this.config.cageCount;
+        var step = this.config.cageStep;
         var unit = cageSize / cnt;
         var radius = unit / 2;
 
         var objects = new THREE.Object3D();
+        var cylinders = [];
 
         var topFloor = createFloor();
         var bottomFloor = createFloor();
@@ -1132,7 +1144,7 @@
         for (i = 1; i <= cnt; i += step) {
             cylinder = createCylinder();
             pos = getPos(i, 'front');
-            objects.add(cylinder);
+            cylinders.push(cylinder);
             cylinder.name = 'front' + i;
             cylinder.position.y = height / 2;
             cylinder.position.x = pos.x;
@@ -1170,7 +1182,7 @@
         }
 
         var cage = new physijs.CompoundObject(objects, {mass: 0});
-
+        cage.userData.cylinders = cylinders;
         return cage;
 
         function getPos(n, way) {
@@ -1221,14 +1233,14 @@
             });
 
             var geometry = new THREE.CylinderGeometry(radius, radius, height);
-            var cylinder = new physijs.Cylinder(geometry, material, { mass: 0 });
+            var cylinder = new physijs.Cylinder(geometry, material, { mass: 10 });
             cylinder.userData.height = height;
             return cylinder;
         }
     };
 
-    builderProto.getCage = function () {
-        return this.cage;
+    builderProto.getCylinders = function () {
+        return this.cylinders;
     };
 
 })(lynx);
