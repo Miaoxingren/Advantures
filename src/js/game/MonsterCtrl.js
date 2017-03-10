@@ -76,8 +76,12 @@
         if (this.stand) return;
         var graph = this.graph;
         var lookAtPoint = this.lookAtPoint;
-        var turn = !this.chase && (this.step + 1 >= 30);
-        this.step = (this.step + 1) % 30;
+        var turn = false;
+
+        if (!this.chase) {
+            turn = this.step + 1 >= 200;
+            this.step = (this.step + 1) % 200;
+        }
 
         moveForward(graph, this.speed, turn, lookAtPoint);
 

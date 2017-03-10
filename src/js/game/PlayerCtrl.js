@@ -324,6 +324,8 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
         }
 
         var velocity = this.player.physics.linear_velocity;
+        velocity.x = 0;
+        velocity.z = 0;
 
         if (this.moveForward || this.moveBackward || this.moveLeft || this.moveRight) {
 

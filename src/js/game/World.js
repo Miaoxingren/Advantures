@@ -187,7 +187,6 @@
         var graph = createObj(playerConf.model, gridSize * 2, lynx.enum.tag.PLAYER);
         graph.position.x = originX + playerConf.coordinate.x * roomSize + playerConf.coordinate.s * gridSize;
         graph.position.z = originZ + playerConf.coordinate.z * roomSize + playerConf.coordinate.t * gridSize;
-        graph.position.y = 50;
         this.scene.add(graph);
 
         var player = new lynx.Player(graph, playerConf.health, playerConf.money);
@@ -240,6 +239,9 @@
             physiObj.userData.width = graphWidth;
             physiObj.userData.height = graphHeight;
             physiObj.userData.depth = graphDepth;
+
+            threeObj.position.y = -graphHeight / 2;
+            physiObj.position.y = graphHeight / 2;
 
             var mixer = new THREE.AnimationMixer(threeObj);
             var clip = geometry.animations[0];
@@ -421,35 +423,41 @@
 
         var intersections = raycaster.intersectObjects(this.scene.children);
 
-        if (intersections && intersections[0]) {
-            if (!intersections[0].object.tag) return;
+        var intersection = intersections[0];
 
-            if (intersections[0].object.tag === tagEnum.NPC) {
-                this.clickNPC(intersections[0].object.npcId);
+        if (intersection && intersection.object.tag === tagEnum.PLAYER) {
+            intersection = intersections[1];
+        }
+
+        if (intersection) {
+            if (!intersection.object.tag) return;
+
+            if (intersection.object.tag === tagEnum.NPC) {
+                this.clickNPC(intersection.object.npcId);
             }
 
-            if (intersections[0].object.tag === tagEnum.SHELF) {
-                this.clickShelf(intersections[0].object.id);
+            if (intersection.object.tag === tagEnum.SHELF) {
+                this.clickShelf(intersection.object.id);
             }
 
-            if (intersections[0].object.tag === tagEnum.TREE) {
-                this.clickTree(intersections[0].object.id);
+            if (intersection.object.tag === tagEnum.TREE) {
+                this.clickTree(intersection.object.id);
             }
 
-            if (intersections[0].object.tag === tagEnum.APPLE) {
-                this.clickApple(intersections[0].object.id);
+            if (intersection.object.tag === tagEnum.APPLE) {
+                this.clickApple(intersection.object.id);
             }
 
-            if (intersections[0].object.tag === tagEnum.MEAT) {
-                this.clickMEAT(intersections[0].object.id);
+            if (intersection.object.tag === tagEnum.MEAT) {
+                this.clickMEAT(intersection.object.id);
             }
 
-            if (intersections[0].object.tag === tagEnum.KEY) {
-                this.clickKEY(intersections[0].object.id);
+            if (intersection.object.tag === tagEnum.KEY) {
+                this.clickKEY(intersection.object.id);
             }
 
-            if (intersections[0].object.tag === tagEnum.MONSTER) {
-                this.clickMonster(intersections[0].object.id);
+            if (intersection.object.tag === tagEnum.MONSTER) {
+                this.clickMonster(intersection.object.id);
             }
         }
     };
@@ -511,7 +519,6 @@
         }
 
         if (loose) {
-            obj.__dirtyPosition = false;
             this.mouseDrag = false;
             this.dragObjId = null;
             return;
@@ -527,14 +534,15 @@
 
         var origin = raycaster.ray.origin.clone();
 
+        var distance = this.player.graph.position.distanceTo(obj.position) + this.player.graph.userData.width / 2;
+
         var direction = raycaster.ray.direction.clone();//this.player.graph.watchPoint.clone().sub(this.player.graph.position).normalize();
 
         var cosXAxes = direction.clone().dot(xAxes) / (direction.length() * xAxes.length());
         var cosZAxes = direction.clone().dot(zAxes) / (direction.length() * zAxes.length());
 
-        obj.__dirtyPosition = true;
-        obj.position.x = cosXAxes * 20 + origin.x;
-        obj.position.z = cosZAxes * 20 + origin.z;
+        obj.position.x = cosXAxes * distance + origin.x;
+        obj.position.z = cosZAxes * distance + origin.z;
         obj.position.y = origin.clone().add(direction).y;
 
     };

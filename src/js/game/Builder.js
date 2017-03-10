@@ -1834,18 +1834,20 @@
             var longest = Math.max(boundWidth, boundDepth);
             var scale = size / longest;
 
+            var heightScale = size / 4 / boundHeight;
+
             var graphWidth = boundWidth * scale;
-            var graphHeight = boundHeight * scale;
+            var graphHeight = boundHeight * heightScale;
             var graphDepth = boundDepth * scale;
 
             var threeObj = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
-            threeObj.scale.set(scale, scale, scale);
+            threeObj.scale.set(scale, heightScale, scale);
 
             var physGeomtry = new THREE.BoxGeometry(graphWidth, graphHeight, graphDepth);
             var physMaterial = new THREE.MeshBasicMaterial({});
             physMaterial.visible = false;
 
-            var physiObj = new physijs.Box(physGeomtry, physMaterial, {mass:10});
+            var physiObj = new physijs.Box(physGeomtry, physMaterial, { mass: 10 });
             physiObj.castShadow = false;
 
             physiObj.tag = tagEnum.MEAT;
