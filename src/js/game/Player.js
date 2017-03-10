@@ -3,10 +3,11 @@
     var musicEnum = lynx.enum.music;
     var taskState = lynx.enum.task;
 
-    lynx.Player = function(graph, health, money) {
+    lynx.Player = function(graph, health, money, animations) {
         this.graph = graph;
         this.health = health;
         this.money = money;
+        this.animations = animations;
         this.goods = [];
         this.tasks = [];
         this.foes = [];
@@ -159,7 +160,7 @@
         var foe = this.getFoe(id);
         var hurtable = false;
         
-        if (foe && Date.now() - foe.time > 1000 * 2) {
+        if (foe && Date.now() - foe.time > 1000 * 5) {
             foe.time = new Date();
             hurtable = true;
         }
@@ -193,6 +194,14 @@
             time: new Date()
         };
         this.foes.push(foe);
+    };
+
+    playerProto.fight = function (fighting) {
+        if (!this.animations) {
+            return;
+        }
+        var clip = fighting ? this.animations[1] : this.animations[0];
+        return clip;
     };
 
 })(lynx);

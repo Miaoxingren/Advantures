@@ -21,6 +21,9 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
     //update moving state by mouse
     this.activeLook = true;
 
+    this.mouseX = 0;
+    this.mouseY = 0;
+
     this.heightSpeed = true;
     this.heightCoef = 1.0;
     this.heightMin = 0.0;
@@ -51,12 +54,6 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
     this.moveDown = false;
 
     this.mouseDragOn = false;
-
-    this.rotateLook = false;
-    this.rotateStartX = 0;
-    this.rotateStartY = 0;
-    this.rotateCurX = 0;
-    this.rotateCurY = 0;
 
     if (this.domElement !== document) {
 
@@ -91,13 +88,7 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
         event.preventDefault();
         event.stopPropagation();
 
-        this.rotateStartX = 0;
-        this.rotateStartY = 0;
-
         if (this.activeLook) {
-
-            var mousePosX = this.domElement === document ? event.pageX : event.pageX - this.domElement.offsetLeft;
-            var mousePosY = this.domElement === document ? event.pageY : event.pageY - this.domElement.offsetTop;
 
             switch (event.button) {
 
@@ -108,12 +99,6 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
                 // case 2:
                 //     this.moveBackward = true;
                 //     break;
-
-                case 2:
-                    this.rotateLook = true;
-                    this.rotateStartX = mousePosX;
-                    this.rotateStartY = mousePosY;
-                    break;
 
             }
 
@@ -134,8 +119,6 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
         event.preventDefault();
         event.stopPropagation();
 
-        this.rotateStartX = 0;
-        this.rotateStartY = 0;
 
         if (this.activeLook) {
 
@@ -149,9 +132,6 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
                 //     this.moveBackward = false;
                 //     break;
 
-                case 2:
-                    this.rotateLook = false;
-                    break;
             }
 
         }
@@ -171,17 +151,8 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
         var mousePosX = this.domElement === document ? event.pageX : event.pageX - this.domElement.offsetLeft;
         var mousePosY = this.domElement === document ? event.pageY : event.pageY - this.domElement.offsetTop;
 
-        if (this.rotateLook) {
-
-            this.rotateCurX = mousePosX;
-            this.rotateCurY = mousePosY;
-
-        } else {
-
-            this.rotateCurX = this.rotateStartX;
-            this.rotateCurY = this.rotateStartY;
-
-        }
+        this.mouseX = mousePosX - this.viewHalfX;
+        this.mouseY = mousePosY - this.viewHalfY;
 
         if (this.worldMouseMove) {
 
@@ -375,8 +346,8 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
             verticalLookRatio = Math.PI / (this.verticalMax - this.verticalMin);
         }
 
-        this.lon += (this.rotateCurX - this.rotateStartX) * actualLookSpeed;
-        if (this.lookVertical) this.lat -= (this.rotateCurY - this.rotateStartY) * actualLookSpeed * verticalLookRatio;
+        this.lon += this.mouseX * actualLookSpeed;
+        if (this.lookVertical) this.lat -= this.mouseY * actualLookSpeed * verticalLookRatio;
 
         this.lat = THREE.Math.clamp(this.lat, -85, 85);
         this.phi = THREE.Math.degToRad(90 - this.lat);
@@ -403,7 +374,7 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
         var cosXAxesCamera = viewOpposite.clone().dot(this.xAxes) / (viewOpposite.length() * this.xAxes.length());
         var cosZAxesCamera = viewOpposite.clone().dot(this.zAxes) / (viewOpposite.length() * this.zAxes.length());
 
-        cameraPos.y = playerPos.y + this.player.userData.height;
+        cameraPos.y = playerPos.y;// + this.player.userData.height;
         cameraPos.x = playerPos.x + cosXAxesCamera * this.player.userData.width;
         cameraPos.z = playerPos.z + cosZAxesCamera * this.player.userData.width;
 

@@ -184,13 +184,24 @@
 
         var playerConf = this.config.player;
 
+        var mixer = null;
+        var animations = null;
+
         var graph = createObj(playerConf.model, gridSize * 2, lynx.enum.tag.PLAYER);
         graph.position.x = originX + playerConf.coordinate.x * roomSize + playerConf.coordinate.s * gridSize;
         graph.position.z = originZ + playerConf.coordinate.z * roomSize + playerConf.coordinate.t * gridSize;
         this.scene.add(graph);
 
-        var player = new lynx.Player(graph, playerConf.health, playerConf.money);
+        var player = new lynx.Player(graph, playerConf.health, playerConf.money, animations);
         this.player = player;
+
+        if (mixer && animations) {
+
+            var clip = animations[0];
+            mixer.clipAction(clip).play();
+            this.addMixer(mixer, graph.id);
+
+        }
 
         function createObj(modelType, size, tag) {
             var model = lynx.getModel(modelType);
@@ -243,11 +254,8 @@
             threeObj.position.y = -graphHeight / 2;
             physiObj.position.y = graphHeight / 2;
 
-            var mixer = new THREE.AnimationMixer(threeObj);
-            var clip = geometry.animations[0];
-            mixer.clipAction(clip).play();
-
-            world.addMixer(mixer);
+            mixer = new THREE.AnimationMixer(threeObj);
+            animations = geometry.animations;
 
             return physiObj;
         }
@@ -368,7 +376,13 @@
                 /*right*/
             case 68:
                 /*D*/
+                this.control.activeLook = true;
                 lynx.getHUD().walking(true);
+                break;
+
+            case 90:
+                /*Z*/
+                this.playerFight(true);
                 break;
 
             case 32:
@@ -404,7 +418,13 @@
                 /*right*/
             case 68:
                 /*D*/
+                this.control.activeLook = false;
                 lynx.getHUD().walking(false);
+                break;
+
+            case 90:
+                /*Z*/
+                this.playerFight(false);
                 break;
 
         }
@@ -797,6 +817,7 @@
         }
     };
 
+
 })(lynx);
 
 // common method
@@ -836,9 +857,20 @@
         return this.camCtrl.camera;
     };
 
-    worldProto.addMixer = function(mixer) {
+    worldProto.addMixer = function(mixer, owner) {
+        mixer.owner = owner;
         this.mixers.push(mixer);
         return this.mixers.length - 1;
+    };
+
+    worldProto.getMixer = function(owner) {
+        var found = null;
+        this.mixers.forEach(function (mixer) {
+            if (mixer.owner = owner) {
+                found = mixer;
+            }
+        });
+        return found;
     };
 
     worldProto.updateMixer = function(delta) {
@@ -847,6 +879,24 @@
         }
     };
 
+    worldProto.playerFight = function (fighting) {
+        var mixer = this.getMixer(this.player.graph.id);
+        if (!mixer) {
+            return;
+        }
+        
+        var tailClip = this.player.animations[0];
+        var fightClip= this.player.animations[1];
+
+        if (fighting) {
+            mixer.clipAction(tailClip).stop();
+            mixer.clipAction(fightClip).play();
+        } else {
+            mixer.clipAction(fightClip).stop();
+            mixer.clipAction(tailClip).play();
+        }
+    };
+    
     worldProto.toggleWorld = function () {
         if (lynx.state === lynx.enum.world.PLAY) {
             this.pause();
