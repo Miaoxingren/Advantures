@@ -39,7 +39,7 @@ var lynx = {
     };
 
     lynx.clone = function(target, isDeep) {
-        
+
         if (!target || target === window || target === document) {
             return target;
         }
@@ -64,7 +64,7 @@ var lynx = {
             stack.push({
                 origin: origin,
                 dest: target,
-                keys: keys[origin],
+                keys: getKeys(origin),
                 idx: 0
             });
             while (true) {
@@ -91,7 +91,7 @@ var lynx = {
                 stackTop.push({
                     origin: origin[key],
                     dest: dest[key],
-                    keys: keys[origin[key]],
+                    keys: getKeys(origin[key]),
                     idx: 0
                 });
             }
@@ -99,7 +99,7 @@ var lynx = {
             function top(stack) {
                 return stack.length > 0 ? stack[0] : null;
             }
-            function keys(obj) {
+            function getKeys(obj) {
                 var keys = [];
                 if (Array.isArray(obj)) {
                     for (var i = 0, l = obj.length; i < l; i++) {
@@ -114,9 +114,9 @@ var lynx = {
                 }
                 return keys;
             }
-        };
+        }
 
-    }
+    };
 
     lynx.copyVertices = function (vertices) {
         var result = [];
@@ -124,7 +124,7 @@ var lynx = {
             result.push(v.clone());
         });
         return result;
-    }
+    };
 
     lynx.getChildren = function(obj, qualified) {
         var rets = [];
@@ -269,11 +269,11 @@ var lynx = {
         BILL: 3,
         VINCENT: 4,
         WILLIAM: 5,
-        JOSEPH: 6,
-        JAMES: 7,
-        HENRY: 8,
+        PATRICK: 6,
+        SQUIDWARD: 7,
+        KRABS: 8,
         GARY: 9,
-        MARTIN: 10
+        BOB: 10
     };
 
     lynx.enum.music = {
@@ -287,7 +287,8 @@ var lynx = {
         HURT: 'hurt',
         DEAD: 'death',
         GAMECLEAR: 'end',
-        WALK: 'step1'
+        WALK: 'step1',
+        FIGHT: 'sword2'
     };
 
 })(lynx);
@@ -313,11 +314,11 @@ var lynx = {
         monsterNum: 30,
         player: {
             name: 'panther0',
-            model: 'magic_cat',
+            model: 'cat_wizard',
             health: 5,
             money: 5,
             coordinate: {
-                x: 3,
+                x: 6,
                 z: 3,
                 s: 1,
                 t: 2.5
@@ -511,12 +512,13 @@ var lynx = {
     }
 
     var models = [
-        'merchant_cat', 'melon', 'bear0', 'bear1', 'bear2', 'blackWidow', 'bunny0', 'bear3', 'bunny1', 'chow', 'deer', 'crab', 'elk', 'fish0',
+        'cat_merchant', 'melon', 'bear0', 'bear1', 'bear2', 'blackWidow', 'bunny0', 'bear3', 'bunny1', 'chow', 'deer', 'crab', 'elk', 'fish0',
         'fish1', 'fish2', 'fish3', 'eagle', 'fox1', 'fox0', 'flamingo', 'frog0', 'goldenRetreiver0', 'frog2', 'goat', 'goldenRetreiver1',
         'horse1', 'horse0', 'hummingBird0', 'hummingBird1', 'moose', 'owl', 'mountainLion', 'parrot2', 'raccoon', 'panther0',
         'parrot1', 'raven', 'seal0', 'stork', 'scorpion', 'seal1', 'toad0', 'wolf', 'vulture', 'toad1', 'gator', 'tarantula0',
         'coin', 'cat_food_yellow', 'shelf', 'tree_a', 'rose', 'plants1', 'sword', 'wood', 'cat1', 'farmhouse', 'market', 'apple',
-        'doghouse', 'meat', 'fence', 'doghousemesh', 'key', 'magic_cat'
+        'doghouse', 'meat', 'fence', 'doghousemesh', 'key', 'cat_wizard', 'cat_happy', 'cat_fatblue', 'cat_cheshire', 'sponge_patrick',
+        'sponge_squidward', 'sponge_crab', 'sponge_bench', 'sponge_saladbar', 'sponge_bob', 'sponge_gary', 'slime'
     ];
 
     function initModels() {

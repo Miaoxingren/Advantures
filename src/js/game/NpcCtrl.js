@@ -21,8 +21,9 @@
         },
         gridFactor: 2,
         rotationY: -90,
-        name: 'Merchant Charles',
-        model: 'merchant_cat',
+        trnaslateY: -2.45,
+        name: 'Cat Charles',
+        model: 'cat_fatblue',
         id: npcEnum.CHARLES,
         tasks: [{
             name: 'welcome',
@@ -130,6 +131,173 @@
                 ],
                 [
                     '谢谢你的帮忙，送你几颗苹果~'
+                ]
+            ]
+        }]
+    }, {
+        coordinate: {
+            x: 7,
+            z: 3,
+            s: 3.5,
+            t: 3.5
+        },
+        gridFactor: 2,
+        rotationY: -90,
+        name: 'Cat William',
+        model: 'cat_cheshire',
+        id: npcEnum.WILLIAM,
+        tasks: [{
+            name: 'humberg',
+            plot: plotEnum.HUMBERG,
+            state: taskState.CREATE,
+            messages: [
+                [
+                    '很久很久以前，在海底有一个小城叫做比基尼海滩。',
+                    '在这个小城里有一个地方，叫做蟹堡王餐厅，人们会去那里吃一种叫做蟹黄堡的食物。',
+                    '每个经济的小吃店都有一个厨师，而在这家餐厅工作的，它的名字叫海绵宝宝。',
+                    '海绵宝宝喜欢这份厨师的工作胜过一切！他爱给比基尼海滩的朋友们做蟹黄堡，和他们爱吃它们的程度一样！',
+                    '你也许会问，为什么？它们真的那么喜欢这种，油腻的小三明治吗？它们为什么早餐吃，午餐吃，晚餐也吃，甚至不顾医生的劝阻……',
+                    '作为一个吃货，不应该不知道最神奇的食物：美味蟹黄堡！',
+                    '如果你能给我一个蟹黄堡，我能送你一件神秘礼物。'
+                ],
+                [
+                    '神秘的……',
+                    '美味的……',
+                    '蟹黄堡，你在哪？'
+                ],
+                [
+                    '蟹黄堡!蟹黄堡!蟹黄堡!'
+                ]
+            ]
+        }]
+    }, {
+        coordinate: {
+            x: 5,
+            z: 3,
+            s: 1.5,
+            t: 1.5
+        },
+        gridFactor: 2,
+        rotationY: 45,
+        name: 'Patrick Star',
+        model: 'sponge_patrick',
+        id: npcEnum.PATRICK,
+        tasks: [{
+            state: taskState.CREATE,
+            messages: [
+                [
+                    '海绵宝宝做的蟹黄堡可美味啦！',
+                    '偷偷告诉你……',
+                    '制作美味蟹黄堡的原料有：',
+                    '面包皮*1份',
+                    '肉饼*1片',
+                    '奶酪*2片',
+                    '番茄*2片',
+                    '生菜*1片',
+                    '腌椰菜*1片',
+                    '番茄酱',
+                    '芥末酱'
+                ]
+            ]
+        }]
+    }, {
+        coordinate: {
+            x: 5,
+            z: 3,
+            s: 1.5,
+            t: 3.5
+        },
+        gridFactor: 1,
+        rotationY: 135,
+        name: 'Squidward Tentacles',
+        model: 'sponge_squidward',
+        id: npcEnum.SQUIDWARD,
+        tasks: [{
+            state: taskState.CREATE,
+            messages: [
+                [
+                    '蟹堡王的顾客可以根据自己喜好，来要求每种原料的分量。',
+                    '美味蟹黄堡不仅仅是原料的堆叠这么简单。',
+                    '别小看了蟹老板，要在比基尼海滩靠卖汉堡三明治发家，秘密当然就在那一块小肉饼喽~',
+                    '这块小肉饼的秘密，就在秘密配方里！',
+                    '从来没有人知道小肉饼的配方包括海绵宝宝和蟹老板，因为员工手册上有明文规定：',
+                    '任何员工，不论个人或整体均不得以书面或视觉形式，包括记忆、做梦或绣花形式记录蟹黄堡的配方。',
+                    '原来，海绵宝宝每次都是对着秘方制作好一仓库的肉饼然后就忘掉它的制作方法……'
+                ]
+            ]
+        }]
+    }, {
+        coordinate: {
+            x: 6,
+            z: 3,
+            s: 2.5,
+            t: 1.5
+        },
+        gridFactor: 2,
+        name: 'Mr. Krabs',
+        model: 'sponge_crab',
+        id: npcEnum.KRABS,
+        tasks: [{
+            state: taskState.CREATE,
+            messages: [
+                [
+                    '你别想从我这里拿走一分钱，一分钱！',
+                    '啊，我的一毛钱！',
+                    '准备好了？你准备好了吗？海绵宝宝？'
+                ]
+            ]
+        }]
+    }, {
+        coordinate: {
+            x: 6,
+            z: 4,
+            s: 3.5,
+            t: 3.5
+        },
+        gridFactor: 1.5,
+        rotationY: 180,
+        name: 'Sponge Bob',
+        model: 'sponge_bob',
+        id: npcEnum.BOB,
+        tasks: [{
+            name: 'save gary',
+            state: taskState.GETGARY,
+            messages: [
+                [
+                    '海绵宝宝？海绵宝宝？海绵宝宝？',
+                    '海绵宝宝陷入混乱中.....无法制作出蟹黄堡.....',
+                    '啊，我的小蜗Gary，它是一只蜗牛，喜欢吃真菌菌苔和呱呱乐，不会中毒。',
+                    '有时爱和我作对。当底下卡了东西会因为不适而变得暴躁，甚至咬人。',
+                    '它不见了，我的小蜗不见了....'
+                ],
+                [
+                    '我的小蜗不见了....',
+                    '海绵宝宝陷入混乱中.....',
+                    '无法制作出蟹黄堡.....'
+                ],
+                [
+                    '哦，感谢你，我的小蜗回来了！',
+                    '海绵宝宝重新振作！',
+                    '努力制作美味的蟹黄堡！'
+                ]
+            ]
+        }]
+    }, {
+        coordinate: {
+            x: 7,
+            z: 6,
+            s: 4,
+            t: 1
+        },
+        gridFactor: 1,
+        name: 'Gary the Snail',
+        model: 'sponge_gary',
+        id: npcEnum.GARY,
+        tasks: [{
+            state: taskState.GETGARY,
+            messages: [
+                [
+                    '这里太可怕了，我要回到海绵宝宝那....',
                 ]
             ]
         }]
@@ -344,16 +512,15 @@
             graph.npcId = data.id;
 
             // depth of cage floor
-            if (data.id === lynx.enum.npc.MELONPI) {
-                graph.position.y += 2;
-            }
+            // if (data.id === lynx.enum.npc.MELONPI) {
+            //     graph.position.y += 2;
+            // }
 
-            if (data.rotationY) {
-                graph.rotation.y = data.rotationY / 180 * Math.PI;
-            }
+            graph.rotation.y = THREE.Math.degToRad(data.rotationY || 0);
 
             graph.position.x = originX + data.coordinate.x * roomSize + data.coordinate.s * gridSize - offset;
             graph.position.z = originZ + data.coordinate.z * roomSize + data.coordinate.t * gridSize - offset;
+            graph.position.y += data.trnaslateY || 0;
 
             this.addToScene(graph);
 
@@ -413,8 +580,8 @@
             physiObj.userData.depth = graphDepth;
 
             // fix deviation
-            if (modelType === 'merchant_cat') {
-                threeObj.position.z = graphDepth / 2;
+            if (modelType === 'cat_fatblue') {
+                threeObj.position.z = graphDepth / 4;
             }
 
             // if (geometry.morphTargets && geometry.morphTargets.length) {

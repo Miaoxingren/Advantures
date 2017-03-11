@@ -377,7 +377,7 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
         cameraPos.y = playerPos.y;// + this.player.userData.height;
         cameraPos.x = playerPos.x + cosXAxesCamera * this.player.userData.width;
         cameraPos.z = playerPos.z + cosZAxesCamera * this.player.userData.width;
-
+        
     };
 
     function contextmenu(event) {

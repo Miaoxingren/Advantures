@@ -148,6 +148,8 @@
         this.monsterCtrl.addToScene = lynx.bind(this, this.addToScene);
         this.monsterCtrl.getMeat = lynx.bindGet(this, this.getMeat);
         this.monsterCtrl.hurtPlayer = lynx.bind(this, this.hurtPlayer);
+        this.monsterCtrl.removeById = lynx.bind(this, this.removeById);
+        this.monsterCtrl.rewardPlayer = lynx.bind(this, this.rewardPlayer);
         this.monsterCtrl.setUp();
     };
 
@@ -557,7 +559,7 @@
 
         var origin = raycaster.ray.origin.clone();
 
-        var distance = this.player.graph.position.distanceTo(obj.position) + this.player.graph.userData.width / 2;
+        var distance = 20;//this.player.graph.position.distanceTo(obj.position) + this.player.graph.userData.width / 2;
 
         var direction = raycaster.ray.direction.clone();//this.player.graph.watchPoint.clone().sub(this.player.graph.position).normalize();
 
@@ -566,7 +568,7 @@
 
         obj.position.x = cosXAxes * distance + origin.x;
         obj.position.z = cosZAxes * distance + origin.z;
-        obj.position.y = origin.clone().add(direction).y;
+        obj.position.y = origin.clone().add(direction).y + this.player.graph.userData.height / 2;
 
     };
 
@@ -637,7 +639,7 @@
 
             var task = npc.getCurTask();
 
-            if (task.state === taskState.CREATE) {
+            if (task.name && task.state === taskState.CREATE) {
                 npc.updateTask();
                 this.player.acceptTask(task);
             }
@@ -810,16 +812,16 @@
     worldProto.colliedWith = function (event) {
         var object = event.other_body;
         if (object.tag === tagEnum.FLOWER) {
-            this.colliedWithFlower(object.id);
+            this.colliedWithFlower(object);
         }
 
         if (object.tag === tagEnum.MONSTER) {
-            this.colliedWithMonster(object.id);
+            this.colliedWithMonster(object);
         }
     };
 
     worldProto.colliedWithFlower = function (object) {
-        if (Math.random() < 0.8) {
+        if (Math.random() < 0.999) {
             return;
         }
         var hurted = this.hurtPlayer(object.id, 1);
@@ -830,6 +832,10 @@
 
     worldProto.colliedWithMonster = function (object) {
         var hurted = this.hurtPlayer(object.id, 1);
+        if (this.player.fighting) {
+            this.monsterCtrl.hurtMonster(object.id, 1);
+            lynx.getHUD().playMusic(musicEnum.FIGHT);
+        }
     };
 
 
@@ -881,7 +887,7 @@
     worldProto.getMixer = function(owner) {
         var found = null;
         this.mixers.forEach(function (mixer) {
-            if (mixer.owner = owner) {
+            if (mixer.owner === owner) {
                 found = mixer;
             }
         });
@@ -895,6 +901,8 @@
     };
 
     worldProto.playerFight = function (fighting) {
+        this.player.fight(fighting);
+
         var mixer = this.getMixer(this.player.graph.id);
         if (!mixer) {
             return;
@@ -911,7 +919,7 @@
             mixer.clipAction(tailClip).play();
         }
     };
-    
+
     worldProto.toggleWorld = function () {
         if (lynx.state === lynx.enum.world.PLAY) {
             this.pause();
@@ -1026,7 +1034,7 @@
         }
 
         if (!distance) {
-            distance = center._physijs.width;
+            distance = center.userData.width;
         }
 
         for (var i = 0, iLen = otherIds.length; i < iLen; i++) {
@@ -1048,6 +1056,14 @@
             this.gameOver();
         }
         return hurted;
+    };
+
+    worldProto.rewardPlayer = function (goods) {
+        if (!this.player) {
+            console.error('Missing player - rewardPlayer');
+            return;
+        }
+        this.player.addGoods(goods);
     };
 
     worldProto.getObjectById = function (id) {

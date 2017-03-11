@@ -66,6 +66,17 @@
             }
         }, {
             type: wallEnum.STAND,
+            vertical: false,
+            coordinate: {
+                x: 3,
+                z: 2,
+                s: 1,
+                t: 2
+            }
+        },
+        // wall of stand
+        {
+            type: wallEnum.STAND,
             vertical: true,
             coordinate: {
                 x: 3,
@@ -124,6 +135,33 @@
             coordinate: {
                 x: 3,
                 z: 1,
+                s: 1,
+                t: 2
+            }
+        }, {
+            type: wallEnum.STAND,
+            vertical: true,
+            coordinate: {
+                x: 1,
+                z: 2,
+                s: 2,
+                t: 1
+            }
+        }, {
+            type: wallEnum.STAND,
+            vertical: true,
+            coordinate: {
+                x: 3,
+                z: 2,
+                s: 2,
+                t: 1
+            }
+        }, {
+            type: wallEnum.STAND,
+            vertical: false,
+            coordinate: {
+                x: 4,
+                z: 2,
                 s: 1,
                 t: 2
             }
@@ -149,51 +187,6 @@
             type: wallEnum.STAND,
             vertical: true,
             coordinate: {
-                x: 1,
-                z: 2,
-                s: 2,
-                t: 1
-            }
-        }, {
-            type: wallEnum.STAND,
-            vertical: true,
-            coordinate: {
-                x: 3,
-                z: 2,
-                s: 2,
-                t: 1
-            }
-        }, {
-            type: wallEnum.STAND,
-            vertical: false,
-            coordinate: {
-                x: 3,
-                z: 2,
-                s: 1,
-                t: 2
-            }
-        }, {
-            type: wallEnum.STAND,
-            vertical: false,
-            coordinate: {
-                x: 4,
-                z: 2,
-                s: 1,
-                t: 2
-            }
-        }, {
-            type: wallEnum.STAND,
-            vertical: false,
-            coordinate: {
-                x: 5,
-                z: 2,
-                s: 1,
-                t: 2
-            }
-        }, {
-            type: wallEnum.STAND,
-            vertical: true,
-            coordinate: {
                 x: 0,
                 z: 3,
                 s: 2,
@@ -222,6 +215,33 @@
             vertical: true,
             coordinate: {
                 x: 4,
+                z: 3,
+                s: 2,
+                t: 1
+            }
+        }, {
+            type: wallEnum.STAND,
+            vertical: false,
+            coordinate: {
+                x: 0,
+                z: 3,
+                s: 1,
+                t: 2
+            }
+        }, {
+            type: wallEnum.STAND,
+            vertical: false,
+            coordinate: {
+                x: 1,
+                z: 3,
+                s: 1,
+                t: 2
+            }
+        }, {
+            type: wallEnum.STAND,
+            vertical: true,
+            coordinate: {
+                x: 2,
                 z: 4,
                 s: 2,
                 t: 1
@@ -239,28 +259,53 @@
             type: wallEnum.STAND,
             vertical: false,
             coordinate: {
-                x: 0,
-                z: 3,
+                x: 3,
+                z: 4,
                 s: 1,
                 t: 2
             }
         }, {
-            // TBC
             type: wallEnum.STAND,
             vertical: false,
             coordinate: {
-                x: 1,
-                z: 3,
+                x: 4,
+                z: 4,
                 s: 1,
                 t: 2
             }
         }, {
-            // TBC
+            type: wallEnum.STAND,
+            vertical: false,
+            coordinate: {
+                x: 5,
+                z: 4,
+                s: 1,
+                t: 2
+            }
+        }, {
             type: wallEnum.STAND,
             vertical: false,
             coordinate: {
                 x: 6,
-                z: 3,
+                z: 4,
+                s: 1,
+                t: 2
+            }
+        }, {
+            type: wallEnum.STAND,
+            vertical: true,
+            coordinate: {
+                x: 5,
+                z: 6,
+                s: 2,
+                t: 1
+            }
+        }, {
+            type: wallEnum.STAND,
+            vertical: false,
+            coordinate: {
+                x: 6,
+                z: 5,
                 s: 1,
                 t: 2
             }
@@ -269,198 +314,7 @@
             vertical: false,
             coordinate: {
                 x: 7,
-                z: 3,
-                s: 1,
-                t: 2
-            }
-        }, {
-            type: wallEnum.STAND,
-            vertical: true,
-            coordinate: {
-                x: 0,
-                z: 4,
-                s: 2,
-                t: 1
-            }
-        }, {
-            type: wallEnum.STAND,
-            vertical: true,
-            coordinate: {
-                x: 1,
-                z: 4,
-                s: 2,
-                t: 1
-            }
-        }, {
-            type: wallEnum.STAND,
-            vertical: true,
-            coordinate: {
-                x: 2,
-                z: 4,
-                s: 2,
-                t: 1
-            }
-        }, {
-            type: wallEnum.STAND,
-            vertical: true,
-            coordinate: {
-                x: 5,
-                z: 4,
-                s: 2,
-                t: 1
-            }
-        }, {
-            type: wallEnum.STAND,
-            vertical: true,
-            coordinate: {
-                x: 6,
-                z: 4,
-                s: 2,
-                t: 1
-            }
-        }, {
-            type: wallEnum.STAND,
-            vertical: false,
-            coordinate: {
-                x: 3,
-                z: 4,
-                s: 1,
-                t: 2
-            }
-        }, {
-            type: wallEnum.STAND,
-            vertical: false,
-            coordinate: {
-                x: 4,
-                z: 4,
-                s: 1,
-                t: 2
-            }
-        },
-        // TBC
-        {
-            type: wallEnum.TBC,
-            vertical: true,
-            coordinate: {
-                x: 0,
                 z: 5,
-                s: 2,
-                t: 1
-            }
-        }, {
-            type: wallEnum.TBC,
-            vertical: true,
-            coordinate: {
-                x: 5,
-                z: 5,
-                s: 2,
-                t: 1
-            }
-        }, {
-            type: wallEnum.TBC,
-            vertical: true,
-            coordinate: {
-                x: 6,
-                z: 5,
-                s: 2,
-                t: 1
-            }
-        }, {
-            type: wallEnum.TBC,
-            vertical: false,
-            coordinate: {
-                x: 1,
-                z: 5,
-                s: 1,
-                t: 2
-            }
-        }, {
-            type: wallEnum.TBC,
-            vertical: false,
-            coordinate: {
-                x: 2,
-                z: 5,
-                s: 1,
-                t: 2
-            }
-        }, {
-            type: wallEnum.TBC,
-            vertical: false,
-            coordinate: {
-                x: 4,
-                z: 5,
-                s: 1,
-                t: 2
-            }
-        }, {
-            type: wallEnum.TBC,
-            vertical: false,
-            coordinate: {
-                x: 5,
-                z: 5,
-                s: 1,
-                t: 2
-            }
-        }, {
-            type: wallEnum.TBC,
-            vertical: true,
-            coordinate: {
-                x: 3,
-                z: 6,
-                s: 2,
-                t: 1
-            }
-        }, {
-            type: wallEnum.TBC,
-            vertical: true,
-            coordinate: {
-                x: 6,
-                z: 6,
-                s: 2,
-                t: 1
-            }
-        }, {
-            type: wallEnum.TBC,
-            vertical: false,
-            coordinate: {
-                x: 1,
-                z: 6,
-                s: 1,
-                t: 2
-            }
-        }, {
-            type: wallEnum.TBC,
-            vertical: false,
-            coordinate: {
-                x: 2,
-                z: 6,
-                s: 1,
-                t: 2
-            }
-        }, {
-            type: wallEnum.TBC,
-            vertical: false,
-            coordinate: {
-                x: 3,
-                z: 6,
-                s: 1,
-                t: 2
-            }
-        }, {
-            type: wallEnum.TBC,
-            vertical: false,
-            coordinate: {
-                x: 4,
-                z: 6,
-                s: 1,
-                t: 2
-            }
-        }, {
-            type: wallEnum.TBC,
-            vertical: false,
-            coordinate: {
-                x: 6,
-                z: 6,
                 s: 1,
                 t: 2
             }
@@ -502,7 +356,7 @@
             }, {
                 name: 'cat food',
                 model: 'cat_food_yellow',
-                count: 1,
+                count: 10,
                 tag: tag.HEALTH,
                 description: 'Each one add 1 hp.'
             }]
@@ -523,7 +377,7 @@
             }, {
                 name: 'cat food',
                 model: 'cat_food_yellow',
-                count: 1,
+                count: 4,
                 tag: tag.HEALTH,
                 description: 'Each one add 1 hp.'
             }]
@@ -565,7 +419,7 @@
             }, {
                 name: 'cat food',
                 model: 'cat_food_yellow',
-                count: 1,
+                count: 6,
                 tag: tag.HEALTH,
                 description: 'Each one add 1 hp.'
             }]
@@ -586,7 +440,7 @@
             }, {
                 name: 'cat food',
                 model: 'cat_food_yellow',
-                count: 1,
+                count: 5,
                 tag: tag.HEALTH,
                 description: 'Each one add 1 hp.'
             }]
@@ -607,7 +461,7 @@
             }, {
                 name: 'cat food',
                 model: 'cat_food_yellow',
-                count: 1,
+                count: 6,
                 tag: tag.HEALTH,
                 description: 'Each one add 1 hp.'
             }]
@@ -773,6 +627,27 @@
         model: 'doghouse',
         mesh: 'doghousemesh',
         tag: tagEnum.HOUSE
+    }, {
+        coordinate: {
+            x: 5,
+            z: 4,
+            s: 3,
+            t: 2.5
+        },
+        gridFactor: 4,
+        model: 'sponge_bench',
+        tag: tagEnum.HOUSE
+    }, {
+        coordinate: {
+            x: 7,
+            z: 4,
+            s: 3.5,
+            t: 1.5
+        },
+        gridFactor: 2,
+        rotationY: 90,
+        model: 'sponge_saladbar',
+        tag: tagEnum.HOUSE
     }];
 
     paw.getHouses = function() {
@@ -899,7 +774,7 @@
 
         var geometry = new THREE.PlaneGeometry(size, size);
 
-        var floor = new physijs.Plane(geometry, material, { mass: 0, restitution: 0.1 });
+        var floor = new physijs.Plane(geometry, material, { mass: 0, friction: 0.1 });
         floor.rotation.x = -Math.PI / 2;
         floor.position.set(0, 0, 0);
         floor.receiveShadow = false;
@@ -932,21 +807,21 @@
 
         var borders = new THREE.Object3D();
 
-        var borderLeft = new physijs.Box(geometry, material, { mass: 0, restitution: 0.3 });
+        var borderLeft = new physijs.Box(geometry, material, { mass: 0, friction: 0.3 });
         borderLeft.position.set(-size / 2, height / 2, 0);
         borderLeft.receiveShadow = false;
         borderLeft.castShadow = false;
         borderLeft.name = 'borderLeft';
         borders.add(borderLeft);
 
-        var borderRight = new physijs.Box(geometry, material, { mass: 0, restitution: 0.3 });
+        var borderRight = new physijs.Box(geometry, material, { mass: 0, friction: 0.3 });
         borderRight.position.set(size / 2, height / 2, 0);
         borderRight.receiveShadow = false;
         borderRight.castShadow = false;
         borderRight.name = 'borderRight';
         borders.add(borderRight);
 
-        var borderBack = new physijs.Box(geometry, material, { mass: 0, restitution: 0.3 });
+        var borderBack = new physijs.Box(geometry, material, { mass: 0, friction: 0.3 });
         borderBack.position.set(0, height / 2, -size / 2);
         borderBack.rotation.y = Math.PI / 2;
         borderBack.receiveShadow = false;
@@ -954,7 +829,7 @@
         borderBack.name = 'borderBack';
         borders.add(borderBack);
 
-        var borderFront = new physijs.Box(geometry, material, { mass: 0, restitution: 0.3 });
+        var borderFront = new physijs.Box(geometry, material, { mass: 0, friction: 0.3 });
         borderFront.position.set(0, height / 2, size / 2);
         borderFront.rotation.y = Math.PI / 2;
         borderFront.receiveShadow = false;
@@ -1004,7 +879,7 @@
 
         function createWall(wall) {
             var geometry = new THREE.BoxGeometry(roomSize, height, depth);
-            var wallMesh = new physijs.Box(geometry, material, { mass: 0, restitution: 0.3 });
+            var wallMesh = new physijs.Box(geometry, material, { mass: 0, friction: 0.3 });
 
             wallMesh.position.x = originX + wall.coordinate.x * roomSize + wall.coordinate.s * unit;
             wallMesh.position.z = originZ + wall.coordinate.z * roomSize + wall.coordinate.t * unit;
@@ -1336,7 +1211,7 @@
 
             var threeObj = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
             threeObj.scale.set(scale, scale, scale);
-            
+
             if (tag !== lynx.enum.tag.SHELF) {
                 threeObj.userData.width = graphWidth;
                 threeObj.userData.height = graphHeight;
@@ -1902,7 +1777,7 @@
                     var object = new THREE.Object3D();
                     object.name = index === 4 ? 'right' : 'left';
                     object.turnedAngle = 0;
-                    
+
                     var off = index === 4 ? -gridSize / 2 : gridSize / 2;
                     fence.position.x -= off;
                     object.add(fence);

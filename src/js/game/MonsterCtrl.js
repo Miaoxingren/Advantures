@@ -11,26 +11,45 @@
         health: 20,
         model: 'chow',
         name: 'boss',
-        position: {},
+        range: {
+            center: {
+                x: 3,
+                z: 4,
+                s: 4.5,
+                t: 2.5
+            },
+            gridX: 4,
+            gridZ: 2
+        },
         coordinate: {
             x: 4,
             z: 4,
             s: 2,
             t: 2
         }
+    }, {
+        health: 5,
+        model: 'slime',
+        name: 'slime',
+        random: true,
+        count: 10,
+        range: {
+            center: {
+                x: 6,
+                z: 6,
+                s: 4.5,
+                t: 4.5
+            },
+            gridX: 4,
+            gridZ: 4
+        },
+        coordinate: {
+            x: 6,
+            z: 6,
+            s: 2.5,
+            t: 2.5
+        }
     }
-    // , {
-    //     health: 20,
-    //     model: 'moose',
-    //     name: 'moose',
-    //     position: {},
-    //     coordinate: {
-    //         x: 3,
-    //         z: 4,
-    //         s: 8,
-    //         t: 4
-    //     }
-    // }
     ];
 
     paw.getMonsters = function() {
@@ -46,12 +65,13 @@
     var yAxes = new THREE.Vector3(0, 1, 0);
     var zAxes = new THREE.Vector3(0, 0, 1);
 
-    lynx.Monster = function (graph, id, name, health, speed) {
+    lynx.Monster = function (graph, id, name, health, speed, range) {
         this.id = id;
         this.graph = graph;
         this.name = name;
         this.health = health;
         this.speed = speed;
+        this.range = range;
         this.step = 0;
         this.chase = false;
         this.stand = false;
@@ -61,14 +81,15 @@
     var monsterProto = lynx.Monster.prototype;
 
     monsterProto.hurt = function (hp) {
-        if (Date.now() - this.time < 1000 * 5) return;
-        if (Date.now() - this.time > 1000 * 5) {
-            this.time = new Date();
+        if (Date.now() - this.time < 200) {
+            return;
         }
+        this.time = new Date();
         if (this.health <= 0) return;
         this.health -= hp;
         if (this.health < 0) {
             this.graph.rotation.z = Math.PI / 2;
+            console.log('dead');
         }
     };
 
@@ -80,8 +101,14 @@
         if (this.stand) return;
         var graph = this.graph;
         var lookAtPoint = this.lookAtPoint;
-        var turn = false;
 
+        var center = this.range.center;
+        var distance = this.range.distance;
+        if (Math.abs(center.x - graph.position.x) > distance.x || Math.abs(center.z - graph.position.z) > distance.z) {
+            this.chaseAfter(new THREE.Vector3(center.x, 0, center.z));
+        }
+
+        var turn = false;
         if (!this.chase) {
             turn = this.step + 1 >= 200;
             this.step = (this.step + 1) % 200;
@@ -134,6 +161,15 @@
 // MonsterCtrl
 (function (lynx) {
 
+    var prizeList = [{
+        name: 'slime',
+        prize: [{
+            name: 'catfood',
+            count: 1,
+            description: 'Add 1 hp.'
+        }]
+    }];
+
     lynx.MonsterCtrl = function (config) {
         this.config = config;
     };
@@ -146,6 +182,14 @@
 
     monsterCtrlProto.getMeat = function () {
         console.error('monsterCtrlProto - Function getMeat not implemented.');
+    };
+
+    monsterCtrlProto.removeById = function () {
+        console.error('monsterCtrlProto - Function removeById not implemented.');
+    };
+
+    monsterCtrlProto.rewardPlayer = function () {
+        console.error('monsterCtrlProto - Function rewardPlayer not implemented.');
     };
 
     monsterCtrlProto.setUp = function () {
@@ -175,19 +219,52 @@
 
         for (var i = 0, iLen = monsters.length; i < iLen; i++) {
             var data = monsters[i];
-            var graph = createObj(data.model, gridSize / 2, lynx.enum.tag.MONSTER);
-            graph.name = data.name;
-            graph.userData.direction = 0;
-            graph.userData.step = 0;
+            var range = createRange(data.range);
+            var count = data.count || 1;
+            var posX = originX + data.coordinate.x * roomSize + data.coordinate.s * gridSize - offset;
+            var posZ = originZ + data.coordinate.z * roomSize + data.coordinate.t * gridSize - offset;
 
-            graph.position.x = originX + data.coordinate.x * roomSize + data.coordinate.s * gridSize;
-            graph.position.z = originZ + data.coordinate.z * roomSize + data.coordinate.t * gridSize;
+            for (var j = 0; j < count; j++) {
 
-            this.addToScene(graph);
+                var graph = createObj(data.model, gridSize / 2, lynx.enum.tag.MONSTER);
+                graph.name = data.name;
+                graph.userData.direction = 0;
+                graph.userData.step = 0;
 
-            var monster = new lynx.Monster(graph, graph.id, data.name, data.health, this.config.monsterSpeed);
-            monster.lookAtPoint = new THREE.Vector3(graph.position.x, graph.position.y, graph.position.z + 1);
-            this.monsters.push(monster);
+                graph.position.x = posX;
+                graph.position.z = posZ;
+
+                if (data.random) {
+                    graph.position.x = posX + roomSize;
+                    graph.position.z = posZ + roomSize;
+                }
+
+                this.addToScene(graph);
+
+                var monster = new lynx.Monster(graph, graph.id, data.name, data.health, this.config.monsterSpeed, range);
+                monster.lookAtPoint = new THREE.Vector3(graph.position.x, graph.position.y, graph.position.z + 1);
+                this.monsters.push(monster);
+
+            }
+
+        }
+
+        function createRange(rangeData) {
+            if (!rangeData.center || !rangeData.gridX || !rangeData.gridZ) {
+                return;
+            }
+
+            var result = {
+                center: {
+                    x:  originX + rangeData.center.x * roomSize + rangeData.center.s * gridSize - offset,
+                    z:  originZ + rangeData.center.z * roomSize + rangeData.center.t * gridSize - offset
+                },
+                distance: {
+                    x: gridSize * rangeData.gridX,
+                    z: gridSize * rangeData.gridZ
+                }
+            };
+            return result;
         }
 
         function createObj(modelType, size, tag) {
@@ -276,12 +353,50 @@
         }
     };
 
-    monsterCtrlProto.getMonster = function (id, hp) {
+    monsterCtrlProto.hurtMonster = function (id, hp) {
         var monster = this.getMonster(id);
         if (!monster) {
             return;
         }
         monster.hurt(hp);
+        if (monster.health <= 0) {
+            this.removeMonster(monster.id);
+        }
+    };
+
+    monsterCtrlProto.removeMonster = function (id) {
+        if (!this.monsters) {
+            console.error('Missing monsters.');
+            return;
+        }
+
+        var list = this.monsters;
+
+        for (var i = 0, iLen = list.length; i < iLen; i++) {
+            if (list[i].id === id) {
+                var removed = list[i].id;
+                var prize = this.getPrize(list[i].name);
+                list.splice(i, 1);
+                this.removeById(removed);
+                this.rewardPlayer(prize);
+                return;
+            }
+        }
+    };
+
+    monsterCtrlProto.getPrize = function (name) {
+        if (!this.monsters) {
+            console.error('Missing monsters.');
+            return;
+        }
+
+        var list = prizeList;
+
+        for (var i = 0, iLen = list.length; i < iLen; i++) {
+            if (list[i].name === name) {
+                return list[i].prize;
+            }
+        }
     };
 
     monsterCtrlProto.getMonsterByName = function (name) {
@@ -339,9 +454,9 @@
             upZ: originZ + 5 * roomSize,
         };
 
-        var dogInFence = lynx.isInRangeXZ(boss.graph.position, range.upX, range.upZ, range.lowX, range.lowZ);
+        // var dogInFence = lynx.isInRangeXZ(boss.graph.position, range.upX, range.upZ, range.lowX, range.lowZ);
 
-        if (dogInFence) {
+        // if (dogInFence) {
             var meatInPos = checkMeat(allMeat, range);
             var isPlayerInPos = lynx.isInRangeXZ(playerPos, range.upX, range.upZ, range.lowX, range.lowZ);
             if (meatInPos) {
@@ -357,9 +472,9 @@
             } else {
                 boss.randomMove();
             }
-        } else {
-            boss.chaseAfter(new THREE.Vector3((range.lowX + range.upX) / 2, 0, (range.lowZ + range.upZ) / 2));
-        }
+        // } else {
+        //     boss.chaseAfter(new THREE.Vector3((range.lowX + range.upX) / 2, 0, (range.lowZ + range.upZ) / 2));
+        // }
 
         function checkMeat(allMeat, range) {
             for (var m = 0, mLen =  allMeat.length; m < mLen; m++) {

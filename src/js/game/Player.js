@@ -159,7 +159,7 @@
     playerProto.hurt = function (id, hp) {
         var foe = this.getFoe(id);
         var hurtable = false;
-        
+
         if (foe && Date.now() - foe.time > 1000 * 5) {
             foe.time = new Date();
             hurtable = true;
