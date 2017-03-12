@@ -220,7 +220,9 @@ var lynx = {
         WOOD: 3,
         MARKET: 4,
         RESCUE: 5,
-        FENCE: 6
+        FENCE: 6,
+        SLIME: 7,
+        SNAIL: 8
     };
 
     lynxEnum.wall = {
@@ -315,11 +317,11 @@ var lynx = {
         player: {
             name: 'panther0',
             model: 'cat_wizard',
-            health: 5,
+            health: 10,
             money: 5,
             coordinate: {
-                x: 6,
-                z: 3,
+                x: 1,
+                z: 5,
                 s: 1,
                 t: 2.5
             }
@@ -518,7 +520,8 @@ var lynx = {
         'parrot1', 'raven', 'seal0', 'stork', 'scorpion', 'seal1', 'toad0', 'wolf', 'vulture', 'toad1', 'gator', 'tarantula0',
         'coin', 'cat_food_yellow', 'shelf', 'tree_a', 'rose', 'plants1', 'sword', 'wood', 'cat1', 'farmhouse', 'market', 'apple',
         'doghouse', 'meat', 'fence', 'doghousemesh', 'key', 'cat_wizard', 'cat_happy', 'cat_fatblue', 'cat_cheshire', 'sponge_patrick',
-        'sponge_squidward', 'sponge_crab', 'sponge_bench', 'sponge_saladbar', 'sponge_bob', 'sponge_gary', 'slime'
+        'sponge_squidward', 'sponge_crab', 'sponge_bench', 'sponge_saladbar', 'sponge_bob', 'sponge_gary',
+        'slime', 'monster_hat', 'monster_ball', 'monster_snake', 'monster_pig', 'monster_dog', 'tree', 'flower_bed', 'candy_tree'
     ];
 
     function initModels() {

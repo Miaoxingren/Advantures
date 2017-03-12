@@ -63,6 +63,18 @@
             s: 4.5,
             t: 4
         }
+    }, {
+        id: plotEnum.SNAIL,
+        finished: false,
+        camera: {
+            x: 7,
+            z: 3,
+            s: 2.5,
+            t: 0.5
+        }
+    }, {
+        id: plotEnum.SLIME,
+        finished: false
     }];
 
     paw.getPlots = function() {
@@ -109,11 +121,15 @@
             var plot = plots[i];
             plot.finished = false;
 
-            var x = originX + plot.camera.x * roomSize + plot.camera.s * gridSize - offset;
-            var y = plot.height || this.config.wallHeight / 2;
-            var z = originZ + plot.camera.z * roomSize + plot.camera.t * gridSize - offset;
+            if (plot.camera) {
 
-            this.addCamera(x, y, z, plot.id);
+                var x = originX + plot.camera.x * roomSize + plot.camera.s * gridSize - offset;
+                var y = plot.height || this.config.wallHeight / 2;
+                var z = originZ + plot.camera.z * roomSize + plot.camera.t * gridSize - offset;
+
+                this.addCamera(x, y, z, plot.id);
+
+            }
 
             this.plots.push(plot);
         }
@@ -140,6 +156,10 @@
 
         if (plotId === lynx.enum.plot.FENCE) {
             this.fences = this.getFences();
+            return;
+        }
+
+        if (plotId === lynx.enum.plot.SLIME) {
             return;
         }
 
@@ -188,6 +208,11 @@
 
         if (this.plotId === lynx.enum.plot.FENCE) {
             this.updateFence(this.config.fallingSpeed);
+            return;
+        }
+
+        if (this.plotId === lynx.enum.plot.SLIME) {
+            this.endPlot();
             return;
         }
 

@@ -261,6 +261,7 @@
         id: npcEnum.BOB,
         tasks: [{
             name: 'save gary',
+            plot: plotEnum.SNAIL,
             state: taskState.GETGARY,
             messages: [
                 [
@@ -285,19 +286,35 @@
     }, {
         coordinate: {
             x: 7,
-            z: 6,
-            s: 4,
-            t: 1
+            z: 7,
+            s: 1,
+            t: 4
+        },
+        finalCoord: {
+            x: 6,
+            z: 4,
+            s: 1,
+            t: 4
         },
         gridFactor: 1,
+        rotationY: 180,
         name: 'Gary the Snail',
         model: 'sponge_gary',
         id: npcEnum.GARY,
         tasks: [{
+            name: 'kill slime',
+            plot: plotEnum.SLIME,
             state: taskState.GETGARY,
             messages: [
                 [
-                    '这里太可怕了，我要回到海绵宝宝那....',
+                    '这里太可怕了，小蜗要回到海绵宝宝那....',
+                    '史莱姆吓得小蜗牛不敢动了....'
+                ],
+                [
+                    '快消灭史莱姆....'
+                ],
+                [
+                    '小蜗再也不乱跑了，要呆在海绵宝宝身边。'
                 ]
             ]
         }]
@@ -385,6 +402,12 @@
             s: 4.5,
             t: 1.5
         },
+        finalCoord: {
+            x: 3,
+            z: 0,
+            s: 1,
+            t: 1
+        },
         name: 'Melonpi',
         model: 'cat1',
         id: npcEnum.MELONPI,
@@ -419,10 +442,11 @@
 (function(lynx) {
     var taskState = lynx.enum.task;
 
-    lynx.NPC = function(id, name, graph) {
+    lynx.NPC = function(id, name, graph, finalCoord) {
         this.id = id;
         this.name = name;
         this.graph = graph;
+        this.finalCoord = finalCoord;
         this.tasks = [];
         this.taskIndex = -1;
     };
@@ -524,7 +548,7 @@
 
             this.addToScene(graph);
 
-            var npc = new lynx.NPC(data.id, data.name, graph);
+            var npc = new lynx.NPC(data.id, data.name, graph, data.finalCoord);
             npc.addTask(data.tasks);
             npc.taskIndex = 0;
             this.npcs.push(npc);

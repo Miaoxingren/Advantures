@@ -65,11 +65,22 @@
                 t: 2
             }
         }, {
-            type: wallEnum.STAND,
+            type: wallEnum.MOVE,
+            plot: plotEnum.RESCUE,
             vertical: false,
             coordinate: {
                 x: 3,
                 z: 2,
+                s: 1,
+                t: 2
+            }
+        }, {
+            type: wallEnum.MOVE,
+            plot: plotEnum.SNAIL,
+            vertical: false,
+            coordinate: {
+                x: 7,
+                z: 4,
                 s: 1,
                 t: 2
             }
@@ -318,6 +329,51 @@
                 s: 1,
                 t: 2
             }
+        }, {
+            type: wallEnum.STAND,
+            vertical: true,
+            coordinate: {
+                x: 2,
+                z: 5,
+                s: 2,
+                t: 1
+            }
+        }, {
+            type: wallEnum.STAND,
+            vertical: true,
+            coordinate: {
+                x: 2,
+                z: 6,
+                s: 2,
+                t: 1
+            }
+        }, {
+            type: wallEnum.STAND,
+            vertical: true,
+            coordinate: {
+                x: 4,
+                z: 6,
+                s: 2,
+                t: 1
+            }
+        }, {
+            type: wallEnum.STAND,
+            vertical: false,
+            coordinate: {
+                x: 3,
+                z: 6,
+                s: 1,
+                t: 2
+            }
+        }, {
+            type: wallEnum.STAND,
+            vertical: false,
+            coordinate: {
+                x: 4,
+                z: 6,
+                s: 1,
+                t: 2
+            }
         }
     ];
 
@@ -492,7 +548,7 @@
             t: 3.5
         },
         gridFactor: 2,
-        model: 'tree_a',
+        model: 'tree',
         tag: tagEnum.TREE
     }, {
         coordinate: {
@@ -529,7 +585,7 @@
             t: 1.5
         },
         gridFactor: 2,
-        model: 'tree_a',
+        model: 'tree',
         tag: tagEnum.TREE
     }, {
         coordinate: {
@@ -548,7 +604,7 @@
             t: 2.5
         },
         gridFactor: 2,
-        model: 'tree_a',
+        model: 'tree',
         tag: tagEnum.TREE
     }, {
         coordinate: {
@@ -576,7 +632,7 @@
             t: 1.5
         },
         gridFactor: 2,
-        model: 'tree_a',
+        model: 'tree',
         tag: tagEnum.TREE
     }, {
         coordinate: {
@@ -586,6 +642,25 @@
             t: 4
         },
         model: 'plants1',
+        tag: tagEnum.FLOWER
+    }, {
+        coordinate: {
+            x: 7,
+            z: 5,
+            s: 3.5,
+            t: 3.5
+        },
+        gridFactor: 2,
+        model: 'flower_bed',
+        tag: tagEnum.FLOWER
+    }, {
+        coordinate: {
+            x: 5,
+            z: 6,
+            s: 1,
+            t: 1
+        },
+        model: 'flower_bed',
         tag: tagEnum.FLOWER
     }];
 
@@ -635,6 +710,7 @@
             t: 2.5
         },
         gridFactor: 4,
+        name: 'Sponge Bench',
         model: 'sponge_bench',
         tag: tagEnum.HOUSE
     }, {
@@ -648,6 +724,16 @@
         rotationY: 90,
         model: 'sponge_saladbar',
         tag: tagEnum.HOUSE
+    }, {
+        coordinate: {
+            x: 1,
+            z: 6,
+            s: 2.5,
+            t: 2.5
+        },
+        gridFactor: 4,
+        model: 'candy_tree',
+        tag: tagEnum.FLOWER
     }];
 
     paw.getHouses = function() {
@@ -772,11 +858,11 @@
             normalMap: normalTexture
         });
 
-        var geometry = new THREE.PlaneGeometry(size, size);
+        var geometry = new THREE.BoxGeometry(size, size, 2);
 
-        var floor = new physijs.Plane(geometry, material, { mass: 0, friction: 0.1 });
+        var floor = new physijs.Box(geometry, material, { mass: 0, friction: 0.1 });
         floor.rotation.x = -Math.PI / 2;
-        floor.position.set(0, 0, 0);
+        floor.position.set(0, -1, 0);
         floor.receiveShadow = false;
         floor.name = 'floor';
         this.addToScene(floor);
@@ -1538,6 +1624,16 @@
             mesh.tag = tag;
 
             return mesh;
+        }
+    };
+
+    builderProto.getHouse = function(id) {
+        if (!this.houses) return;
+
+        for (var i = 0, iLen = this.houses.length; i < iLen; i++) {
+            if (this.houses[i].id === id) {
+                return this.houses[i];
+            }
         }
     };
 

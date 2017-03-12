@@ -9,7 +9,7 @@
 
     var monsters = [{
         health: 20,
-        model: 'chow',
+        model: 'monster_dog',
         name: 'boss',
         range: {
             center: {
@@ -48,6 +48,94 @@
             z: 6,
             s: 2.5,
             t: 2.5
+        }
+    }, {
+        health: 5,
+        model: 'monster_hat',
+        name: 'hat',
+        random: true,
+        count: 10,
+        range: {
+            center: {
+                x: 6,
+                z: 6,
+                s: 4.5,
+                t: 4.5
+            },
+            gridX: 4,
+            gridZ: 4
+        },
+        coordinate: {
+            x: 6,
+            z: 6,
+            s: 2.5,
+            t: 2.5
+        }
+    }, {
+        health: 10,
+        model: 'monster_ball',
+        name: 'ball',
+        random: true,
+        count: 10,
+        range: {
+            center: {
+                x: 3,
+                z: 5,
+                s: 4.5,
+                t: 4.5
+            },
+            gridX: 4,
+            gridZ: 4
+        },
+        coordinate: {
+            x: 3,
+            z: 5,
+            s: 2.5,
+            t: 2.5
+        }
+    }, {
+        health: 10,
+        model: 'monster_snake',
+        name: 'snake',
+        random: true,
+        count: 10,
+        range: {
+            center: {
+                x: 3,
+                z: 5,
+                s: 4.5,
+                t: 4.5
+            },
+            gridX: 4,
+            gridZ: 4
+        },
+        coordinate: {
+            x: 4,
+            z: 5,
+            s: 2.5,
+            t: 2.5
+        }
+    }, {
+        health: 10,
+        model: 'monster_pig',
+        name: 'pig',
+        random: true,
+        count: 10,
+        range: {
+            center: {
+                x: 3,
+                z: 5,
+                s: 4.5,
+                t: 4.5
+            },
+            gridX: 4,
+            gridZ: 4
+        },
+        coordinate: {
+            x: 4,
+            z: 6,
+            s: 1.5,
+            t: 1.5
         }
     }
     ];
@@ -105,7 +193,7 @@
         var center = this.range.center;
         var distance = this.range.distance;
         if (Math.abs(center.x - graph.position.x) > distance.x || Math.abs(center.z - graph.position.z) > distance.z) {
-            this.chaseAfter(new THREE.Vector3(center.x, 0, center.z));
+            this.chaseAfter(new THREE.Vector3(center.x, graph.position.y, center.z));
         }
 
         var turn = false;
@@ -164,9 +252,10 @@
     var prizeList = [{
         name: 'slime',
         prize: [{
-            name: 'catfood',
+            name: 'cat food',
             count: 1,
-            description: 'Add 1 hp.'
+            tag: lynx.enum.tag.HEALTH,
+            description: 'Each one add 1 hp.'
         }]
     }];
 
@@ -235,8 +324,8 @@
                 graph.position.z = posZ;
 
                 if (data.random) {
-                    graph.position.x = posX + roomSize;
-                    graph.position.z = posZ + roomSize;
+                    graph.position.x = posX + Math.floor(Math.random() * 100) % Math.floor(roomSize / 2);
+                    graph.position.z = posZ + Math.floor(Math.random() * 100) % Math.floor(roomSize / 2);
                 }
 
                 this.addToScene(graph);
@@ -412,6 +501,25 @@
                 return list[i];
             }
         }
+    };
+
+    monsterCtrlProto.getMonstersByName = function (name) {
+        if (!this.monsters) {
+            console.error('Missing monsters.');
+            return;
+        }
+
+        var result = [];
+
+        var list = this.monsters;
+
+        for (var i = 0, iLen = list.length; i < iLen; i++) {
+            if (list[i].name === name) {
+                result.push(list[i]);
+            }
+        }
+
+        return result;
     };
 
     monsterCtrlProto.updateMonster = function (pos) {
