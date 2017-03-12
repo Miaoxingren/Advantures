@@ -734,6 +734,37 @@
         gridFactor: 4,
         model: 'candy_tree',
         tag: tagEnum.FLOWER
+    }, {
+        coordinate: {
+            x: 1,
+            z: 6,
+            s: 2.5,
+            t: 4
+        },
+        gridFactor: 2,
+        model: 'wood_bench',
+        tag: tagEnum.FLOWER
+    }, {
+        coordinate: {
+            x: 0,
+            z: 6,
+            s: 1,
+            t: 2.5
+        },
+        gridFactor: 2,
+        rotationY: 90,
+        model: 'bulletin_board',
+        tag: tagEnum.FLOWER
+    }, {
+        coordinate: {
+            x: 0,
+            z: 4,
+            s: 4.5,
+            t: 4.5
+        },
+        gridFactor: 2,
+        model: 'beach_parasol',
+        tag: tagEnum.FLOWER
     }];
 
     paw.getHouses = function() {

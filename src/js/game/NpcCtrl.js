@@ -318,6 +318,151 @@
                 ]
             ]
         }]
+    }, {
+        coordinate: {
+            x: 0,
+            z: 7,
+            s: 1.5,
+            t: 3.5
+        },
+        gridFactor: 1,
+        rotationY: 135,
+        name: 'Moggy',
+        model: 'moggy',
+        id: npcEnum.MOGGY,
+        tasks: [{
+            name: 'kill slime',
+            plot: plotEnum.SLIME,
+            state: taskState.GETGARY,
+            messages: [
+                [
+                    '这里太可怕了，小蜗要回到海绵宝宝那....',
+                    '史莱姆吓得小蜗牛不敢动了....'
+                ],
+                [
+                    '快消灭史莱姆....'
+                ],
+                [
+                    '小蜗再也不乱跑了，要呆在海绵宝宝身边。'
+                ]
+            ]
+        }]
+    }, {
+        coordinate: {
+            x: 0,
+            z: 7,
+            s: 1.5,
+            t: 1.5
+        },
+        gridFactor: 1,
+        rotationY: 45,
+        name: 'Celeste',
+        model: 'celeste',
+        id: npcEnum.CELESTE,
+        tasks: [{
+            name: 'kill slime',
+            plot: plotEnum.SLIME,
+            state: taskState.GETGARY,
+            messages: [
+                [
+                    '这里太可怕了，小蜗要回到海绵宝宝那....',
+                    '史莱姆吓得小蜗牛不敢动了....'
+                ],
+                [
+                    '快消灭史莱姆....'
+                ],
+                [
+                    '小蜗再也不乱跑了，要呆在海绵宝宝身边。'
+                ]
+            ]
+        }]
+    }, {
+        coordinate: {
+            x: 0,
+            z: 7,
+            s: 3.5,
+            t: 3.5
+        },
+        gridFactor: 1,
+        rotationY: -135,
+        name: 'Blathers',
+        model: 'blathers',
+        id: npcEnum.BLATHERS,
+        tasks: [{
+            name: 'kill slime',
+            plot: plotEnum.SLIME,
+            state: taskState.GETGARY,
+            messages: [
+                [
+                    '这里太可怕了，小蜗要回到海绵宝宝那....',
+                    '史莱姆吓得小蜗牛不敢动了....'
+                ],
+                [
+                    '快消灭史莱姆....'
+                ],
+                [
+                    '小蜗再也不乱跑了，要呆在海绵宝宝身边。'
+                ]
+            ]
+        }]
+    }, {
+        coordinate: {
+            x: 2,
+            z: 5,
+            s: 1.5,
+            t: 1.5
+        },
+        gridFactor: 1,
+        rotationY: 45,
+        name: 'Mable',
+        model: 'mable',
+        id: npcEnum.MABLE,
+        tasks: [{
+            name: 'kill slime',
+            plot: plotEnum.SLIME,
+            state: taskState.GETGARY,
+            messages: [
+                [
+                    '这里太可怕了，小蜗要回到海绵宝宝那....',
+                    '史莱姆吓得小蜗牛不敢动了....'
+                ],
+                [
+                    '快消灭史莱姆....'
+                ],
+                [
+                    '小蜗再也不乱跑了，要呆在海绵宝宝身边。'
+                ]
+            ]
+        }]
+    }, {
+        coordinate: {
+            x: 2,
+            z: 5,
+            s: 3.5,
+            t: 1.5
+        },
+        gridFactor: 1,
+        rotationY: -45,
+        name: 'Sable',
+        model: 'sable',
+        id: npcEnum.SABLE,
+        tasks: [{
+            name: 'kill slime',
+            plot: plotEnum.SLIME,
+            state: taskState.GETGARY,
+            messages: [
+                [
+                    '这里太可怕了，小蜗要回到海绵宝宝那....',
+                    '史莱姆吓得小蜗牛不敢动了....'
+                ],
+                [
+                    '快消灭史莱姆....'
+                ],
+                [
+                    '小蜗再也不乱跑了，要呆在海绵宝宝身边。'
+                ]
+            ]
+        }]
     },
     // {
     //     coordinate: {

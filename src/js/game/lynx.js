@@ -222,7 +222,8 @@ var lynx = {
         RESCUE: 5,
         FENCE: 6,
         SLIME: 7,
-        SNAIL: 8
+        SNAIL: 8,
+        MOGGY: 9
     };
 
     lynxEnum.wall = {
@@ -275,7 +276,11 @@ var lynx = {
         SQUIDWARD: 7,
         KRABS: 8,
         GARY: 9,
-        BOB: 10
+        BOB: 10,
+        CELESTE: 10,
+        BLATHERS: 11,
+        MABLE: 12,
+        SABLE: 13
     };
 
     lynx.enum.music = {
@@ -521,7 +526,8 @@ var lynx = {
         'coin', 'cat_food_yellow', 'shelf', 'tree_a', 'rose', 'plants1', 'sword', 'wood', 'cat1', 'farmhouse', 'market', 'apple',
         'doghouse', 'meat', 'fence', 'doghousemesh', 'key', 'cat_wizard', 'cat_happy', 'cat_fatblue', 'cat_cheshire', 'sponge_patrick',
         'sponge_squidward', 'sponge_crab', 'sponge_bench', 'sponge_saladbar', 'sponge_bob', 'sponge_gary',
-        'slime', 'monster_hat', 'monster_ball', 'monster_snake', 'monster_pig', 'monster_dog', 'tree', 'flower_bed', 'candy_tree'
+        'slime', 'monster_hat', 'monster_ball', 'monster_snake', 'monster_pig', 'monster_dog', 'tree', 'flower_bed', 'candy_tree',
+        'wood_bench', 'bulletin_board', 'moggy', 'celeste', 'blathers', 'mable', 'sable', 'beach_parasol'
     ];
 
     function initModels() {
