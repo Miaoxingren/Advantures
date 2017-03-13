@@ -52,6 +52,8 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
     this.moveRight = false;
     this.moveUp = false;
     this.moveDown = false;
+    this.canJump = false;
+    this.velocityY = 0;
 
     this.mouseDragOn = false;
 
@@ -199,7 +201,10 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
 
             case 82:
                 /*R*/
-                this.moveUp = true;
+                if (this.canJump) {
+                    this.moveUp = true;
+                }
+                this.canJump = false;
                 break;
             case 70:
                 /*F*/
@@ -295,8 +300,9 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
         }
 
         var velocity = this.player.physics.linear_velocity;
-        velocity.x = 0;
-        velocity.z = 0;
+        velocity.x = Math.max(velocity.x - this.friction, 0);
+        velocity.z = Math.max(velocity.z - this.friction, 0);
+        // velocity.y = Math.min(velocity.y, this.jumpSpeed);
 
         if (this.moveForward || this.moveBackward || this.moveLeft || this.moveRight) {
 
@@ -316,9 +322,9 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
 
         }
 
-        if (this.moveUp) {
+        if (this.moveUp && this.canJump) {
 
-            velocity.y = this.jumpSpeed;
+            velocity.y = Math.min(velocity.y + this.jumpSpeed, this.jumpSpeed);
 
             this.player.physics.linear_velocity.y = velocity.y;
 
@@ -331,8 +337,6 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
             this.player.physics.linear_velocity.y = velocity.y;
 
         }
-
-
 
         var actualLookSpeed = delta * this.lookSpeed;
 
@@ -377,7 +381,10 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
         cameraPos.y = playerPos.y;// + this.player.userData.height;
         cameraPos.x = playerPos.x + cosXAxesCamera * this.player.userData.width;
         cameraPos.z = playerPos.z + cosZAxesCamera * this.player.userData.width;
-        
+
+        if (this.playerOnObj()) {
+            this.canJump = true;
+        }
     };
 
     function contextmenu(event) {

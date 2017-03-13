@@ -32,7 +32,7 @@
         model: 'slime',
         name: 'slime',
         random: true,
-        count: 10,
+        count: 5,
         range: {
             center: {
                 x: 6,
@@ -54,7 +54,7 @@
         model: 'monster_hat',
         name: 'hat',
         random: true,
-        count: 10,
+        count: 5,
         range: {
             center: {
                 x: 6,
@@ -76,7 +76,7 @@
         model: 'monster_ball',
         name: 'ball',
         random: true,
-        count: 10,
+        count: 5,
         range: {
             center: {
                 x: 3,
@@ -98,7 +98,7 @@
         model: 'monster_snake',
         name: 'snake',
         random: true,
-        count: 10,
+        count: 5,
         range: {
             center: {
                 x: 3,
@@ -120,7 +120,7 @@
         model: 'monster_pig',
         name: 'pig',
         random: true,
-        count: 10,
+        count: 5,
         range: {
             center: {
                 x: 3,

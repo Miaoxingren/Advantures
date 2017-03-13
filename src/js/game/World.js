@@ -247,7 +247,7 @@
             var physMaterial = new THREE.MeshBasicMaterial({});
             physMaterial.visible = false;
 
-            var physiObj = new physijs.Box(physGeomtry, physMaterial, {mass: 50});
+            var physiObj = new physijs.Box(physGeomtry, physMaterial, {mass: 50, friction: 0.5});
             physiObj.castShadow = false;
             physiObj.tag = tag;
             physiObj.add(threeObj);
@@ -279,8 +279,10 @@
 
         var control = new lynx.PlayerCtrl(this.getCamera(), this.player.graph, this.domElement);
         control.movementSpeed = gridSize;
-        control.jumpSpeed = this.config.wallHeight / 4;
+        control.jumpSpeed = this.config.wallHeight / 6;
         control.lookSpeed = 0.1;
+        control.friction = 0.1;
+        control.playerOnObj = lynx.bindGet(this, this.playerOnObj);
         control.worldMouseDown = lynx.bind(this, this.onMouseDown);
         control.worldMouseUp = lynx.bind(this, this.onMouseUp);
         control.worldMouseMove = lynx.bind(this, this.onMouseMove);
@@ -1145,6 +1147,27 @@
         var gridSize = this.config.size / this.config.room / this.config.grid;
         var distance = dstPos.distanceTo(srcPos);
         return distance < gridSize * grid;
+    };
+
+    var jumpRay = new THREE.Raycaster();
+    worldProto.playerOnObj = function () {
+        jumpRay.ray.origin.copy(this.player.graph.position);
+		jumpRay.ray.origin.y -= this.player.graph.userData.height / 2;
+        jumpRay.ray.direction.copy(new THREE.Vector3(0, -1, 0));
+        jumpRay.near = 0;
+        jumpRay.far = 2;
+		var intersections = jumpRay.intersectObjects(this.scene.children);
+		var isOnObject = intersections.length > 0;
+        if (isOnObject) {
+            for (var i = 0; i < intersections.length; i++) {
+                if (intersections[i].object.tag === lynx.enum.tag.PLAYER) {
+                    intersections.splice(i, 1);
+                    break;
+                }
+            }
+        }
+        isOnObject = intersections.length > 0;
+        return isOnObject;
     };
 
     worldProto.getPosByCord = function (coord) {
