@@ -406,15 +406,11 @@
             goods: [{
                 name: 'coin',
                 model: 'coin',
-                count: 1,
-                tag: tag.MONEY,
-                description: 'money.'
+                count: 1
             }, {
                 name: 'cat food',
                 model: 'cat_food_yellow',
-                count: 10,
-                tag: tag.HEALTH,
-                description: 'Each one add 1 hp.'
+                count: 10
             }]
         }, {
             coordinate: {
@@ -427,15 +423,11 @@
             goods: [{
                 name: 'coin',
                 model: 'coin',
-                count: 1,
-                tag: tag.MONEY,
-                description: 'money.'
+                count: 1
             }, {
                 name: 'cat food',
                 model: 'cat_food_yellow',
-                count: 4,
-                tag: tag.HEALTH,
-                description: 'Each one add 1 hp.'
+                count: 4
             }]
         }, {
             coordinate: {
@@ -448,15 +440,11 @@
             goods: [{
                 name: 'coin',
                 model: 'coin',
-                count: 1,
-                tag: tag.MONEY,
-                description: 'money.'
+                count: 1
             }, {
                 name: 'cat food',
                 model: 'cat_food_yellow',
-                count: 1,
-                tag: tag.HEALTH,
-                description: 'Each one add 1 hp.'
+                count: 1
             }]
         }, {
             coordinate: {
@@ -469,15 +457,11 @@
             goods: [{
                 name: 'coin',
                 model: 'coin',
-                count: 1,
-                tag: tag.MONEY,
-                description: 'money.'
+                count: 1
             }, {
                 name: 'cat food',
                 model: 'cat_food_yellow',
-                count: 6,
-                tag: tag.HEALTH,
-                description: 'Each one add 1 hp.'
+                count: 6
             }]
         }, {
             coordinate: {
@@ -490,15 +474,11 @@
             goods: [{
                 name: 'coin',
                 model: 'coin',
-                count: 1,
-                tag: tag.MONEY,
-                description: 'money.'
+                count: 1
             }, {
                 name: 'cat food',
                 model: 'cat_food_yellow',
-                count: 5,
-                tag: tag.HEALTH,
-                description: 'Each one add 1 hp.'
+                count: 5
             }]
         }, {
             coordinate: {
@@ -511,15 +491,11 @@
             goods: [{
                 name: 'coin',
                 model: 'coin',
-                count: 1,
-                tag: tag.MONEY,
-                description: 'money.'
+                count: 1
             }, {
                 name: 'cat food',
                 model: 'cat_food_yellow',
-                count: 6,
-                tag: tag.HEALTH,
-                description: 'Each one add 1 hp.'
+                count: 6
             }]
         }
     ];

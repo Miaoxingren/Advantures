@@ -520,7 +520,6 @@
         } else {
             lynx.getHUD().tips();
         }
-        lynx.getHUD().showMoney(this.player.money);
     };
 
     worldProto.clickHouse = function(id) {
@@ -542,10 +541,8 @@
 
     worldProto.clickKEY = function(id) {
         this.player.addGood({
-            name: 'key',
-            count: 1,
-            src: '/img/merchant_cat.jpg',
-            description: 'Key to open the cage.'
+            name: '钥匙',
+            count: 1
         });
         this.scene.remove(this.scene.getObjectById(id));
     };
@@ -595,10 +592,8 @@
         if (leaves > 0) {
             tree.userData.leaves -= Math.min(leaves, this.config.leavesPerClick);
             this.player.addGood({
-                name: 'leaves',
-                count: Math.min(leaves, this.config.leavesPerClick),
-                src: '/img/merchant_cat.jpg',
-                description: 'leaves from tree.'
+                name: '树叶',
+                count: Math.min(leaves, this.config.leavesPerClick)
             });
             lynx.getHUD().playMusic(musicEnum.CLICKTREE);
         }
@@ -618,10 +613,8 @@
                 tree.empty = true;
                 var i = Math.random() * 10 % 10;
                 this.player.addGood({
-                    name: 'flower' + i,
-                    count: 1,
-                    src: '/img/merchant_cat.jpg',
-                    description: 'merchant_cat.'
+                    name: '花瓣',
+                    count: 1
                 });
             }
         }
@@ -777,9 +770,8 @@
             if (task.state === taskState.COMPLET) {
                 this.plotCtrl.setPlot(task.plot);
                 this.player.addGood({
-                    name: 'apples',
-                    count: 10,
-                    description: 'Apples from Deer Vincent.'
+                    name: '苹果',
+                    count: 10
                 });
                 return;
             }
@@ -789,8 +781,7 @@
             if (task.state === taskState.COMPLET) {
                 this.player.addGood({
                     name: '蟹黄堡',
-                    count: 1,
-                    description: '咬过一口的蟹黄堡？？？？.'
+                    count: 1
                 });
                 return;
             }
@@ -838,8 +829,7 @@
             if (task.state === taskState.COMPLET) {
                 this.player.addGood({
                     name: '蟹黄堡',
-                    count: 1,
-                    description: '美味蟹黄堡！'
+                    count: 1
                 });
                 return;
             }

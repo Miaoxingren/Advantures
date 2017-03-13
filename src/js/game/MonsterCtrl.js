@@ -10,7 +10,7 @@
     var monsters = [{
         health: 20,
         model: 'monster_dog',
-        name: 'boss',
+        name: 'dog',
         range: {
             center: {
                 x: 3,
@@ -251,12 +251,19 @@
 
     var prizeList = [{
         name: 'slime',
-        prize: [{
-            name: 'cat food',
-            count: 1,
-            tag: lynx.enum.tag.HEALTH,
-            description: 'Each one add 1 hp.'
-        }]
+        prize: ['角', '猫粮']
+    }, {
+        name: 'snake',
+        prize: ['毒液', '生菜']
+    }, {
+        name: 'ball',
+        prize: ['泡泡', '面包']
+    }, {
+        name: 'hat',
+        prize: ['猫粮', '番茄']
+    }, {
+        name: 'pig',
+        prize: ['猫粮', '番茄']
     }];
 
     lynx.MonsterCtrl = function (config) {
@@ -297,7 +304,15 @@
             return;
         }
 
-        this.monsters = [];
+        this.monsters = this.monsters || [];
+        this.createMonsters(monsters);
+    };
+
+    monsterCtrlProto.createMonsters = function (monsters, randomCnt) {
+        if (!this.monsters || !monsters) {
+            console.error('Missing monsters.');
+            return;
+        }
 
         var size = this.config.size;
         var originX = -size / 2;
@@ -309,7 +324,7 @@
         for (var i = 0, iLen = monsters.length; i < iLen; i++) {
             var data = monsters[i];
             var range = createRange(data.range);
-            var count = data.count || 1;
+            var count = data.count || randomCnt || 1;
             var posX = originX + data.coordinate.x * roomSize + data.coordinate.s * gridSize - offset;
             var posZ = originZ + data.coordinate.z * roomSize + data.coordinate.t * gridSize - offset;
 
@@ -416,7 +431,6 @@
 
             return physiObj;
         }
-
     };
 
     monsterCtrlProto.getMonsters = function () {
@@ -483,7 +497,19 @@
 
         for (var i = 0, iLen = list.length; i < iLen; i++) {
             if (list[i].name === name) {
-                return list[i].prize;
+                var result = [];
+                var prizes = list[i].prize;
+                result.push({
+                    name: 'coin',
+                    count: lynx.random(1, 10)
+                });
+                for (var j = 0; j < prizes.length; j++) {
+                    result.push({
+                        name: prizes[j],
+                        count: 1
+                    });
+                }
+                return result;
             }
         }
     };
@@ -525,15 +551,17 @@
     monsterCtrlProto.updateMonster = function (pos) {
         if (!this.monsters) return;
 
+        if (this.monsters.length < 15) {
+            var monsters = this.config.getMonsters().slice(1);
+            this.createMonsters(monsters, 2);
+        }
+
         var objs = this.monsters;
 
         for (var i = 0, iLen = objs.length; i < iLen; i++) {
             var obj = objs[i];
             if (!obj.isDead()) {
-                // obj.lookAtPoint = pos;
-                // if (this.plot === lynx.enum.plot.RESCUE) {
-                    this.updateBoss(pos, this.getMeat());
-                // }
+                this.updateBoss(pos, this.getMeat());
                 obj.update();
             }
         }
@@ -541,13 +569,13 @@
     };
 
     monsterCtrlProto.updateBoss = function (playerPos, allMeat) {
-        var boss = this.getMonsterByName('boss');
-        if (!boss) {
+        var dog = this.getMonsterByName('dog');
+        if (!dog) {
             console.error('Missing wangxingren.');
             return;
         }
 
-        var wang = boss.graph;
+        var wang = dog.graph;
 
         var size = this.config.size;
         var roomSize = size / this.config.room;
@@ -562,26 +590,26 @@
             upZ: originZ + 5 * roomSize,
         };
 
-        // var dogInFence = lynx.isInRangeXZ(boss.graph.position, range.upX, range.upZ, range.lowX, range.lowZ);
+        // var dogInFence = lynx.isInRangeXZ(dog.graph.position, range.upX, range.upZ, range.lowX, range.lowZ);
 
         // if (dogInFence) {
             var meatInPos = checkMeat(allMeat, range);
             var isPlayerInPos = lynx.isInRangeXZ(playerPos, range.upX, range.upZ, range.lowX, range.lowZ);
             if (meatInPos) {
-                if (meatInPos.position.distanceTo(boss.graph.position) < offset) {
+                if (meatInPos.position.distanceTo(dog.graph.position) < offset) {
                     meatInPos.quality -= 1;
                 }
-                boss.chaseAfter(meatInPos.position);
+                dog.chaseAfter(meatInPos.position);
             } else if (isPlayerInPos) {
-                // if (playerPos.distanceTo(boss.graph.position) < offset * 2) {
-                //     this.hurtPlayer(boss.graph.id, 1);
+                // if (playerPos.distanceTo(dog.graph.position) < offset * 2) {
+                //     this.hurtPlayer(dog.graph.id, 1);
                 // }
-                boss.chaseAfter(playerPos);
+                dog.chaseAfter(playerPos);
             } else {
-                boss.randomMove();
+                dog.randomMove();
             }
         // } else {
-        //     boss.chaseAfter(new THREE.Vector3((range.lowX + range.upX) / 2, 0, (range.lowZ + range.upZ) / 2));
+        //     dog.chaseAfter(new THREE.Vector3((range.lowX + range.upX) / 2, 0, (range.lowZ + range.upZ) / 2));
         // }
 
         function checkMeat(allMeat, range) {

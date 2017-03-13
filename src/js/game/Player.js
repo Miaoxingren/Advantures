@@ -130,10 +130,13 @@
             return;
         }
 
+        good = lynx.merge(good, lynx.getGood(good.name));
+
         if (good.tag === tagEnum.MONEY) {
             this.money += good.count;
             lynx.getHUD().playMusic(musicEnum.COLLECT);
             lynx.getHUD().tips([good]);
+            lynx.getHUD().showMoney(this.money);
             return;
         }
 

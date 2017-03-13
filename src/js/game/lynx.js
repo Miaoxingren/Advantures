@@ -186,10 +186,24 @@ var lynx = {
         return world;
     };
 
+    lynx.getGood = function(name) {
+        var goods = lynx.enum.good;
+        for (var i = 0; i < goods.length; i++) {
+            if (goods[i].name === name) {
+                return goods[i];
+            }
+        }
+    };
+
     lynx.isInRangeXZ = function(pos, upX, upZ, lowX, lowZ) {
         var x = pos.x;
         var z = pos.z;
         return (x >= lowX && x <= upX && z >= lowZ && z <= upZ);
+    };
+
+    lynx.random = function (low, up) {
+        var num = Math.floor(Math.random() * up) % Math.floor(up);
+        return Math.max(low, num);
     };
 
 })(lynx);
@@ -265,7 +279,7 @@ var lynx = {
         WELCOME: 5
     };
 
-    lynx.enum.npc = {
+    lynxEnum.npc = {
         MELONPI: 0,
         CHARLES: 1,
         MARK: 2,
@@ -283,7 +297,7 @@ var lynx = {
         SABLE: 13
     };
 
-    lynx.enum.music = {
+    lynxEnum.music = {
         NOTHING: '',
         CLICKDOM: 'button',
         GAMEREADY: 'shop',
@@ -297,6 +311,50 @@ var lynx = {
         WALK: 'step1',
         FIGHT: 'sword2'
     };
+
+    lynxEnum.good = [{
+        name: 'coin',
+        tag: lynxEnum.tag.MONEY,
+        description: 'coin'
+    }, {
+        name: '角',
+        description: '史莱姆头上的角。'
+    }, {
+        name: '毒液',
+        description: '蛇怪吐出的毒液。'
+    }, {
+        name: '泡泡',
+        description: '蓝豚的泡泡。'
+    }, {
+        name: '猫粮',
+        tag: lynxEnum.tag.HEALTH,
+        description: '喵星人最爱，每袋增加1hp。'
+    }, {
+        name: '树叶',
+        description: '新摘下的树叶。'
+    }, {
+        name: '苹果',
+        tag: lynxEnum.tag.HEALTH,
+        description: '市集的Vincent送的苹果，每个增加2hp。'
+    }, {
+        name: '蟹黄堡',
+        description: '海绵宝宝的得意之作，似乎具有神秘力量。'
+    }, {
+        name: '生菜',
+        description: '蟹黄堡的原料之一。'
+    }, {
+        name: '番茄',
+        description: '蟹黄堡的原料之一。'
+    }, {
+        name: '面包',
+        description: '蟹黄堡的原料之一。'
+    }, {
+        name: '钥匙',
+        description: '能够打开笼子的钥匙。'
+    }, {
+        name: '花瓣',
+        description: '新摘得的花瓣。'
+    }];
 
 })(lynx);
 
