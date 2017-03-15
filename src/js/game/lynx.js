@@ -15,12 +15,6 @@ var lynx = {
 
     lynx.bind = function(scope, fn) {
         return function() {
-            fn.apply(scope, arguments);
-        };
-    };
-
-    lynx.bindGet = function(scope, fn) {
-        return function() {
             return fn.apply(scope, arguments);
         };
     };
@@ -231,13 +225,12 @@ var lynx = {
         WELCOME: 0,
         FOOD: 1,
         TREE: 2,
-        WOOD: 3,
-        MARKET: 4,
-        RESCUE: 5,
+        MARKET: 3,
+        SNAIL: 4,
+        SECURITY: 5,
         FENCE: 6,
-        SLIME: 7,
-        SNAIL: 8,
-        MOGGY: 9
+        RESCUE: 7,
+        ANY: 8
     };
 
     lynxEnum.wall = {
@@ -262,7 +255,8 @@ var lynx = {
         HOUSE: 12,
         MEAT: 13,
         FENCE: 14,
-        FLOWER: 15
+        FLOWER: 15,
+        ATTACK: 16
     };
 
     // dom priority
@@ -272,6 +266,7 @@ var lynx = {
         GOODLIST: 0.4,
         HELPLIST: 0.6,
         EMPTY: 1,
+        SHOP: 1.2,
         DIALOG: 2,
         PAUSE: 3,
         GAMEOVER: 4.2,
@@ -291,10 +286,12 @@ var lynx = {
         KRABS: 8,
         GARY: 9,
         BOB: 10,
-        CELESTE: 10,
-        BLATHERS: 11,
-        MABLE: 12,
-        SABLE: 13
+        CELESTE: 11,
+        BLATHERS: 12,
+        MABLE: 13,
+        SABLE: 14,
+        MOGGYL: 15,
+        SOUL: 16
     };
 
     lynxEnum.music = {
@@ -317,17 +314,28 @@ var lynx = {
         tag: lynxEnum.tag.MONEY,
         description: 'coin'
     }, {
-        name: '角',
-        description: '史莱姆头上的角。'
+        name: '攻击药水',
+        tag: lynxEnum.tag.ATTACK,
+        description: '能够使攻击力增加。'
+    }, {
+        name: '粘液',
+        description: '史莱姆的粘液。'
+    }, {
+        name: '毛绒',
+        description: '毛茸茸的怪物的毛绒。'
     }, {
         name: '毒液',
         description: '蛇怪吐出的毒液。'
+    }, {
+        name: '舌头',
+        description: '白球怪的舌头。'
     }, {
         name: '泡泡',
         description: '蓝豚的泡泡。'
     }, {
         name: '猫粮',
         tag: lynxEnum.tag.HEALTH,
+        hp: 1,
         description: '喵星人最爱，每袋增加1hp。'
     }, {
         name: '树叶',
@@ -335,7 +343,8 @@ var lynx = {
     }, {
         name: '苹果',
         tag: lynxEnum.tag.HEALTH,
-        description: '市集的Vincent送的苹果，每个增加2hp。'
+        hp: 2,
+        description: '可口的苹果，每个增加2hp。'
     }, {
         name: '蟹黄堡',
         description: '海绵宝宝的得意之作，似乎具有神秘力量。'
@@ -346,15 +355,29 @@ var lynx = {
         name: '番茄',
         description: '蟹黄堡的原料之一。'
     }, {
-        name: '面包',
+        name: '面包皮',
+        description: '蟹黄堡的原料之一。'
+    }, {
+        name: '腌椰菜',
+        description: '蟹黄堡的原料之一。'
+    }, {
+        name: '奶酪',
         description: '蟹黄堡的原料之一。'
     }, {
         name: '钥匙',
         description: '能够打开笼子的钥匙。'
-    }, {
-        name: '花瓣',
-        description: '新摘得的花瓣。'
-    }];
+    }, {name: '食人柳', description: '印尼爪哇岛杨柳科植物。'},
+    {name: '杈杷果', description: '味美爽口的高营养果品。'},
+    {name: '大绒球', description: '葱属多年生鳞茎植物。'},
+    {name: '小白兔狸藻', description: '狸藻属小型食虫植物。'},
+    {name: '山地玫瑰', description: '分布于加那利群岛等地。'},
+    {name: '曼陀罗华', description: '洋金花即彼岸花的变种。'},
+    {name: '大地翅膀', description: '多年生肉质草本植物。'},
+    {name: '嘴唇花', description: '酷似性感诱人嘴唇得名。'},
+    {name: '章鱼兰', description: '花形如章鱼唇瓣若扇贝。'},
+    {name: '多肉灯泡', description: '酷似灯泡的多肉植物。'},
+    {name: '水晶兰', description: '食腐的死亡之花。'},
+    {name: '依米花', description: '等待5年只为开花两天。'}];
 
 })(lynx);
 
@@ -368,6 +391,7 @@ var lynx = {
         wallHeight: 50,
         wallDepth: 0.1,
         fallingSpeed: 0.1,
+        apples: 4,
         cageCount: 18,
         cageStep: 4,
         room: 8,
@@ -381,6 +405,7 @@ var lynx = {
             name: 'panther0',
             model: 'cat_wizard',
             health: 10,
+            attack: 1,
             money: 5,
             coordinate: {
                 x: 1,
@@ -585,7 +610,7 @@ var lynx = {
         'doghouse', 'meat', 'fence', 'doghousemesh', 'key', 'cat_wizard', 'cat_happy', 'cat_fatblue', 'cat_cheshire', 'sponge_patrick',
         'sponge_squidward', 'sponge_crab', 'sponge_bench', 'sponge_saladbar', 'sponge_bob', 'sponge_gary',
         'slime', 'monster_hat', 'monster_ball', 'monster_snake', 'monster_pig', 'monster_dog', 'tree', 'flower_bed', 'candy_tree',
-        'wood_bench', 'bulletin_board', 'moggy', 'celeste', 'blathers', 'mable', 'sable', 'beach_parasol'
+        'wood_bench', 'bulletin_board', 'moggy', 'celeste', 'blathers', 'mable', 'sable', 'beach_parasol', 'monster_fennekin', 'monster_cleffa'
     ];
 
     function initModels() {

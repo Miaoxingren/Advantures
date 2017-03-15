@@ -73,8 +73,14 @@
             t: 0.5
         }
     }, {
-        id: plotEnum.SLIME,
-        finished: false
+        id: plotEnum.SECURITY,
+        finished: false,
+        camera: {
+            x: 3,
+            z: 1,
+            s: 2.5,
+            t: 0.5
+        }
     }];
 
     paw.getPlots = function() {
@@ -121,15 +127,11 @@
             var plot = plots[i];
             plot.finished = false;
 
-            if (plot.camera) {
+            var x = originX + plot.camera.x * roomSize + plot.camera.s * gridSize - offset;
+            var y = plot.height || this.config.wallHeight / 2;
+            var z = originZ + plot.camera.z * roomSize + plot.camera.t * gridSize - offset;
 
-                var x = originX + plot.camera.x * roomSize + plot.camera.s * gridSize - offset;
-                var y = plot.height || this.config.wallHeight / 2;
-                var z = originZ + plot.camera.z * roomSize + plot.camera.t * gridSize - offset;
-
-                this.addCamera(x, y, z, plot.id);
-
-            }
+            this.addCamera(x, y, z, plot.id);
 
             this.plots.push(plot);
         }
@@ -139,13 +141,20 @@
     plotCtrlProto.setPlot = function(plotId, callback) {
         var plot = this.getPlot(plotId);
 
-        if (!plot || plot.finished) {
+        if (plot && plot.finished) {
             this.clear();
             return;
         }
 
-        this.plotId = plotId;
+        if (plotId === lynx.enum.plot.ANY) {
+            this.ploting = true;
+            this.plotId = plotId;
+            this.callback = callback;
+            return;
+        }
+
         this.ploting = true;
+        this.plotId = plotId;
         this.switchCamByPlot(plotId);
         this.callback = callback;
 
@@ -201,6 +210,11 @@
             return;
         }
 
+        if (this.plotId === lynx.enum.plot.ANY) {
+            this.endPlot();
+            return;
+        }
+
         if (this.plotId === lynx.enum.plot.RESCUE) {
             this.updateCage(this.config.fallingSpeed);
             return;
@@ -208,11 +222,6 @@
 
         if (this.plotId === lynx.enum.plot.FENCE) {
             this.updateFence(this.config.fallingSpeed);
-            return;
-        }
-
-        if (this.plotId === lynx.enum.plot.SLIME) {
-            this.endPlot();
             return;
         }
 
@@ -245,7 +254,9 @@
 
     plotCtrlProto.endPlot = function() {
         var plot = this.getPlot(this.plotId);
-        plot.finished = true;
+        if (plot) {
+            plot.finished = true;
+        }
         this.clear();
         this.switchCamByPlot();
         if (this.callback) {

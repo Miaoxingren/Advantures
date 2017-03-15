@@ -3,10 +3,11 @@
     var musicEnum = lynx.enum.music;
     var taskState = lynx.enum.task;
 
-    lynx.Player = function(graph, health, money, animations) {
+    lynx.Player = function(graph, health, money, attack, animations) {
         this.graph = graph;
         this.health = health;
         this.money = money;
+        this.attack = attack;
         this.animations = animations;
         this.goods = [];
         this.tasks = [];
@@ -46,9 +47,15 @@
         if (!good) return;
 
         if (good.tag === tagEnum.HEALTH) {
-            this.health += 1;
+            this.health += good.hp;
             good.count--;
             lynx.getHUD().showHealth(this.health);
+        }
+
+        if (good.tag === tagEnum.ATTACK) {
+            this.attack += 1;
+            good.count--;
+            lynx.getHUD().showAttack(this.attack);
         }
 
         if (!good.count) {
@@ -71,6 +78,19 @@
         return result;
     };
 
+    playerProto.hasGoods = function(goods) {
+        if (!goods) return;
+
+        for (var i = 0; i < goods.length; i++) {
+            var isExist = this.getGood(goods[i].name);
+            if (!isExist) {
+                return false;
+            }
+        }
+
+        return true;
+    };
+
     playerProto.removeGood = function(name, count) {
         var goods = this.goods;
 
@@ -82,6 +102,16 @@
                 }
                 return true;
             }
+        }
+    };
+
+    playerProto.removeGoods = function(goods) {
+        if (!goods) {
+            return;
+        }
+
+        for (var i = 0; i < goods.length; i++) {
+            this.removeGood(goods[i].name, goods[i].count);
         }
     };
 
@@ -154,6 +184,10 @@
     };
 
     playerProto.addGoods = function(goods) {
+        if (!goods) {
+            return;
+        }
+
         for (var i = 0; i < goods.length; i++) {
             this.addGood(goods[i]);
         }
@@ -174,7 +208,7 @@
         }
 
 
-        if (hurtable && hp > 0) {
+        if (hurtable && hp > 0 && this.health > 0) {
             this.health -= hp;
             lynx.getHUD().hurtPlayer(this.health);
             return true;

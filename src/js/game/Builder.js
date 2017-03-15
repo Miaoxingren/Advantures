@@ -66,7 +66,7 @@
             }
         }, {
             type: wallEnum.MOVE,
-            plot: plotEnum.RESCUE,
+            plot: plotEnum.SECURITY,
             vertical: false,
             coordinate: {
                 x: 3,
@@ -408,7 +408,7 @@
                 model: 'coin',
                 count: 1
             }, {
-                name: 'cat food',
+                name: '猫粮',
                 model: 'cat_food_yellow',
                 count: 10
             }]
@@ -425,7 +425,7 @@
                 model: 'coin',
                 count: 1
             }, {
-                name: 'cat food',
+                name: '猫粮',
                 model: 'cat_food_yellow',
                 count: 4
             }]
@@ -442,7 +442,7 @@
                 model: 'coin',
                 count: 1
             }, {
-                name: 'cat food',
+                name: '猫粮',
                 model: 'cat_food_yellow',
                 count: 1
             }]
@@ -459,7 +459,7 @@
                 model: 'coin',
                 count: 1
             }, {
-                name: 'cat food',
+                name: '猫粮',
                 model: 'cat_food_yellow',
                 count: 6
             }]
@@ -476,7 +476,7 @@
                 model: 'coin',
                 count: 1
             }, {
-                name: 'cat food',
+                name: '猫粮',
                 model: 'cat_food_yellow',
                 count: 5
             }]
@@ -493,7 +493,7 @@
                 model: 'coin',
                 count: 1
             }, {
-                name: 'cat food',
+                name: '猫粮',
                 model: 'cat_food_yellow',
                 count: 6
             }]
@@ -709,7 +709,7 @@
         },
         gridFactor: 4,
         model: 'candy_tree',
-        tag: tagEnum.FLOWER
+        tag: tagEnum.TREE
     }, {
         coordinate: {
             x: 1,
@@ -719,7 +719,7 @@
         },
         gridFactor: 2,
         model: 'wood_bench',
-        tag: tagEnum.FLOWER
+        tag: tagEnum.HOUSE
     }, {
         coordinate: {
             x: 0,
@@ -730,17 +730,17 @@
         gridFactor: 2,
         rotationY: 90,
         model: 'bulletin_board',
-        tag: tagEnum.FLOWER
+        tag: tagEnum.HOUSE
     }, {
         coordinate: {
-            x: 0,
+            x: 1,
             z: 4,
-            s: 4.5,
-            t: 4.5
+            s: 2.5,
+            t: 2.5
         },
         gridFactor: 2,
         model: 'beach_parasol',
-        tag: tagEnum.FLOWER
+        tag: tagEnum.HOUSE
     }];
 
     paw.getHouses = function() {
@@ -1390,12 +1390,8 @@
 
             this.addToScene(graph);
 
-            if (data.model === 'wood') {
-                this.woods.push(graph);
-            } else {
-                data.id = graph.id;
-                this.plants.push(data);
-            }
+            data.id = graph.id;
+            this.plants.push(data);
         }
 
         function createObj(modelType, size, tag) {
@@ -1683,7 +1679,7 @@
             var centerx = originX + room.x * roomSize + 2.5 * gridSize - offset;
             var centerz = originZ + room.z * roomSize + 2.5 * gridSize - offset;
 
-            for (var j = 0; j < 10; j++) {
+            for (var j = 0; j < this.config.apples; j++) {
                 var apple = createApple(gridSize / 4);
                 apple.position.x = centerx + Math.floor(Math.random() * 100) % (roomSize / 2);
                 apple.position.z = centerz + Math.floor(Math.random() * 100) % (roomSize / 2);
@@ -2032,6 +2028,10 @@
 
             var box = new physijs.CompoundObject(objects, {mass:0});
             box.tag = lynx.enum.tag.BOX;
+
+            box.userData.width = boxSize;
+            box.userData.height = boxSize;
+            box.userData.depth = boxSize;
 
             return box;
         }

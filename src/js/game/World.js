@@ -42,10 +42,11 @@
 
         var hud = lynx.getHUD();
         var player = this.player;
-        hud.playerState(player.health, player.money);
+        hud.playerState(player.health, player.money, player.attack);
         hud.toolsCtrl.getTasks = player.getTasksFunc();
         hud.toolsCtrl.getGoods = player.getGoodsFunc();
         hud.toolsCtrl.useGood = lynx.bind(player, player.useGood);
+        hud.shopCtrl.soldToPlayer = lynx.bind(this, this.soldToPlayer);
 
         lynx.getHUD().gameReady();
     };
@@ -123,7 +124,7 @@
         this.builder = new lynx.Builder(this.config);
         this.builder.addToScene = lynx.bind(this, this.addToScene);
         this.builder.removeById = lynx.bind(this, this.removeById);
-        this.builder.getObjectById = lynx.bindGet(this, this.getObjectById);
+        this.builder.getObjectById = lynx.bind(this, this.getObjectById);
         this.builder.setUp();
     };
 
@@ -146,7 +147,7 @@
 
         this.monsterCtrl = new lynx.MonsterCtrl(this.config);
         this.monsterCtrl.addToScene = lynx.bind(this, this.addToScene);
-        this.monsterCtrl.getMeat = lynx.bindGet(this, this.getMeat);
+        this.monsterCtrl.getMeat = lynx.bind(this, this.getMeat);
         this.monsterCtrl.hurtPlayer = lynx.bind(this, this.hurtPlayer);
         this.monsterCtrl.removeById = lynx.bind(this, this.removeById);
         this.monsterCtrl.rewardPlayer = lynx.bind(this, this.rewardPlayer);
@@ -159,9 +160,9 @@
             return;
         }
         this.plotCtrl = new lynx.PlotCtrl(this.config);
-        this.plotCtrl.getWallByPlot = lynx.bindGet(this, this.getWallByPlot);
-        this.plotCtrl.getCylinders = lynx.bindGet(this, this.getCylinders);
-        this.plotCtrl.getFences = lynx.bindGet(this, this.getFences);
+        this.plotCtrl.getWallByPlot = lynx.bind(this, this.getWallByPlot);
+        this.plotCtrl.getCylinders = lynx.bind(this, this.getCylinders);
+        this.plotCtrl.getFences = lynx.bind(this, this.getFences);
         this.plotCtrl.removeFromScene = lynx.bind(this, this.removeFromScene);
         this.plotCtrl.addCamera = lynx.bind(this, this.addCamera);
         this.plotCtrl.cameraLookAt = lynx.bind(this, this.cameraLookAt);
@@ -184,17 +185,17 @@
         var gridSize = roomSize / 8;
         var offset = gridSize / 2;
 
-        var playerConf = this.config.player;
+        var data = this.config.player;
 
         var mixer = null;
         var animations = null;
 
-        var graph = createObj(playerConf.model, gridSize * 2, lynx.enum.tag.PLAYER);
-        graph.position.x = originX + playerConf.coordinate.x * roomSize + playerConf.coordinate.s * gridSize;
-        graph.position.z = originZ + playerConf.coordinate.z * roomSize + playerConf.coordinate.t * gridSize;
+        var graph = createObj(data.model, gridSize * 2, lynx.enum.tag.PLAYER);
+        graph.position.x = originX + data.coordinate.x * roomSize + data.coordinate.s * gridSize;
+        graph.position.z = originZ + data.coordinate.z * roomSize + data.coordinate.t * gridSize;
         this.scene.add(graph);
 
-        var player = new lynx.Player(graph, playerConf.health, playerConf.money, animations);
+        var player = new lynx.Player(graph, data.health, data.money, data.attack, animations);
         this.player = player;
 
         if (mixer && animations) {
@@ -282,7 +283,7 @@
         control.jumpSpeed = this.config.wallHeight / 6;
         control.lookSpeed = 0.1;
         control.friction = 0.1;
-        control.playerOnObj = lynx.bindGet(this, this.playerOnObj);
+        control.playerOnObj = lynx.bind(this, this.playerOnObj);
         control.worldMouseDown = lynx.bind(this, this.onMouseDown);
         control.worldMouseUp = lynx.bind(this, this.onMouseUp);
         control.worldMouseMove = lynx.bind(this, this.onMouseMove);
@@ -471,6 +472,10 @@
                 this.clickTree(intersection.object.id);
             }
 
+            if (intersection.object.tag === tagEnum.FLOWER) {
+                this.clickFlower(intersection.object.id);
+            }
+
             if (intersection.object.tag === tagEnum.APPLE) {
                 this.clickApple(intersection.object.id);
             }
@@ -503,6 +508,11 @@
             return;
         }
 
+        if (npc.id === npcEnum.SOUL) {
+            lynx.getHUD().toggleShop();
+            return;
+        }
+
         var task = npc.getCurTask();
         if (task && task.state === taskState.ACCEPT) {
             this.checkTask(npc);
@@ -524,7 +534,7 @@
 
     worldProto.clickHouse = function(id) {
         var house = this.builder.getHouse(id);
-        if (house.name === 'Sponge Bench') {
+        if (house && house.name === 'Sponge Bench') {
             lynx.getHUD().hint('美味蟹黄堡！');
         }
     };
@@ -603,20 +613,21 @@
         }
     };
 
+    var flowerList = ['食人柳', '杈杷果', '大绒球', '山地玫瑰', '曼陀罗华', '大地翅膀', '嘴唇花', '章鱼兰', '多肉灯泡', '水晶兰', '依米花'];
     worldProto.clickFlower = function(id) {
-        var tree = this.builder.getTree(id);
-        if (!tree) return;
-        if (tree.name === 'flower') {
-            if (tree.empty) {
-                // lynx.getHUD().promt('info', 'Nothing.');
-            } else {
-                tree.empty = true;
-                var i = Math.random() * 10 % 10;
-                this.player.addGood({
-                    name: '花瓣',
-                    count: 1
-                });
-            }
+        var plant = this.builder.getPlant(id);
+        if (!plant || Math.random() < 0.8) return;
+        if (Math.random() < 0.9) {
+            var index = lynx.random(0, flowerList.length - 1);
+            this.player.addGood({
+                name: flowerList[index],
+                count: 1
+            });
+        } else {
+            this.player.addGood({
+                name: '小白兔狸藻',
+                count: 1
+            });
         }
     };
 
@@ -669,13 +680,13 @@
         }
 
         if (npc.id === npcEnum.MARK) {
-            task.state = this.player.removeGood('cat food', 5) ? taskState.COMPLET : task.state;
+            task.state = this.player.removeGood('猫粮', 5) ? taskState.COMPLET : task.state;
             return;
         }
 
         if (npc.id === npcEnum.BILL) {
             var count = 150 + Math.floor(Math.random() * 100) % 40;
-            task.state = this.player.removeGood('leaves', count) ? taskState.COMPLET : task.state;
+            task.state = this.player.removeGood('树叶', count) ? taskState.COMPLET : task.state;
             return;
         }
 
@@ -687,8 +698,22 @@
         }
 
         if (npc.id === npcEnum.BOB) {
-            var gary = this.npcCtrl.getNPC(npcEnum.GARY);
-            task.state = this.isNearBy(npc.graph.position, gary.graph.position, 4) ? taskState.COMPLET : task.state;
+            if (task.name === 'save gary') {
+                var gary = this.npcCtrl.getNPC(npcEnum.GARY);
+                task.state = this.isNearBy(npc.graph.position, gary.graph.position, 4) ? taskState.COMPLET : task.state;
+            } else if (task.name === 'recipe') {
+                var ingredients = [
+                    {name: '腌椰菜', count: 1},
+                    {name: '奶酪', count: 1},
+                    {name: '番茄', count: 1},
+                    {name: '生菜', count: 1},
+                    {name: '面包皮', count: 1}
+                ];
+                if (this.player.hasGoods(ingredients)) {
+                    task.state = taskState.COMPLET;
+                    this.player.removeGoods(ingredients);
+                }
+            }
             return;
         }
 
@@ -703,33 +728,29 @@
             return;
         }
 
-        if (npc.id === 'Raccoon Rose' || npc.id === 'Deer David') {
-
-                if (this.builder.checkWoods(this.npcCtrl.getNPC('Deer David').graph.position)) {
-                    task.state = taskState.COMPLET;
-                }
-        }
-
-        if (npc.id === 'Horse Harry') {
-
-                var goods = this.player.getGoodsIf(isFlower);
-                if (goods.length >= 10) {
-                    task.state = taskState.COMPLET;
-                }
-        }
-
-
-        if (npc.id === npcEnum.MELONPI) {
-            task.state = this.player.removeGood('key', 1) ? taskState.COMPLET : task.state;
+        if (npc.id === npcEnum.SABLE) {
+            task.state = this.player.removeGood('小白兔狸藻', 1) ? taskState.COMPLET : task.state;
             return;
         }
 
-        function isFlower(good) {
-            return good.name.indexOf('flower') !== -1;
+        if (npc.id === npcEnum.MOGGY) {
+            task.state = this.player.removeGood('角', 10) ? taskState.COMPLET : task.state;
+            return;
         }
 
-        if (npc.name === 'Raccoon Rose' && task.state === lynx.taskState.ACCEPT) {
-            this.builder.changeWoods();
+        if (npc.id === npcEnum.CELESTE) {
+            task.state = this.player.removeGood('毒液', 10) ? taskState.COMPLET : task.state;
+            return;
+        }
+
+        if (npc.id === npcEnum.BLATHERS) {
+            task.state = this.player.removeGood('泡泡', 10) ? taskState.COMPLET : task.state;
+            return;
+        }
+
+        if (npc.id === npcEnum.MELONPI) {
+            task.state = this.player.removeGood('钥匙', 1) ? taskState.COMPLET : task.state;
+            return;
         }
 
     };
@@ -769,68 +790,8 @@
         if (npc.id === npcEnum.VINCENT) {
             if (task.state === taskState.COMPLET) {
                 this.plotCtrl.setPlot(task.plot);
-                this.player.addGood({
-                    name: '苹果',
-                    count: 10
-                });
-                return;
-            }
-        }
-
-        if (npc.id === npcEnum.WILLIAM) {
-            if (task.state === taskState.COMPLET) {
-                this.player.addGood({
-                    name: '蟹黄堡',
-                    count: 1
-                });
-                return;
-            }
-        }
-
-        if (npc.id === 'Raccoon Rose' || npc.id === 'Deer David') {
-
-                if (this.builder.checkWoods(this.npcCtrl.getNPC('Deer David').graph.position)) {
-                    task.state = taskState.COMPLET;
-                }
-        }
-
-        if (npc.id === 'Horse Harry') {
-
-                var goods = this.player.getGoodsIf(isFlower);
-                if (goods.length >= 10) {
-                    task.state = taskState.COMPLET;
-                }
-        }
-
-
-        if (npc.id === npcEnum.MELONPI) {
-            if (task.state === taskState.ACCEPT) {
-                this.plotCtrl.setPlot(lynx.enum.plot.FENCE);
-                return;
-            }
-            if (task.state === taskState.COMPLET) {
-                var mPos = this.getPosByCord(npc.finalCoord);
-                var callback = function () {
-                    npc.graph.position.x = mPos.x;
-                    npc.graph.position.z = mPos.z;
-                    npc.graph.position.y = npc.graph.userData.height / 2;
-                    npc.finalCoord = null;
-                };
-                this.plotCtrl.setPlot(task.plot, callback);
-                return;
-            }
-        }
-
-        if (npc.id === npcEnum.BOB) {
-            if (task.state === taskState.ACCEPT) {
-                this.plotCtrl.setPlot(task.plot);
-                return;
-            }
-            if (task.state === taskState.COMPLET) {
-                this.player.addGood({
-                    name: '蟹黄堡',
-                    count: 1
-                });
+                this.player.addGoods(task.prizes);
+                task.prizes = null;
                 return;
             }
         }
@@ -849,15 +810,63 @@
             }
         }
 
-        function isFlower(good) {
-            return good.name.indexOf('flower') !== -1;
+        if (npc.id === npcEnum.BOB) {
+            if (task.state === taskState.ACCEPT) {
+                this.plotCtrl.setPlot(task.plot);
+                return;
+            }
+            if (task.state === taskState.COMPLET) {
+                this.player.addGoods(task.prizes);
+                task.prizes = null;
+                if (npc.taskIndex + 1 < npc.tasks.length) {
+                    npc.taskIndex += 1;
+                }
+                return;
+            }
         }
 
-        if (npc.name === 'Raccoon Rose' && task.state === lynx.taskState.ACCEPT) {
-            this.builder.changeWoods();
+        if (npc.id === npcEnum.WILLIAM) {
+            if (task.state === taskState.COMPLET) {
+                this.player.addGoods(task.prizes);
+                task.prizes = null;
+                return;
+            }
         }
 
+        if (npc.id === npcEnum.SABLE) {
+            return;
+        }
 
+        if (npc.id === npcEnum.MOGGY || npc.id === npcEnum.CELESTE || npc.id === npcEnum.BLATHERS) {
+            var task0 = this.player.getTask('pig');
+            var task1 = this.player.getTask('snake');
+            var task2 = this.player.getTask('bubles');
+            var state0 = task0 && task0.state === taskState.COMPLET;
+            var state1 = task1 && task1.state === taskState.COMPLET;
+            var state2 = task2 && task2.state === taskState.COMPLET;
+            if (state0 && state1 && state2) {
+                this.plotCtrl.setPlot(lynx.enum.plot.SECURITY);
+                return;
+            }
+        }
+
+        if (npc.id === npcEnum.MELONPI) {
+            if (task.state === taskState.ACCEPT) {
+                this.plotCtrl.setPlot(lynx.enum.plot.FENCE);
+                return;
+            }
+            if (task.state === taskState.COMPLET) {
+                var mPos = this.getPosByCord(npc.finalCoord);
+                var callback = function () {
+                    npc.graph.position.x = mPos.x;
+                    npc.graph.position.z = mPos.z;
+                    npc.graph.position.y = npc.graph.userData.height / 2;
+                    npc.finalCoord = null;
+                };
+                this.plotCtrl.setPlot(task.plot, callback);
+                return;
+            }
+        }
 
     };
 
@@ -883,9 +892,10 @@
     };
 
     worldProto.colliedWithMonster = function (object) {
-        var hurted = this.hurtPlayer(object.id, 1);
+        var monster = this.monsterCtrl.getMonster(object.id);
+        var hurted = this.hurtPlayer(object.id, monster.attack);
         if (this.player.fighting) {
-            this.monsterCtrl.hurtMonster(object.id, 1);
+            this.monsterCtrl.hurtMonster(object.id, this.player.attack);
             lynx.getHUD().playMusic(musicEnum.FIGHT);
         }
     };
@@ -1118,6 +1128,19 @@
         this.player.addGoods(goods);
     };
 
+    worldProto.soldToPlayer = function (good) {
+        if (!good) {
+            return;
+        }
+        if (this.player.money < good.cost) {
+            lynx.getHUD().hint("金币不足~");
+        } else {
+            this.player.money -= good.cost;
+            this.player.addGood({name: good.name, count: 1});
+            lynx.getHUD().showMoney(this.player.money);
+        }
+    };
+
     worldProto.getObjectById = function (id) {
         return this.scene.getObjectById(id);
     };
@@ -1192,36 +1215,20 @@
             this.plotCtrl.update();
         }
 
-        this.player.hurt(0);
-
         this.control.enabled = !(lynx.getHUD().isTalking() || this.plotCtrl.ploting);
 
         this.monsterCtrl.updateMonster(this.player.graph.position.clone());
 
-        // this.updateMelonpi(this.player.graph.position.clone(), 10);
         if (lynx.state === lynx.enum.world.GAMECLEAR) {
             this.builder.updateSnow(delta);
         }
 
         this.control.update(delta);
 
-        this.updateObjects();
-
-        // this.updatePlayer();
         this.updateMixer(delta);
 
-        // this.scene.simulate(undefined, 100);
+        this.updateObjects();
 
-    };
-
-    worldProto.updatePlayer = function() {
-        var player = this.player.graph;
-        var raycaster = new THREE.Raycaster(player.position, player.lookAtPos);
-
-        var intersections = raycaster.intersectObjects(this.scene.children);
-        if (intersections && intersections[0] && intersections[0].object.tag) {
-            this.colliedWith(intersections[0].object);
-        }
     };
 
     worldProto.updateObjects = function() {

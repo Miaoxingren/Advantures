@@ -30,8 +30,8 @@
 
         function createHTML(name, msg) {
             var html = '<span id="name">' + name + '</span>' +
-            '<img src="/img/cube6.png" alt="talker">' +
-            '<div id="msg">' + msg + '</div>';
+                '<img src="/img/cube6.png" alt="talker">' +
+                '<div id="msg">' + msg + '</div>';
             return html;
         }
 
@@ -48,7 +48,7 @@
 })(lynx);
 
 // ToolsCtrl
-(function (lynx) {
+(function(lynx) {
     var domEnum = lynx.enum.dom;
     var musicEnum = lynx.enum.music;
 
@@ -68,7 +68,7 @@
 
     var toolProto = lynx.ToolsCtrl.prototype;
 
-    toolProto.toggleVisibility = function (domPriority, show) {
+    toolProto.toggleVisibility = function(domPriority, show) {
         var dom;
 
         switch (domPriority) {
@@ -272,33 +272,215 @@
         this.toggleVisibility(domEnum.EMPTY, true);
     };
 
-    toolProto.getGoods = function () {
+    toolProto.getGoods = function() {
         console.error('Function getGoods not implemented.');
     };
 
-    toolProto.useGood = function () {
+    toolProto.useGood = function() {
         console.error('Function useGood not implemented.');
     };
 
-    toolProto.getTasks = function () {
+    toolProto.getTasks = function() {
         console.error('toolProto - Function getTasks not implemented.');
     };
 
-    toolProto.playMusic = function () {
+    toolProto.playMusic = function() {
         console.error('toolProto - Function playMusic not implemented.');
     };
 
 })(lynx);
 
-// TipsCtrl
-(function (lynx) {
+// ShopCtrl
+(function(lynx) {
+    lynx.ShopCtrl = function() {
+        this.shopDom = document.getElementById('shop');
+        this.initShop();
+    };
+
+    var shopProto = lynx.ShopCtrl.prototype;
+
+    shopProto.soldToPlayer = function() {
+        console.error('shopProto - Function soldToPlayer not implemented.');
+    };
+
+    shopProto.initShop = function () {
+        if (this.items) return;
+
+        var items  = this.items = [{
+            name: '攻击药水',
+            cost: 200,
+            description: '能够使攻击力增加。'
+        }, {
+            name: '粘液',
+            cost: 1,
+            description: '史莱姆的粘液。'
+        }, {
+            name: '毛绒',
+            cost: 10,
+            description: '毛茸茸的怪物的毛绒。'
+        }, {
+            name: '毒液',
+            cost: 2,
+            description: '蛇怪吐出的毒液。'
+        }, {
+            name: '舌头',
+            cost: 3,
+            description: '白球怪的舌头。'
+        }, {
+            name: '泡泡',
+            cost: 2,
+            description: '蓝豚的泡泡。'
+        }, {
+            name: '猫粮',
+            cost: 10,
+            description: '喵星人最爱，每袋增加1hp。'
+        }, {
+            name: '树叶',
+            cost: 2,
+            description: '新摘下的树叶。'
+        }, {
+            name: '苹果',
+            cost: 20,
+            description: '可口的苹果，每个增加2hp。'
+        }, {
+            name: '生菜',
+            cost: 4,
+            description: '蟹黄堡的原料之一。'
+        }, {
+            name: '番茄',
+            cost: 4,
+            description: '蟹黄堡的原料之一。'
+        }, {
+            name: '面包皮',
+            cost: 4,
+            description: '蟹黄堡的原料之一。'
+        }, {
+            name: '腌椰菜',
+            cost: 6,
+            description: '蟹黄堡的原料之一。'
+        }, {
+            name: '奶酪',
+            cost: 7,
+            description: '蟹黄堡的原料之一。'
+        }, {
+            name: '食人柳',
+            cost: 5,
+            description: '印尼爪哇岛杨柳科植物。'
+        }, {
+            name: '杈杷果',
+            cost: 5,
+            description: '味美爽口的高营养果品。'
+        }, {
+            name: '大绒球',
+            cost: 5,
+            description: '葱属多年生鳞茎植物。'
+        }, {
+            name: '小白兔狸藻',
+            cost: 5,
+            description: '狸藻属小型食虫植物。'
+        }, {
+            name: '山地玫瑰',
+            cost: 5,
+            description: '分布于加那利群岛等地。'
+        }, {
+            name: '曼陀罗华',
+            cost: 5,
+            description: '洋金花即彼岸花的变种。'
+        }, {
+            name: '大地翅膀',
+            cost: 5,
+            description: '多年生肉质草本植物。'
+        }, {
+            name: '嘴唇花',
+            cost: 5,
+            description: '酷似性感诱人嘴唇得名。'
+        }, {
+            name: '章鱼兰',
+            cost: 5,
+            description: '花形如章鱼唇瓣若扇贝。'
+        }, {
+            name: '多肉灯泡',
+            cost: 5,
+            description: '酷似灯泡的多肉植物。'
+        }, {
+            name: '水晶兰',
+            cost: 5,
+            description: '食腐的死亡之花。'
+        }, {
+            name: '依米花',
+            cost: 5,
+            description: '等待5年只为开花两天。'
+        }];
+
+        var shopHTML = '';
+        for (var i = 0, iLen = items.length; i < iLen; i++) {
+            var good = createGood(items[i], i);
+            shopHTML += good;
+        }
+
+        this.shopDom.innerHTML = '<span id="shop-close" class="icon-times"></span>' + '<div>' + shopHTML + '</div>';
+
+        var shopHandler = lynx.bind(this, this.shopHandler);
+        this.shopDom.addEventListener('click', shopHandler);
+
+        function createGood(good, goodNum) {
+            var goodHTML = '<div class="good" goodnum="' + goodNum + '">' +
+                '<div class="title">' +
+                '<span class="icon icon-help"></span>' +
+                '<span class="count">' + good.cost + '</span>' +
+                '<span class="name">' + good.name + '</span>' +
+                '</div>' +
+                '<div class="description">' + good.description + '</div>' +
+                '</div>';
+            return goodHTML;
+        }
+    };
+
+    shopProto.toggleShop = function(isShown) {
+        isShown = isShown ? true : false;
+        lynx.toggle(this.shopDom, isShown);
+    };
+
+    shopProto.shopHandler = function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (event.target.id === "shop-close") {
+            this.toggleShop(false);
+            return;
+        }
+
+        var goodElem = getGoodElem(event.target);
+        if (!goodElem) return;
+
+        var good = this.items[goodElem.getAttribute('goodNum')];
+        if (!good) return;
+
+        this.soldToPlayer(good);
+
+        function getGoodElem(elem) {
+            var node = elem;
+            while (node.id !== 'shop' && node !== document) {
+                if (node.classList.contains('good')) {
+                    return node;
+                }
+                node = node.parentNode;
+            }
+        }
+
+    };
+
+
+})(lynx);
+
+(function(lynx) {
     lynx.TipsCtrl = function() {
         this.tipsDom = document.getElementById('tips');
     };
 
     var tipProto = lynx.TipsCtrl.prototype;
 
-    tipProto.showTips = function (goods) {
+    tipProto.showTips = function(goods) {
         if (!this.tipsDom) {
             console.error('Tips dom not found.');
             return;
@@ -330,7 +512,7 @@
     };
 
 
-    tipProto.hint = function (msg) {
+    tipProto.hint = function(msg) {
         if (!this.tipsDom) {
             console.error('Tips dom not found.');
             return;
@@ -347,7 +529,7 @@
 })(lynx);
 
 // HeadUpDisplay
-(function (lynx) {
+(function(lynx) {
     var domEnum = lynx.enum.dom;
     var musicEnum = lynx.enum.music;
 
@@ -357,11 +539,12 @@
 
     var hudProto = lynx.HeadUpDisplay.prototype;
 
-    hudProto.setUp = function () {
+    hudProto.setUp = function() {
         this.welcomeDom = document.getElementById('welcome');
         this.pauseDom = document.getElementById('pause');
         this.musicDom = document.getElementById('music');
         this.healthDom = document.getElementById('health');
+        this.attackDom = document.getElementById('attack');
         this.moneyDom = document.getElementById('money');
         this.dialogDom = document.getElementById('dialog');
         this.gameOverDom = document.getElementById('gameover');
@@ -373,9 +556,10 @@
         this.domShown = domEnum.WELCOME;
 
         this.musicDom.muted = false;
-
         this.musicDom.addEventListener("canplaythrough", lynx.bind(this, this.actualPlayMusic), false);
         this.soundDom.addEventListener("click", lynx.bind(this, this.toggleSound), false);
+
+        this.shopCtrl = new lynx.ShopCtrl();
 
         this.dialogCtrl = new lynx.DialogCtrl();
         this.toolsCtrl = new lynx.ToolsCtrl();
@@ -456,7 +640,28 @@
         lynx.toggle(this.gameClearDom, true);
     };
 
-    hudProto.toggleSound = function () {
+    hudProto.toggleShop = function() {
+        if (!this.shopCtrl) {
+            console.error('shopCtrl not found.');
+            return;
+        }
+
+        if (this.domShown > domEnum.SHOP + 1) {
+            return;
+        }
+
+        if (this.domShown === domEnum.SHOP) {
+            this.toggleVisibility(domEnum.SHOP, false);
+            this.domShown = domEnum.NOTHING;
+            return;
+        }
+
+        this.toggleVisibility(this.domShown, false);
+        this.domShown = domEnum.SHOP;
+        this.toggleVisibility(domEnum.SHOP, true);
+    };
+
+    hudProto.toggleSound = function() {
         if (!this.soundDom) {
             console.error('Sound dom not found.');
             return;
@@ -468,7 +673,7 @@
         this.soundDom.classList.toggle('icon-soundoff');
     };
 
-    hudProto.toggleVisibility = function (domPriority, show) {
+    hudProto.toggleVisibility = function(domPriority, show) {
         var dom;
 
         switch (domPriority) {
@@ -484,6 +689,9 @@
             case domEnum.GAMEOVER:
                 dom = this.gameOverDom;
                 break;
+            case domEnum.SHOP:
+                this.shopCtrl.toggleShop(show);
+                break;
             default:
                 this.toolsCtrl.toggleVisibility(domPriority, show);
                 return;
@@ -492,7 +700,7 @@
         lynx.toggle(dom, show);
     };
 
-    hudProto.progress = function (msg) {
+    hudProto.progress = function(msg) {
         if (!this.progressDom) {
             console.error('Progress dom not found.');
             return;
@@ -501,7 +709,7 @@
         this.progressDom.innerHTML = msg;
     };
 
-    hudProto.tips = function (goods) {
+    hudProto.tips = function(goods) {
         if (!this.tipsCtrl) {
             console.error('Missing Tips control');
             return;
@@ -509,7 +717,7 @@
         this.tipsCtrl.showTips(goods);
     };
 
-    hudProto.hint = function (msg) {
+    hudProto.hint = function(msg) {
         if (!this.tipsCtrl) {
             console.error('Missing Tips control');
             return;
@@ -569,7 +777,7 @@
         this.musicDom.load();
     };
 
-    hudProto.walking = function (isWalking) {
+    hudProto.walking = function(isWalking) {
         if (!this.musicDom) {
             console.error('Music dom not found.');
             return;
@@ -608,14 +816,14 @@
         this.musicDom.play();
     };
 
-    hudProto.hurtPlayer = function (health) {
+    hudProto.hurtPlayer = function(health) {
         this.toggleHurtEffect();
         this.playMusic(lynx.enum.music.HURT);
         this.showHealth(health);
         setTimeout(lynx.bind(this, this.toggleHurtEffect), 1000);
     };
 
-    hudProto.toggleHurtEffect = function () {
+    hudProto.toggleHurtEffect = function() {
         if (!this.hurtEctDom) {
             console.error('Hurt effect dom not found.');
             return;
@@ -635,6 +843,15 @@
         this.healthDom.innerHTML = health;
     };
 
+    hudProto.showAttack = function(attack) {
+        if (!this.attackDom) {
+            console.error('Health dom not found.');
+            return;
+        }
+
+        this.attackDom.innerHTML = attack;
+    };
+
     hudProto.showMoney = function(money) {
         if (!this.moneyDom) {
             console.error('Money dom not found.');
@@ -644,9 +861,10 @@
         this.moneyDom.innerHTML = money;
     };
 
-    hudProto.playerState = function(health, money) {
+    hudProto.playerState = function(health, money, attack) {
         this.showHealth(health);
         this.showMoney(money);
+        this.showAttack(attack);
     };
 
     hudProto.isTalking = function() {
@@ -663,27 +881,27 @@
         return this.isTalking();
     };
 
-    hudProto.getDomFunc = function () {
+    hudProto.getDomFunc = function() {
         var self = this;
-        var _getDom = function () {
+        var _getDom = function() {
             return self.domShown;
         };
         return _getDom;
     };
 
-    hudProto.setDom = function (dom) {
+    hudProto.setDom = function(dom) {
         this.domShown = dom;
     };
 
-    hudProto.getGoods = function () {
+    hudProto.getGoods = function() {
         console.error('hudProto - Function getGoods not implemented.');
     };
 
-    hudProto.useGood = function () {
+    hudProto.useGood = function() {
         console.error('hudProto - Function useGood not implemented.');
     };
 
-    hudProto.getTasks = function () {
+    hudProto.getTasks = function() {
         console.error('hudProto - Function getTasks not implemented.');
     };
 

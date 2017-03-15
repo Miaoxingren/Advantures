@@ -8,7 +8,8 @@
     }
 
     var monsters = [{
-        health: 20,
+        health: 100,
+        attack: 10,
         model: 'monster_dog',
         name: 'dog',
         range: {
@@ -29,6 +30,7 @@
         }
     }, {
         health: 5,
+        attack: 1,
         model: 'slime',
         name: 'slime',
         random: true,
@@ -48,9 +50,11 @@
             z: 6,
             s: 2.5,
             t: 2.5
-        }
+        },
+        itemDrop: ['粘液']
     }, {
         health: 5,
+        attack: 2,
         model: 'monster_hat',
         name: 'hat',
         random: true,
@@ -70,9 +74,11 @@
             z: 6,
             s: 2.5,
             t: 2.5
-        }
+        },
+        itemDrop: ['舌头']
     }, {
         health: 10,
+        attack: 2,
         model: 'monster_ball',
         name: 'ball',
         random: true,
@@ -92,9 +98,11 @@
             z: 5,
             s: 2.5,
             t: 2.5
-        }
+        },
+        itemDrop: ['泡泡']
     }, {
         health: 10,
+        attack: 4,
         model: 'monster_snake',
         name: 'snake',
         random: true,
@@ -114,17 +122,19 @@
             z: 5,
             s: 2.5,
             t: 2.5
-        }
+        },
+        itemDrop: ['毒液']
     }, {
-        health: 10,
-        model: 'monster_pig',
-        name: 'pig',
+        health: 15,
+        attack: 2,
+        model: 'monster_cleffa',
+        name: 'cleffa',
         random: true,
         count: 5,
         range: {
             center: {
-                x: 3,
-                z: 5,
+                x: 2,
+                z: 2,
                 s: 4.5,
                 t: 4.5
             },
@@ -132,11 +142,36 @@
             gridZ: 4
         },
         coordinate: {
-            x: 4,
-            z: 6,
+            x: 2,
+            z: 2,
             s: 1.5,
             t: 1.5
-        }
+        },
+        itemDrop: ['毛绒']
+    }, {
+        health: 20,
+        attack: 4,
+        model: 'monster_fennekin',
+        name: 'fennekin',
+        random: true,
+        count: 5,
+        range: {
+            center: {
+                x: 2,
+                z: 2,
+                s: 4.5,
+                t: 4.5
+            },
+            gridX: 4,
+            gridZ: 4
+        },
+        coordinate: {
+            x: 2,
+            z: 3,
+            s: 1.5,
+            t: 1.5
+        },
+        itemDrop: ['毛绒']
     }
     ];
 
@@ -153,13 +188,15 @@
     var yAxes = new THREE.Vector3(0, 1, 0);
     var zAxes = new THREE.Vector3(0, 0, 1);
 
-    lynx.Monster = function (graph, id, name, health, speed, range) {
+    lynx.Monster = function (graph, id, name, health, speed, attack, range, itemDrop) {
         this.id = id;
         this.graph = graph;
         this.name = name;
         this.health = health;
         this.speed = speed;
+        this.attack = attack;
         this.range = range;
+        this.itemDrop = itemDrop;
         this.step = 0;
         this.chase = false;
         this.stand = false;
@@ -249,22 +286,7 @@
 // MonsterCtrl
 (function (lynx) {
 
-    var prizeList = [{
-        name: 'slime',
-        prize: ['角', '猫粮']
-    }, {
-        name: 'snake',
-        prize: ['毒液', '生菜']
-    }, {
-        name: 'ball',
-        prize: ['泡泡', '面包']
-    }, {
-        name: 'hat',
-        prize: ['猫粮', '番茄']
-    }, {
-        name: 'pig',
-        prize: ['猫粮', '番茄']
-    }];
+    var ingredients = ['腌椰菜', '奶酪', '番茄', '生菜', '面包皮'];
 
     lynx.MonsterCtrl = function (config) {
         this.config = config;
@@ -345,7 +367,7 @@
 
                 this.addToScene(graph);
 
-                var monster = new lynx.Monster(graph, graph.id, data.name, data.health, this.config.monsterSpeed, range);
+                var monster = new lynx.Monster(graph, graph.id, data.name, data.health, this.config.monsterSpeed, data.attack, range, data.itemDrop);
                 monster.lookAtPoint = new THREE.Vector3(graph.position.x, graph.position.y, graph.position.z + 1);
                 this.monsters.push(monster);
 
@@ -478,7 +500,7 @@
         for (var i = 0, iLen = list.length; i < iLen; i++) {
             if (list[i].id === id) {
                 var removed = list[i].id;
-                var prize = this.getPrize(list[i].name);
+                var prize = this.getPrize(list[i].itemDrop);
                 list.splice(i, 1);
                 this.removeById(removed);
                 this.rewardPlayer(prize);
@@ -487,31 +509,42 @@
         }
     };
 
-    monsterCtrlProto.getPrize = function (name) {
+    monsterCtrlProto.getPrize = function (itemDrop) {
         if (!this.monsters) {
             console.error('Missing monsters.');
             return;
         }
 
-        var list = prizeList;
+        var result = [];
+        result.push({
+            name: 'coin',
+            count: lynx.random(1, 10)
+        });
+        result.push({
+            name: '猫粮',
+            count: lynx.random(1, 5)
+        });
 
-        for (var i = 0, iLen = list.length; i < iLen; i++) {
-            if (list[i].name === name) {
-                var result = [];
-                var prizes = list[i].prize;
-                result.push({
-                    name: 'coin',
-                    count: lynx.random(1, 10)
-                });
-                for (var j = 0; j < prizes.length; j++) {
-                    result.push({
-                        name: prizes[j],
-                        count: 1
-                    });
+        if (itemDrop) {
+            for (var i = 0, iLen = itemDrop.length; i < iLen; i++) {
+                if (Math.random() > 0.5) {
+                    continue;
                 }
-                return result;
+                result.push({
+                    name: itemDrop[i],
+                    count: 1
+                });
+            }
+            if (Math.random() > 0.5) {
+                var index = lynx.random(0, ingredients.length - 1);
+                result.push({
+                    name: ingredients[index],
+                    count: 1
+                });
             }
         }
+
+        return result;
     };
 
     monsterCtrlProto.getMonsterByName = function (name) {

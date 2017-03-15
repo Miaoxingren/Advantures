@@ -132,7 +132,11 @@
                 [
                     '谢谢你的帮忙，送你几颗苹果~'
                 ]
-            ]
+            ],
+            prizes: [{
+                name: '苹果',
+                count: 10
+            }]
         }]
     }, {
         coordinate: {
@@ -148,7 +152,6 @@
         id: npcEnum.WILLIAM,
         tasks: [{
             name: 'humberg',
-            plot: plotEnum.HUMBERG,
             state: taskState.CREATE,
             messages: [
                 [
@@ -168,7 +171,11 @@
                 [
                     '蟹黄堡!蟹黄堡!蟹黄堡!'
                 ]
-            ]
+            ],
+            prizes: [{
+                name: '攻击药水',
+                count: 1
+            }]
         }]
     }, {
         coordinate: {
@@ -262,7 +269,7 @@
         tasks: [{
             name: 'save gary',
             plot: plotEnum.SNAIL,
-            state: taskState.GETGARY,
+            state: taskState.CREATE,
             messages: [
                 [
                     '海绵宝宝？海绵宝宝？海绵宝宝？',
@@ -282,6 +289,28 @@
                     '努力制作美味的蟹黄堡！'
                 ]
             ]
+        }, {
+            name: 'recipe',
+            state: taskState.CREATE,
+            messages: [
+                [
+                    '要制作美味蟹黄堡，新鲜的原料是必不可少的。',
+                    '昨天，一群怪物袭击了餐厅，抢走了大量的原料。',
+                    '现在只剩下：肉饼、番茄酱、芥末酱了。',
+                    '没有其余原料.....无法制作出蟹黄堡.....'
+                ],
+                [
+                    '必须消灭怪物，集齐剩下的原料才能制作出蟹黄堡.....'
+                ],
+                [
+                    '哦，感谢你，原料终于集齐了！',
+                    '美味的蟹黄堡！新鲜出炉！'
+                ]
+            ],
+            prizes: [{
+                name: '蟹黄堡',
+                count: 1
+            }]
         }]
     }, {
         coordinate: {
@@ -303,8 +332,8 @@
         id: npcEnum.GARY,
         tasks: [{
             name: 'kill slime',
-            plot: plotEnum.SLIME,
-            state: taskState.GETGARY,
+            plot: plotEnum.ANY,
+            state: taskState.CREATE,
             messages: [
                 [
                     '这里太可怕了，小蜗要回到海绵宝宝那....',
@@ -331,19 +360,18 @@
         model: 'moggy',
         id: npcEnum.MOGGY,
         tasks: [{
-            name: 'kill slime',
-            plot: plotEnum.SLIME,
-            state: taskState.GETGARY,
+            name: 'fur',
+            state: taskState.CREATE,
             messages: [
                 [
-                    '这里太可怕了，小蜗要回到海绵宝宝那....',
-                    '史莱姆吓得小蜗牛不敢动了....'
+                    '最近狩猎场的怪物总是冲出来，村子里的小伙伴们都被吓得不行。',
+                    '为了确保小伙伴们的安全，需要消灭部分怪物，并取得10个怪物的毛绒。'
                 ],
                 [
-                    '快消灭史莱姆....'
+                    '消灭部分怪物，确保村里的安全。'
                 ],
                 [
-                    '小蜗再也不乱跑了，要呆在海绵宝宝身边。'
+                    '相信怪物不会再来骚扰村名了。'
                 ]
             ]
         }]
@@ -360,19 +388,18 @@
         model: 'celeste',
         id: npcEnum.CELESTE,
         tasks: [{
-            name: 'kill slime',
-            plot: plotEnum.SLIME,
-            state: taskState.GETGARY,
+            name: 'snake',
+            state: taskState.CREATE,
             messages: [
                 [
-                    '这里太可怕了，小蜗要回到海绵宝宝那....',
-                    '史莱姆吓得小蜗牛不敢动了....'
+                    '最近狩猎场的扭扭蛇总是冲出来，袭击村子里的小伙伴们。',
+                    '为了确保小伙伴们的安全，需要消灭部分扭扭蛇，并取得10个扭扭蛇的毒液。'
                 ],
                 [
-                    '快消灭史莱姆....'
+                    '消灭部分扭扭蛇，确保村里的安全。'
                 ],
                 [
-                    '小蜗再也不乱跑了，要呆在海绵宝宝身边。'
+                    '相信扭扭蛇不会再来骚扰村名了。'
                 ]
             ]
         }]
@@ -389,19 +416,18 @@
         model: 'blathers',
         id: npcEnum.BLATHERS,
         tasks: [{
-            name: 'kill slime',
-            plot: plotEnum.SLIME,
-            state: taskState.GETGARY,
+            name: 'bubles',
+            state: taskState.CREATE,
             messages: [
                 [
-                    '这里太可怕了，小蜗要回到海绵宝宝那....',
-                    '史莱姆吓得小蜗牛不敢动了....'
+                    '最近狩猎场的蓝豚精总是冲出来，袭击村子里的小伙伴们。',
+                    '为了确保小伙伴们的安全，需要消灭部分蓝豚精，并取得10个蓝豚精的泡泡。'
                 ],
                 [
-                    '快消灭史莱姆....'
+                    '消灭部分蓝豚精，确保村里的安全。'
                 ],
                 [
-                    '小蜗再也不乱跑了，要呆在海绵宝宝身边。'
+                    '相信蓝豚精不会再来骚扰村名了。'
                 ]
             ]
         }]
@@ -418,19 +444,15 @@
         model: 'mable',
         id: npcEnum.MABLE,
         tasks: [{
-            name: 'kill slime',
-            plot: plotEnum.SLIME,
-            state: taskState.GETGARY,
+            state: taskState.CREATE,
             messages: [
                 [
-                    '这里太可怕了，小蜗要回到海绵宝宝那....',
-                    '史莱姆吓得小蜗牛不敢动了....'
-                ],
-                [
-                    '快消灭史莱姆....'
-                ],
-                [
-                    '小蜗再也不乱跑了，要呆在海绵宝宝身边。'
+                    '不久之前，喵喵村还是一个宁静祥和的地方。',
+                    '可是有一天，一个奇怪的人类闯进来了，还把喵神Melonpi抓走了。',
+                    '村里的伙伴们合理反击，才把他困住了。',
+                    '但是，和人类一起来的那只恶犬实在太厉害了，大家都不敢靠近。',
+                    '在大家的安全得到确保之前，困着恶犬和喵神Melonpi的地方的门都没人敢打开。',
+                    '恶犬似乎喜欢吃肉....'
                 ]
             ]
         }]
@@ -447,100 +469,36 @@
         model: 'sable',
         id: npcEnum.SABLE,
         tasks: [{
-            name: 'kill slime',
-            plot: plotEnum.SLIME,
-            state: taskState.GETGARY,
+            name: 'flower',
+            state: taskState.CREATE,
             messages: [
                 [
-                    '这里太可怕了，小蜗要回到海绵宝宝那....',
-                    '史莱姆吓得小蜗牛不敢动了....'
+                    'Mable的生日快到了，我想要为他献上一束世界上最奇特的花。',
+                    '如果你能为我找到一束这样的花，我就能告诉你一个秘密。'
                 ],
                 [
-                    '快消灭史莱姆....'
+                    '你没有带来我想要的花....'
                 ],
                 [
-                    '小蜗再也不乱跑了，要呆在海绵宝宝身边。'
+                    '你带来了我想要的花，告诉你一个秘密：',
+                    '去向村名们证明你能够打败恶犬，这样村名们就愿意打开那扇门了。'
                 ]
             ]
         }]
-    },
-    // {
-    //     coordinate: {
-    //         x: 7,
-    //         z: 0,
-    //         s: 7,
-    //         t: 1
-    //     },
-    //     name: 'Raccoon Rose',
-    //     model: 'raccoon',
-    //     id: 'RaccoonRose',
-    //     tasks: [{
-    //         name: 'wood',
-    //         state: taskState.CREATE,
-    //         messages: [
-    //             [
-    //                 '这里有一些木头， 如果你能够帮我把木头搬到Deer David那里，我就能够帮你打开这扇门。'
-    //             ],
-    //             [
-    //                 '这里有一些木头， 如果你能够帮我把木头搬到Deer David那里，我就能够帮你打开这扇门。'
-    //             ],
-    //             [
-    //                 '感谢你的帮忙， 门已经开了。'
-    //             ]
-    //         ]
-    //     }]
-    // }, {
-    //     coordinate: {
-    //         x: 6,
-    //         z: 1,
-    //         s: 7,
-    //         t: 7
-    //     },
-    //     name: 'Deer David',
-    //     model: 'deer',
-    //     id: 'DeerDavid',
-    //     tasks: [{
-    //         name: 'wood',
-    //         state: taskState.CREATE,
-    //         messages: [
-    //             [
-    //                 '本来这儿放着许多木头，前几天却不见了，我的木头去了哪儿...'
-    //             ],
-    //             [
-    //                 '本来这儿放着许多木头，前几天却不见了，我的木头去了哪儿...'
-    //             ],
-    //             [
-    //                 '我的木头回来了...是谁放回来的...'
-    //             ]
-    //         ]
-    //     }]
-    // }, {
-    //     coordinate: {
-    //         x: 4,
-    //         z: 2,
-    //         s: 4,
-    //         t: 2
-    //     },
-    //     name: 'Horse Harry',
-    //     model: 'horse0',
-    //     id: 'HorseHarry',
-    //     tasks: [{
-    //         name: 'flower',
-    //         state: taskState.CREATE,
-    //         messages: [
-    //             [
-    //                 '这里开了很多花， 如果你能够给我采来10种不同的花，我能够帮你打开这扇门。'
-    //             ],
-    //             [
-    //                 '这里开了很多花， 如果你能够给我采来10种不同的花，我能够帮你打开这扇门。'
-    //             ],
-    //             [
-    //                 '谢谢你的帮忙，门已经开了。'
-    //             ]
-    //         ]
-    //     }]
-    // },
-    {
+    }, {
+        coordinate: {
+            x: 0,
+            z: 5,
+            s: 3,
+            t: 2
+        },
+        gridFactor: 2,
+        rotationY: 45,
+        name: 'Merchant Soul',
+        model: 'cat_merchant',
+        id: npcEnum.SOUL,
+        tasks: []
+    }, {
         coordinate: {
             x: 3,
             z: 3,
