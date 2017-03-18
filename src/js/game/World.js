@@ -703,11 +703,11 @@
                 task.state = this.isNearBy(npc.graph.position, gary.graph.position, 4) ? taskState.COMPLET : task.state;
             } else if (task.name === 'recipe') {
                 var ingredients = [
-                    {name: '腌椰菜', count: 1},
-                    {name: '奶酪', count: 1},
-                    {name: '番茄', count: 1},
-                    {name: '生菜', count: 1},
-                    {name: '面包皮', count: 1}
+                    {name: '腌椰菜', count: 10},
+                    {name: '奶酪', count: 10},
+                    {name: '番茄', count: 10},
+                    {name: '生菜', count: 10},
+                    {name: '面包皮', count: 10}
                 ];
                 if (this.player.hasGoods(ingredients)) {
                     task.state = taskState.COMPLET;
