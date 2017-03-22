@@ -410,7 +410,7 @@
             }, {
                 name: '猫粮',
                 model: 'cat_food_yellow',
-                count: 10
+                count: 2
             }]
         }, {
             coordinate: {
@@ -427,7 +427,7 @@
             }, {
                 name: '猫粮',
                 model: 'cat_food_yellow',
-                count: 4
+                count: 2
             }]
         }, {
             coordinate: {
@@ -461,7 +461,7 @@
             }, {
                 name: '猫粮',
                 model: 'cat_food_yellow',
-                count: 6
+                count: 3
             }]
         }, {
             coordinate: {
@@ -478,7 +478,7 @@
             }, {
                 name: '猫粮',
                 model: 'cat_food_yellow',
-                count: 5
+                count: 2
             }]
         }, {
             coordinate: {
@@ -495,7 +495,7 @@
             }, {
                 name: '猫粮',
                 model: 'cat_food_yellow',
-                count: 6
+                count: 3
             }]
         }
     ];

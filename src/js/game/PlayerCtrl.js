@@ -415,6 +415,9 @@ lynx.PlayerCtrl = function(camera, player, domElement) {
     this.domElement.addEventListener('mousemove', _onMouseMove, false);
     this.domElement.addEventListener('mousedown', _onMouseDown, false);
     this.domElement.addEventListener('mouseup', _onMouseUp, false);
+    // this.domElement.addEventListener('touchmove', _onMouseMove, false);
+    // this.domElement.addEventListener('touchstart', _onMouseDown, false);
+    // this.domElement.addEventListener('touchend', _onMouseUp, false);
 
     window.addEventListener('keydown', _onKeyDown, false);
     window.addEventListener('keyup', _onKeyUp, false);

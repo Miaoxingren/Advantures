@@ -473,6 +473,7 @@
 
 })(lynx);
 
+// TipsCtrl
 (function(lynx) {
     lynx.TipsCtrl = function() {
         this.tipsDom = document.getElementById('tips');

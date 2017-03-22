@@ -408,8 +408,8 @@ var lynx = {
             attack: 1,
             money: 5,
             coordinate: {
-                x: 1,
-                z: 5,
+                x: 3,
+                z: 0,
                 s: 1,
                 t: 2.5
             }
@@ -464,7 +464,7 @@ var lynx = {
             lynx.getHUD().resume();
         };
 
-        document.addEventListener('mouseleave', _mouseLeave);
+        // document.addEventListener('mouseleave', _mouseLeave);
         // document.addEventListener('mouseenter', _mouseEnter);
         window.addEventListener('resize', _resize);
 

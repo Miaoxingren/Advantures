@@ -588,13 +588,14 @@
             var monsters = this.config.getMonsters().slice(1);
             this.createMonsters(monsters, 2);
         }
-
+        
+        this.updateBoss(pos, this.getMeat());
+        
         var objs = this.monsters;
 
         for (var i = 0, iLen = objs.length; i < iLen; i++) {
             var obj = objs[i];
             if (!obj.isDead()) {
-                this.updateBoss(pos, this.getMeat());
                 obj.update();
             }
         }

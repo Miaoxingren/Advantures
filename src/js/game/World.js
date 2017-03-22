@@ -811,9 +811,8 @@
         }
 
         if (npc.id === npcEnum.BOB) {
-            if (task.state === taskState.ACCEPT) {
+            if (task.plot && task.state === taskState.ACCEPT) {
                 this.plotCtrl.setPlot(task.plot);
-                return;
             }
             if (task.state === taskState.COMPLET) {
                 this.player.addGoods(task.prizes);
@@ -821,8 +820,8 @@
                 if (npc.taskIndex + 1 < npc.tasks.length) {
                     npc.taskIndex += 1;
                 }
-                return;
             }
+            return;
         }
 
         if (npc.id === npcEnum.WILLIAM) {
