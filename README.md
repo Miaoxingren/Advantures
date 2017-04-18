@@ -100,4 +100,3 @@ Cat Go - A WebGL game.
 
 - Apple falls down when mouse move. (solved)
 
-rebasetest
