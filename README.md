@@ -78,8 +78,8 @@ Cat Go - A WebGL game.
 - Hurt by poisonous flower.
 - Hurt by monster.
 - Hurt interval.
-- Character of cat.
-- Use item to add hp.
+- Character of cat. (done)
+- Use item to add hp. (done)
 
 ### World
 
@@ -88,12 +88,14 @@ Cat Go - A WebGL game.
 - Drag Object. (done)
 - Click Object. (done)
 - Object animation.
-- Remove Physijs.
-- Good enum.
+- Use Physijs 2.0. (done)
 
 ## TroubleList
 
 ### Music
 
 - Uncaught (in promise) DOMException: The play() request was interrupted by a new load request. (solved)
+
+### Mouse
+
 - Apple falls down when mouse move. (solved)
